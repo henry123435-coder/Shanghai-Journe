@@ -1,18 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <meta name="theme-color" content="#f7f7f4">
-  <title>Shanghai Journey | 上海聖誕充電之旅</title>
+  <title>Hokuriku Journey | 北陸雪國旅誌</title>
   
   <!-- 動態 PWA Manifest -->
-  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoi5LiK5rW36IGW6KmV5YWF6Zu75LmL5peFIiwic2hvcnRfbmFtZSI6IuS4iuW3t+aXheiqjCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3ciOiIjRkZGREY5IiwidGhlbWVfY29sb3ciOiIjM0UzQTM5IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlppQjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIcGxZMkpoZVMwOUlqQWdNQ0F4TURBZ01UQXdJajQ4Y21WalRDQjNhV1IwYURwaU1UQXdJaUJvWldWbmFIUTlJakV3TUNJZ1ptbHNiRDBpSTJGalpUaGxaaUkvUGp4MFpYaDBJSEc5SWpVd0lpQjVQU0kxTkNJZ1ptOXVkQzF6YVhwbFBTSTFNQ0lnZEdWNGRDMWhibU5vYjNJOUltdHBaR1JzWlNJZ1lXeHBaMjV0Wlc1MExXSmhjMlZzYVc1bFBTSTtiV0ZrWkd4bElqPjzRjzwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoi5YyX6Zm46Zuq5ZyL5peF6KqMIiwic2hvcnRfbmFtZSI6IumbquWci+aXheiqjCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3ciOiIjRkZGREY5IiwidGhlbWVfY29sb3ciOiIjM0UzQTM5IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlppQjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIcGxZMkpoZVMwOUlqQWdNQ0F4TURBZ01UQXdJajQ4Y21WalRDQjNhV1IwYURwaU1UQXdJaUJvWldWbmFIUTlJakV3TUNJZ1ptbHNiRDBpSTJGalpUaGxaaUkvUGp4MFpYaDBJSEc5SWpVd0lpQjVQU0kxTkNJZ1ptOXVkQzF6YVhwbFBTSTFNQ0lnZEdWNGRDMWhibU5vYjNJOUltdHBaR1JzWlNJZ1lXeHBaMjV0Wlc1MExXSmhjMlZzYVc1bFBTSTtiV0ZrWkd4bElqPuKbsjwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="上海旅誌">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2FjZThlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1NCIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtYWRkbGUiPvGPMDwvdGV4dD48L3N2Zz4=">
+  <meta name="apple-mobile-web-app-title" content="雪國旅誌">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2FjZThlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1NCIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtYWRkbGUiPuKbsjwvdGV4dD48L3N2Zz4=">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,11 +20,11 @@
     :root {
       --bg: #f7f7f4;
       --paper: #fff;
-      --ink: #2b2523;
-      --muted: #8a837e;
-      --blue: #8b3a3a; /* 調整為復古紅 */
+      --ink: #26343b;
+      --muted: #849098;
+      --blue: #526d7c;
       --line: #e8eae8;
-      --gold: #b39b74;
+      --gold: #c5ad85;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { scroll-behavior: smooth; }
@@ -59,16 +58,16 @@
     
     /* 極簡卡片與標籤樣式 */
     .card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; padding: 21px; box-shadow: 0 2px 8px rgba(0,0,0,0.015); }
-    .pill { display: inline-block; background: #f2eded; color: var(--blue); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .pill { display: inline-block; background: #edf1f2; color: var(--blue); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
     a.map-pill { 
       display: inline-block; background: #fcfcfc; color: var(--blue); 
       padding: 5px 12px; border-radius: 20px; font-size: 12px; 
       border: 1px solid var(--line); text-decoration: none; transition: 0.2s;
     }
-    a.map-pill:hover { background: #f2eded; }
+    a.map-pill:hover { background: #edf1f2; }
 
     /* 行程時間軸垂直線設計 */
-    .stop { border-left: 1px solid #dcd7d5; padding: 0 0 25px 17px; margin-left: 5px; position: relative; }
+    .stop { border-left: 1px solid #cbd7dc; padding: 0 0 25px 17px; margin-left: 5px; position: relative; transition: background-color 0.8s ease; }
     .stop:last-child { border-left-color: transparent; }
 
     /* 天數切換按鈕 */
@@ -115,7 +114,7 @@
     .checkbox-btn:active { transform: scale(0.9); }
     .line-through-custom { text-decoration: line-through; opacity: 0.5; }
     
-    /* 彈跳動畫 */
+    /* 彈跳動畫 (用於 Modal) */
     @keyframes bounceIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
     .modal-enter { animation: bounceIn 0.2s ease-out forwards; }
 
@@ -137,42 +136,43 @@
       border: 1px solid rgba(0,0,0,0.1); cursor: pointer; z-index: 10;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .inspiration-delete:hover { background: #fff; transform: scale(1.1); }
+    .inspiration-delete:hover { background: #fff; transform: scale(1.1); }  
   </style>
 </head>
 
 <body>
-  <!-- 原本就有的隱藏上傳元件 -->
+  <!-- 隱藏的圖片上傳元件 (相機/相簿選取用) -->
   <input type="file" id="hidden-img-upload" accept="image/*" class="hidden">
 
-  <!-- 👇👇 貼在這裡：全螢幕看圖 Lightbox 👇👇 -->
   <div id="lightbox-modal" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4 fade-in" onclick="closeLightbox()">
     <button class="absolute top-4 right-4 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" onclick="closeLightbox()">&times;</button>
     <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
   </div>
-  <!-- 👆👆 貼在這裡 👆👆 -->
-  
+
   <!-- 計算機 Modal 對話框 -->
-  <div id="tax-modal" class="hidden fixed inset-0 z-[60] bg-[#2b2523]/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="tax-modal" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card w-full max-w-xs modal-enter relative !p-6">
-      <button onclick="toggleTaxModal()" class="absolute top-4 right-4 text-[#8a837e] hover:text-[#2b2523] text-xl leading-none">&times;</button>
+      <button onclick="toggleTaxModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-xl leading-none">&times;</button>
       
-      <h3 class="text-lg font-medium mb-5 text-[#2b2523] flex items-center gap-2">
-        <span class="text-xl">🧮</span> 人民幣計算機
+      <h3 class="text-lg font-medium mb-5 text-[#26343b] flex items-center gap-2">
+        <span class="text-xl">🧮</span> 日圓計算機
       </h3>
       
       <div class="space-y-4">
         <div>
-          <label class="text-[11px] font-bold text-[#8a837e] mb-1.5 block tracking-wider">匯率 RATE</label>
-          <input type="number" id="tax-rate" value="4.45" step="0.01" inputmode="decimal" oninput="calcTax()" class="shop-input font-medium text-[#2b2523]">
+          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">匯率 RATE</label>
+          <input type="text" id="tax-rate" value="0.215" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" oninput="calcTax()" class="shop-input font-medium text-[#26343b]">
         </div>
         <div>
-          <label class="text-[11px] font-bold text-[#8a837e] mb-1.5 block tracking-wider">人民幣 CNY ¥</label>
-          <input type="number" id="tax-jpy" placeholder="輸入商品金額" inputmode="numeric" pattern="[0-9]*" oninput="if(this.value.length>8)this.value=this.value.slice(0,8);calcTax()" class="shop-input text-lg font-bold text-[#2b2523]">
+          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">日圓 JPY ¥</label>
+          <input type="number" id="tax-jpy" placeholder="輸入商品金額" inputmode="numeric" pattern="[0-9]*" oninput="if(this.value.length>8)this.value=this.value.slice(0,8);calcTax()" class="shop-input text-lg font-bold text-[#26343b]">
         </div>
         <div class="pt-2 border-t border-[#e8eae8] flex justify-between items-end">
-          <label class="text-[11px] font-bold text-[#8a837e] tracking-wider mb-1">台幣 TWD $</label>
-          <div id="tax-twd" class="text-2xl font-bold text-[#8b3a3a] truncate max-w-[150px]">0</div>
+          <label class="text-[11px] font-bold text-[#849098] tracking-wider mb-1">台幣 TWD $</label>
+          <div id="tax-twd" class="text-2xl font-bold text-[#526d7c] truncate max-w-[150px]">0</div>
+        </div>
+        <div id="tax-status" class="mt-2 bg-[#f7f7f4] rounded-lg p-2.5 text-center text-[11px] text-[#849098] transition-colors">
+          請輸入金額計算免稅門檻
         </div>
       </div>
     </div>
@@ -181,16 +181,18 @@
   <!-- 頂部導覽列 -->
   <header>
     <nav class="nav">
-      <div class="brand">🎄 SHANGHAI JOURNEY</div>
+      <div class="brand">❄ HOKURIKU JOURNEY</div>
       
+      <!-- 桌面版導覽按鈕 -->
       <div class="navlinks">
         <a href="javascript:void(0)" onclick="switchMainTab('itinerary')" id="nav-desk-itinerary" class="active">每日行程</a>
-        <a href="javascript:void(0)" onclick="switchMainTab('weather')" id="nav-desk-weather">时间天氣</a>
+        <a href="javascript:void(0)" onclick="switchMainTab('weather')" id="nav-desk-weather">時間天氣</a>
         <a href="javascript:void(0)" onclick="switchMainTab('flights')" id="nav-desk-flights">航班交通</a>
         <a href="javascript:void(0)" onclick="switchMainTab('hotels')" id="nav-desk-hotels">住宿指南</a>
         <a href="javascript:void(0)" onclick="switchMainTab('shopping')" id="nav-desk-shopping">購物清單</a>
       </div>
 
+      <!-- 右側工具 (桌機與手機共用) -->
       <div>
         <button onclick="toggleTaxModal()" class="pill !bg-white !border !border-[#e8eae8] shadow-sm hover:!bg-[#f7f7f4] transition-colors">
           🧮 匯率計算
@@ -204,8 +206,8 @@
     <section id="tab-itinerary" class="tab-pane block">
       <div class="mb-6 flex flex-wrap justify-between items-end gap-3 border-b border-[#e8eae8] pb-4">
         <div>
-          <small class="text-[#b39b74] tracking-[2px] text-[11px] font-bold">01 / ITINERARY</small>
-          <h2 class="text-2xl font-medium text-[#2b2523] mt-1">每日行程計畫</h2>
+          <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">01 / ITINERARY</small>
+          <h2 class="text-2xl font-medium text-[#26343b] mt-1">每日行程計畫</h2>
         </div>
         <div class="flex gap-2">
           <button id="btn-filter-must" onclick="toggleMustGoFilter()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">⭐ 僅看必去</button>
@@ -214,22 +216,26 @@
       </div>
 
       <!-- 天數切換 Sub Nav -->
-      <div class="flex overflow-x-auto gap-2.5 mb-6 pb-2 no-scrollbar sticky top-[62px] z-30 bg-[#f7f7f4]/95 backdrop-blur py-2">
-        <button id="tab-day-1" class="day-tab-btn active flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(1)">
-          <div class="tab-date text-[10px] mb-0.5">12/25 (五)</div>
-          <div class="tab-title text-[13px] font-medium">外灘魔幻夜</div>
+      <div class="sticky-sub-nav flex overflow-x-auto gap-2.5 mb-6 pb-2 no-scrollbar sticky top-[62px] z-30 bg-[#f7f7f4]/95 backdrop-blur py-2">
+        <button id="tab-day-1" class="day-tab-btn active flex-1 min-w-[65px] sm:min-w-[80px] py-2 px-1 rounded-xl text-center" onclick="selectDay(1)">
+          <div class="tab-date text-[10px] mb-0.5">1/9</div>
+          <div class="tab-title text-[13px] font-medium">金澤</div>
         </button>
-        <button id="tab-day-2" class="day-tab-btn flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(2)">
-          <div class="tab-date text-[10px] mb-0.5">12/26 (六)</div>
-          <div class="tab-title text-[13px] font-medium">法租界漫步</div>
+        <button id="tab-day-2" class="day-tab-btn flex-1 min-w-[65px] sm:min-w-[80px] py-2 px-1 rounded-xl text-center" onclick="selectDay(2)">
+          <div class="tab-date text-[10px] mb-0.5">1/10</div>
+          <div class="tab-title text-[13px] font-medium">高山</div>
         </button>
-        <button id="tab-day-3" class="day-tab-btn flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(3)">
-          <div class="tab-date text-[10px] mb-0.5">12/27 (日)</div>
-          <div class="tab-title text-[13px] font-medium">迪士尼童話</div>
+        <button id="tab-day-3" class="day-tab-btn flex-1 min-w-[65px] sm:min-w-[80px] py-2 px-1 rounded-xl text-center" onclick="selectDay(3)">
+          <div class="tab-date text-[10px] mb-0.5">1/11</div>
+          <div class="tab-title text-[13px] font-medium">白川鄉</div>
         </button>
-        <button id="tab-day-4" class="day-tab-btn flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(4)">
-          <div class="tab-date text-[10px] mb-0.5">12/28 (一)</div>
-          <div class="tab-title text-[13px] font-medium">優雅返台</div>
+        <button id="tab-day-4" class="day-tab-btn flex-1 min-w-[65px] sm:min-w-[80px] py-2 px-1 rounded-xl text-center" onclick="selectDay(4)">
+          <div class="tab-date text-[10px] mb-0.5">1/12</div>
+          <div class="tab-title text-[13px] font-medium">名古屋</div>
+        </button>
+        <button id="tab-day-5" class="day-tab-btn flex-1 min-w-[65px] sm:min-w-[80px] py-2 px-1 rounded-xl text-center" onclick="selectDay(5)">
+          <div class="tab-date text-[10px] mb-0.5">1/13</div>
+          <div class="tab-title text-[13px] font-medium">返台</div>
         </button>
       </div>
 
@@ -241,64 +247,66 @@
     <section id="tab-weather" class="tab-pane hidden">
       <div class="mb-6 flex flex-wrap justify-between items-end gap-3 border-b border-[#e8eae8] pb-4">
         <div>
-          <small class="text-[#b39b74] tracking-[2px] text-[11px] font-bold">02 / WEATHER & TIME</small>
-          <h2 class="text-2xl font-medium text-[#2b2523] mt-1">時間與天氣預報</h2>
+          <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">02 / WEATHER & TIME</small>
+          <h2 class="text-2xl font-medium text-[#26343b] mt-1">時間與天氣預報</h2>
         </div>
-        <button onclick="fetchAllWeather()" class="pill !bg-white !border !border-[#e8eae8]">
+        <button id="btn-weather-refresh" onclick="fetchAllJapanWeather()" class="pill !bg-white !border !border-[#e8eae8]">
           <span id="weather-refresh-text">🔄 更新氣溫</span>
         </button>
       </div>
 
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="card flex flex-col items-center justify-center text-center !p-4 sm:!p-6">
-          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#8a837e]">TAIWAN (TPE)</small>
-          <div id="clock-tw-time" class="text-2xl sm:text-3xl font-medium text-[#2b2523] tracking-widest">--:--:--</div>
-          <div id="clock-tw-date" class="text-[11px] sm:text-xs text-[#8a837e] mt-1">----/--/--</div>
+          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#849098]">TAIWAN (TPE)</small>
+          <div id="clock-tw-time" class="text-2xl sm:text-3xl font-medium text-[#26343b] tracking-widest">--:--:--</div>
+          <div id="clock-tw-date" class="text-[11px] sm:text-xs text-[#849098] mt-1">----/--/--</div>
         </div>
         <div class="card flex flex-col items-center justify-center text-center !p-4 sm:!p-6">
-          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#b39b74]">SHANGHAI (SHA)</small>
-          <div id="clock-cn-time" class="text-2xl sm:text-3xl font-medium text-[#2b2523] tracking-widest">--:--:--</div>
-          <div id="clock-cn-date" class="text-[11px] sm:text-xs text-[#8a837e] mt-1">----/--/--</div>
+          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#c5ad85]">JAPAN (JST)</small>
+          <div id="clock-jp-time" class="text-2xl sm:text-3xl font-medium text-[#26343b] tracking-widest">--:--:--</div>
+          <div id="clock-jp-date" class="text-[11px] sm:text-xs text-[#849098] mt-1">----/--/--</div>
         </div>
       </div>
-      <div id="cities-weather-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      <div id="four-cities-weather-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- 分頁：航班交通 -->
     <section id="tab-flights" class="tab-pane hidden">
       <div class="mb-6 border-b border-[#e8eae8] pb-4">
-        <small class="text-[#b39b74] tracking-[2px] text-[11px] font-bold">03 / FLIGHTS</small>
-        <h2 class="text-2xl font-medium text-[#2b2523] mt-1">航班資訊</h2>
+        <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">03 / FLIGHTS</small>
+        <h2 class="text-2xl font-medium text-[#26343b] mt-1">航班與跨城交通</h2>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- 去程航班卡 -->
         <div class="card">
           <div class="flex justify-between items-center mb-4">
-            <span class="pill !bg-[#f7f7f4] !text-[#2b2523]">🛫 DAY 1 (12/25 五)</span>
-            <small class="text-[#8a837e]">浦東進 (PVG)</small>
+            <span class="pill !bg-[#f7f7f4] !text-[#26343b]">🛫 DAY 1 (1/9 六)</span>
+            <small class="text-[#849098]">小松進 (KMQ)</small>
           </div>
           <div class="bg-[#f7f7f4] rounded-xl p-4 flex items-center justify-between mb-4 border border-[#e8eae8]">
             <div class="text-center">
-              <div class="text-[11px] text-[#8a837e]">台北桃園</div>
-              <div class="text-2xl font-medium text-[#2b2523]">TPE</div>
-              <div class="text-[10px] mt-1 text-[#8b3a3a]">08:45 起飛</div>
+              <div class="text-[11px] text-[#849098]">台北桃園</div>
+              <div class="text-2xl font-medium text-[#26343b]">TPE</div>
+              <div class="text-[10px] mt-1 text-[#526d7c]">06:35 起飛</div>
             </div>
-            <div class="text-center text-[#8a837e] text-xs px-2 flex flex-col items-center">
+            <div class="text-center text-[#849098] text-xs px-2 flex flex-col items-center">
               <span class="text-lg">✈️</span>
-              <span class="mt-1">中華航空 C1501</span>
+              <span class="mt-1">長榮 BR158</span>
             </div>
             <div class="text-center">
-              <div class="text-[11px] text-[#8a837e]">上海浦東</div>
-              <div class="text-2xl font-medium text-[#2b2523]">PVG</div>
-              <div class="text-[10px] mt-1 text-[#b39b74]">10:50 抵達</div>
+              <div class="text-[11px] text-[#849098]">石川小松</div>
+              <div class="text-2xl font-medium text-[#26343b]">KMQ</div>
+              <div class="text-[10px] mt-1 text-[#c5ad85]">10:25 抵達</div>
             </div>
           </div>
-          <div class="text-[13px] text-[#2b2523] leading-relaxed">
-            <b class="text-[#8b3a3a]">🚕 市區接駁：</b><br>
-            出關後使用「滴滴出行」打車直達外灘沙美大樓。<br>
+          <div class="text-[13px] text-[#26343b] leading-relaxed">
+            <b class="text-[#526d7c]">🚌 機場接駁 (約40分)：</b><br>
+            出關直接搭乘機場巴士直達金澤車站西口。<br>
+            <span class="text-[#849098] text-[12px]">備案：若班機延誤或人潮眾多，改搭下班巴士或轉 JR。</span>
             <div class="flex gap-2 mt-2">
-              <a href="https://www.google.com/maps/search/?api=1&query=上海浦東國際機場" target="_blank" class="map-pill">📍 浦東機場</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=小松空港" target="_blank" class="map-pill">📍 小松機場</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=金沢駅" target="_blank" class="map-pill">📍 金澤車站</a>
             </div>
           </div>
         </div>
@@ -306,30 +314,33 @@
         <!-- 回程航班卡 -->
         <div class="card">
           <div class="flex justify-between items-center mb-4">
-            <span class="pill !bg-[#f7f7f4] !text-[#2b2523]">🛬 DAY 4 (12/28 一)</span>
-            <small class="text-[#8a837e]">浦東出 (PVG)</small>
+            <span class="pill !bg-[#f7f7f4] !text-[#26343b]">🛬 DAY 5 (1/13 三)</span>
+            <small class="text-[#849098]">名古屋出 (NGO)</small>
           </div>
           <div class="bg-[#f7f7f4] rounded-xl p-4 flex items-center justify-between mb-4 border border-[#e8eae8]">
             <div class="text-center">
-              <div class="text-[11px] text-[#8a837e]">上海浦東</div>
-              <div class="text-2xl font-medium text-[#2b2523]">PVG</div>
-              <div class="text-[10px] mt-1 text-[#8b3a3a]">19:50 起飛</div>
+              <div class="text-[11px] text-[#849098]">中部國際</div>
+              <div class="text-2xl font-medium text-[#26343b]">NGO</div>
+              <div class="text-[10px] mt-1 text-[#526d7c]">19:40 起飛</div>
             </div>
-            <div class="text-center text-[#8a837e] text-xs px-2 flex flex-col items-center">
-              <span class="text-lg text-[#b39b74]">✈️</span>
-              <span class="mt-1">中華航空 (晚班機)</span>
+            <div class="text-center text-[#849098] text-xs px-2 flex flex-col items-center">
+              <span class="text-lg text-[#c5ad85]">✈️</span>
+              <span class="mt-1">星宇 JX839</span>
             </div>
             <div class="text-center">
-              <div class="text-[11px] text-[#8a837e]">台北桃園</div>
-              <div class="text-2xl font-medium text-[#2b2523]">TPE</div>
-              <div class="text-[10px] mt-1 text-[#b39b74]">21:55 抵達</div>
+              <div class="text-[11px] text-[#849098]">台北桃園</div>
+              <div class="text-2xl font-medium text-[#26343b]">TPE</div>
+              <div class="text-[10px] mt-1 text-[#c5ad85]">22:15 抵達</div>
             </div>
           </div>
-          <div class="text-[13px] text-[#2b2523] leading-relaxed">
-            <b class="text-[#8b3a3a]">🚕 前往機場：</b><br>
-            預計 16:30 從外灘飯店搭乘滴滴出行前往機場。<br>
+          <div class="text-[13px] text-[#26343b] leading-relaxed">
+            <b class="text-[#526d7c]">🚄 機場快線 (28~36分)：</b><br>
+            ・全車指定席 μ-SKY：<b>16:19</b> 發或 <b>16:49</b> 發。<br>
+            ・一部特別車 特急：<b>16:30</b> 發。<br>
+            <span class="text-[#849098] text-[12px]">提早至4F提燈橫丁買蝦仙貝之里。</span>
             <div class="flex gap-2 mt-2">
-              <a href="https://www.google.com/maps/search/?api=1&query=上海浦東國際機場" target="_blank" class="map-pill">📍 浦東機場</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=名鉄名古屋駅" target="_blank" class="map-pill">📍 名鐵名古屋</a>
+              <a href="https://www.google.com/maps/search/?api=1&query=中部国際空港" target="_blank" class="map-pill">📍 機場 NGO</a>
             </div>
           </div>
         </div>
@@ -339,23 +350,60 @@
     <!-- 分頁：住宿指南 -->
     <section id="tab-hotels" class="tab-pane hidden">
       <div class="mb-6 border-b border-[#e8eae8] pb-4">
-        <small class="text-[#b39b74] tracking-[2px] text-[11px] font-bold">04 / ACCOMMODATION</small>
-        <h2 class="text-2xl font-medium text-[#2b2523] mt-1">住宿指南</h2>
+        <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">04 / ACCOMMODATION</small>
+        <h2 class="text-2xl font-medium text-[#26343b] mt-1">住宿指南</h2>
       </div>
 
-      <div class="grid grid-cols-1 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- 飯店 1 -->
         <div class="card flex flex-col justify-between">
           <div>
-            <span class="pill mb-3 !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30">DAY 1 - DAY 3 (連泊 3 晚)</span>
-            <h3 class="text-lg font-medium text-[#2b2523] leading-snug">上海沙美大樓 Zhotel</h3>
-            <p class="text-[12px] text-[#8a837e] mb-4">外灘核心區 / 百年歷史建築</p>
-            <div class="text-[14px] text-[#2b2523] space-y-2 pl-3 border-l-2 border-[#e8eae8] mb-4">
-              <p>・擁有絕佳神仙機位與復古電影感，出門即可漫步外灘。</p>
-              <p>・露台可直接拍下與東方明珠同框的絕美合影。</p>
-              <p>・周邊歐式萬國建築群環繞，完美契合 Citywalk 行程。</p>
+            <span class="pill mb-3">DAY 1 (1 晚)</span>
+            <h3 class="text-[16px] font-medium text-[#26343b] leading-snug">大和 Roynet 飯店</h3>
+            <p class="text-[12px] text-[#26343b] font-medium mt-1">ダイワロイネットホテル金沢駅西口</p>
+            <p class="text-[11px] text-[#849098] mb-1">〒920-0031 石川県金沢市広岡1-12-17</p>
+            <p class="text-[11px] text-[#849098] mb-4">金澤站西口步行 4 分鐘</p>
+            <div class="text-[13px] text-[#26343b] space-y-1.5 pl-3 border-l-2 border-[#e8eae8] mb-4">
+              <p>・出小松機場巴士直達西口，寄放行李超順路。</p>
+              <p>・館內設有大浴場，吃完燒肉回來泡湯驅寒。</p>
+              <p>・Day 2 領行李去 4 號月台搭高山巴士零距離。</p>
             </div>
           </div>
-          <a href="https://www.google.com/maps/search/?api=1&query=上海沙美大樓" target="_blank" class="block w-full text-center bg-[#f7f7f4] text-[#8b3a3a] py-2.5 rounded-lg text-sm font-medium hover:bg-[#e8eae8] transition-colors">📍 導航至飯店</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=Daiwa+Roynet+Hotel+Kanazawa-Eki+Nishiguchi" target="_blank" class="block w-full text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8] transition-colors">📍 導航至飯店</a>
+        </div>
+
+        <!-- 飯店 2 -->
+        <div class="card flex flex-col justify-between">
+          <div>
+            <span class="pill mb-3 !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">DAY 2 & 3 (連泊 2 晚)</span>
+            <h3 class="text-[16px] font-medium text-[#26343b] leading-snug">飛驒花里之湯 高山櫻庵</h3>
+            <p class="text-[12px] text-[#26343b] font-medium mt-1">飛騨花里の湯 高山桜庵</p>
+            <p class="text-[11px] text-[#849098] mb-1">〒506-0026 岐阜県高山市花里町4-313</p>
+            <p class="text-[11px] text-[#849098] mb-4">高山站步行 5 分鐘 / 全館榻榻米</p>
+            <div class="text-[13px] text-[#26343b] space-y-1.5 pl-3 border-l-2 border-[#e8eae8] mb-4">
+              <p>・頂樓天然溫泉與 <b>3間免費私人湯屋</b>。</p>
+              <p>・大廳附設足湯，22:00 免費提供夜鳴拉麵。</p>
+              <p>・Day 3 中午可輕鬆走回飯店午睡充電、換揹巾。</p>
+            </div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=飛騨花里の湯+高山桜庵" target="_blank" class="block w-full text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8] transition-colors">📍 導航至飯店</a>
+        </div>
+
+        <!-- 飯店 3 -->
+        <div class="card flex flex-col justify-between">
+          <div>
+            <span class="pill mb-3">DAY 4 (1 晚)</span>
+            <h3 class="text-[16px] font-medium text-[#26343b] leading-snug">名鐵格蘭飯店</h3>
+            <p class="text-[12px] text-[#26343b] font-medium mt-1">名鉄グランドホテル</p>
+            <p class="text-[11px] text-[#849098] mb-1">〒450-0002 愛知県名古屋市中村区名駅1-2-4</p>
+            <p class="text-[11px] text-[#849098] mb-4">名古屋車站步行 4 分鐘 (車站共構)</p>
+            <div class="text-[13px] text-[#26343b] space-y-1.5 pl-3 border-l-2 border-[#e8eae8] mb-4">
+              <p>・配備乾濕分離寬敞浴室，逛完大須回來超舒適。</p>
+              <p>・鄰近千里馬藥局、Bic Camera 與 ESCA 地下街。</p>
+              <p>・Day 5 大廳打包戰利品，下樓 5 分鐘直上機場快線。</p>
+            </div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=名鉄グランドホテル" target="_blank" class="block w-full text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8] transition-colors">📍 導航至飯店</a>
         </div>
       </div>
     </section>
@@ -364,8 +412,8 @@
     <section id="tab-shopping" class="tab-pane hidden pb-12">
       <div class="mb-6 flex flex-wrap justify-between items-end gap-3 border-b border-[#e8eae8] pb-4">
         <div>
-          <small class="text-[#b39b74] tracking-[2px] text-[11px] font-bold">05 / SHOPPING</small>
-          <h2 class="text-2xl font-medium text-[#2b2523] mt-1">購物與伴手禮清單</h2>
+          <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">05 / SHOPPING</small>
+          <h2 class="text-2xl font-medium text-[#26343b] mt-1">購物與代買清單</h2>
         </div>
         <button onclick="addShoppingGroup()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">
           ➕ 新增群組
@@ -373,8 +421,8 @@
       </div>
       
       <div class="card flex justify-between items-center mb-6 !py-4">
-        <span class="font-medium text-[13px] text-[#8a837e]">💰 總預估花費</span>
-        <span class="text-xl font-bold text-[#8b3a3a]" id="shopping-total">¥0</span>
+        <span class="font-medium text-[13px] text-[#849098]">💰 總預估花費</span>
+        <span class="text-xl font-bold text-[#526d7c]" id="shopping-total">¥0</span>
       </div>
 
       <div id="shopping-groups-container" class="space-y-4"></div>
@@ -402,11 +450,10 @@
   </nav>
 
   <script>
-
     // PWA Service Worker (Network-First 策略，確保能讀到最新代碼)
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'shanghai-trip-v2.0-idb';
+        const CACHE_NAME = 'hokuriku-trip-v1';
         self.addEventListener('install', e => { self.skipWaiting(); });
         self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
         self.addEventListener('fetch', e => {
@@ -428,7 +475,7 @@
       db: null,
       init: function() {
         return new Promise((resolve, reject) => {
-          const req = indexedDB.open('ShanghaiTripDB', 1);
+          const req = indexedDB.open('HokurikuTripDB', 1);
           req.onupgradeneeded = e => {
             const db = e.target.result;
             if(!db.objectStoreNames.contains('TripStore')) {
@@ -456,7 +503,6 @@
         });
       }
     };
-
     /* ================= 計算機邏輯 ================= */
     function toggleTaxModal() {
       const modal = document.getElementById('tax-modal');
@@ -469,12 +515,25 @@
     }
 
     function calcTax() {
-      const rate = parseFloat(document.getElementById('tax-rate').value) || 4.45;
-      const cny = parseFloat(document.getElementById('tax-jpy').value) || 0;
-      document.getElementById('tax-twd').textContent = Math.round(cny * rate).toLocaleString();
+      const rate = parseFloat(document.getElementById('tax-rate').value) || 0.215;
+      const jpy = parseFloat(document.getElementById('tax-jpy').value) || 0;
+      
+      document.getElementById('tax-twd').textContent = Math.round(jpy * rate).toLocaleString();
+      
+      const statusBox = document.getElementById('tax-status');
+      if (jpy >= 5000) {
+        statusBox.className = "mt-2 bg-[#f4f7f4] border border-[#dce5dc] rounded-lg p-2.5 text-center text-[11px] text-[#527c5a] font-medium";
+        statusBox.innerHTML = "✅ 已達標免稅門檻 (未稅 ¥5,000)";
+      } else if (jpy > 0) {
+        statusBox.className = "mt-2 bg-[#fcf5f5] border border-[#f2dada] rounded-lg p-2.5 text-center text-[11px] text-[#a35e5e] font-medium";
+        statusBox.innerHTML = `❌ 未達免稅門檻 (還差 ¥${5000 - jpy})`;
+      } else {
+        statusBox.className = "mt-2 bg-[#f7f7f4] rounded-lg p-2.5 text-center text-[11px] text-[#849098]";
+        statusBox.innerHTML = "請輸入金額計算免稅門檻";
+      }
     }
 
-    /* ================= 圖片燈箱與儲存邏輯 ================= */
+  /* ================= 圖片燈箱與儲存邏輯 ================= */
     let currentUploadTarget = { type: null, gId: null, iId: null, dayId: null, stopIdx: null };
     let itineraryPhotos = {};
     let shoppingData = [];
@@ -570,14 +629,13 @@
       }
     });
 
-    /* ================= 購物清單邏輯 (升級 IndexedDB) ================= */
+    /* ================= 購物清單邏輯 ================= */
     const defaultShopping = [
-      { id: 'g1', title: '🎁 老字號伴手禮', isOpen: true, items: [
-        { id: 'i1', name: '國際飯店 蝴蝶酥', spec: '大盒', memo: '本地人狂推', price: 60, bought: false, img: '🦋' },
-        { id: 'i2', name: '凱司令 栗子蛋糕', spec: '招牌', memo: '法租界順路買', price: 20, bought: false, img: '🍰' }
+      { id: 'g1', title: '💊 藥妝店 (松本清/大國)', isOpen: true, items: [
+        { id: 'i1', name: '合利他命 EX Plus', spec: '270錠', memo: '代買 x2', price: 5000, bought: false, img: '💊' }
       ]},
-      { id: 'g2', title: '👗 法租界質感買手店', isOpen: true, items: [
-        { id: 'i3', name: '質感服飾/香氛', spec: '武康路/安福路', memo: '看中即買', price: 0, bought: false, img: '🛍️' }
+      { id: 'g2', title: '🎟️ 折價券與票券', isOpen: true, items: [
+        { id: 'i2', name: 'Bic Camera 優惠券', spec: '手機出示', memo: '結帳前使用', price: 0, bought: false, img: '🎫' }
       ]}
     ];
 
@@ -630,7 +688,6 @@
             const isImg = i.img.startsWith('http') || i.img.startsWith('data:');
             let imgHtml = '';
             
-            // 💡 全新購物相片渲染邏輯：支援獨立刪除鈕與點擊放大
             if (isImg) {
               imgHtml = `
                 <div class="relative w-full h-full group">
@@ -686,15 +743,27 @@
           else { el.classList.add('hidden'); el.classList.remove('block', 'modal-enter'); }
         }
       });
-      TABS.forEach(t => { const deskBtn = document.getElementById('nav-desk-' + t); if (deskBtn) deskBtn.className = (t === tabId) ? 'active' : ''; });
-      TABS.forEach(t => { const mobBtn = document.getElementById('nav-mob-' + t); if (mobBtn) mobBtn.className = (t === tabId) ? 'active' : ''; });
+
+      TABS.forEach(t => {
+        const deskBtn = document.getElementById('nav-desk-' + t);
+        if (deskBtn) deskBtn.className = (t === tabId) ? 'active' : '';
+      });
+
+      TABS.forEach(t => {
+        const mobBtn = document.getElementById('nav-mob-' + t);
+        if (mobBtn) mobBtn.className = (t === tabId) ? 'active' : '';
+      });
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if(tabId === 'shopping') renderShopping();
     }
 
     /* ================= 氣象與行程邏輯 ================= */
     const CITIES_WEATHER = {
-      shanghai: { id: "shanghai", name: "上海市 (Shanghai)", dayLabel: "DAY 1 - DAY 4", lat: 31.2304, lon: 121.4737, decAvg: "3°C ~ 11°C", prob: "晴或多雲為主", advice: "冬季上海體感濕冷，江邊風大。建議穿著防風大衣、發熱衣，並佩戴圍巾保暖。", liveTemp: null, liveDesc: "冬" }
+      kanazawa: { id: "kanazawa", name: "金澤市 (Kanazawa)", dayLabel: "DAY 1 - DAY 2 上午", lat: 36.5613, lon: 136.6562, janAvg: "1°C ~ 7°C", snowProb: "降雪/雨夾雪 75%", advice: "穿著防風防水外套與防滑防水靴，隨身備摺疊傘。", liveTemp: null, liveDesc: "冬" },
+      takayama: { id: "takayama", name: "飛驒高山 (Takayama)", dayLabel: "DAY 2 下午 - DAY 4 上午", lat: 36.1461, lon: 137.2522, janAvg: "-4°C ~ 4°C", snowProb: "降雪機率 80%", advice: "宮川朝市清晨極冷，必備發熱衣、毛帽、手套。", liveTemp: null, liveDesc: "冬" },
+      shirakawago: { id: "shirakawago", name: "白川鄉合掌村", dayLabel: "DAY 3 點燈專車", lat: 36.2578, lon: 136.9062, janAvg: "-6°C ~ 2°C", snowProb: "豪雪地帶 90%", advice: "點燈體感達 -6°C 以下！必穿厚雪靴與暖暖包。", liveTemp: null, liveDesc: "冬" },
+      nagoya: { id: "nagoya", name: "名古屋 (Nagoya)", dayLabel: "DAY 4 下午 - DAY 5", lat: 35.1815, lon: 136.9066, janAvg: "2°C ~ 9°C", snowProb: "晴時多雲 15%", advice: "室內暖氣強，採洋蔥式穿法（好穿脫大衣＋薄長袖）。", liveTemp: null, liveDesc: "冬" }
     };
 
     function getWeatherEmoji(code) {
@@ -706,28 +775,28 @@
     function getWeatherDescText(code) {
       if (code === 0) return "晴朗無雲"; if (code <= 3) return "晴時多雲";
       if (code <= 48) return "冬季霧氣"; if (code <= 67) return "冬季冷雨";
-      if (code <= 77) return "偶有降雪"; return "濕冷";
+      if (code <= 77) return "瑞雪紛飛"; return "大雪紛飛";
     }
 
-    function renderWeatherGrid() {
-      const grid = document.getElementById("cities-weather-grid");
+    function renderFourCitiesWeather() {
+      const grid = document.getElementById("four-cities-weather-grid");
       if (!grid) return;
       let html = "";
       Object.keys(CITIES_WEATHER).forEach(key => {
         const c = CITIES_WEATHER[key];
-        const liveStr = c.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30">即時：${c.liveTemp}°C ${c.liveDesc}</span>` : `<span class="pill">${c.prob}</span>`;
+        const liveStr = c.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">即時：${c.liveTemp}°C ${c.liveDesc}</span>` : `<span class="pill">${c.snowProb}</span>`;
         html += `
-          <div class="card flex flex-col justify-between sm:col-span-2">
+          <div class="card flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-center mb-3">
-                <small class="text-[#8a837e] font-medium text-[10px] tracking-wide">${c.dayLabel}</small>
-                <span class="text-[#2b2523] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">12月均溫 ${c.decAvg}</span>
+                <small class="text-[#849098] font-medium text-[10px] tracking-wide">${c.dayLabel}</small>
+                <span class="text-[#26343b] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">${c.janAvg}</span>
               </div>
-              <h4 class="text-[16px] font-medium text-[#2b2523] mb-2">${c.name}</h4>
+              <h4 class="text-[16px] font-medium text-[#26343b] mb-2">${c.name.split(" ")[0]}</h4>
               <div class="mb-4">${liveStr}</div>
             </div>
-            <div class="text-[12px] text-[#8b3a3a] bg-[#f7f7f4] p-3 rounded-lg leading-relaxed">
-              <b class="text-[#2b2523]">穿搭建議：</b>${c.advice}
+            <div class="text-[11px] text-[#526d7c] bg-[#f7f7f4] p-2.5 rounded-lg">
+              <b class="text-[#26343b]">穿搭：</b>${c.advice}
             </div>
           </div>
         `;
@@ -735,14 +804,16 @@
       grid.innerHTML = html;
     }
 
-    async function fetchAllWeather() {
+    async function fetchAllJapanWeather() {
       const btn = document.getElementById("weather-refresh-text");
+      const refreshBtn = document.getElementById("btn-weather-refresh");
       if (btn) btn.textContent = "⏳ 更新中...";
+      if (refreshBtn) refreshBtn.disabled = true;
       await Promise.allSettled(
         Object.values(CITIES_WEATHER).map(async (c) => {
           try {
             const ctl = new AbortController(); const id = setTimeout(() => ctl.abort(), 5000);
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&timezone=Asia%2FShanghai`, { signal: ctl.signal });
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&timezone=Asia%2FTokyo`, { signal: ctl.signal });
             clearTimeout(id);
             if (res.ok) {
               const data = await res.json();
@@ -754,44 +825,77 @@
           } catch (e) {}
         })
       );
-      renderWeatherGrid(); renderDayTimeline();
-      if (btn) { btn.textContent = "✅ 已更新"; setTimeout(() => btn.textContent = "🔄 更新氣溫", 3000); }
+      renderFourCitiesWeather(); renderDayTimeline();
+      if (btn) { 
+        btn.textContent = "✅ 已更新"; 
+        setTimeout(() => {
+          btn.textContent = "🔄 更新氣溫";
+          if (refreshBtn) refreshBtn.disabled = false;
+        }, 3000); 
+      }
     }
 
     const ITINERARY_DATA = {
-      1: { dayNum: 1, dateStr: "12/25 (五)", title: "外灘與蘇州河的魔幻開場", subtitle: "聖誕夜 Citywalk ➔ 外灘家宴 ➔ 十六鋪碼頭觀光遊船", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "黃昏時分江邊氣溫驟降", dayClothingTip: "遊船與外灘散步風大，請穿上防風大衣並帶上圍巾，營造復古電影感的同時兼顧保暖。",
+      1: { dayNum: 1, dateStr: "1/9 (六)", title: "金澤抵達・兼六園漫遊", subtitle: "小松機場 ➔ 尾山神社＆兼六園 ➔ 東茶屋街 ➔ 能登牛燒肉", weatherCityKey: "kanazawa", dayWeatherTitle: "石川縣・金澤市", dayTempRange: "1°C ~ 7°C", dayWeatherDesc: "濕冷降雪／雨夾雪（機率 75%）", dayClothingTip: "兼六園與金澤城石階遇雪濕滑，請穿防滑防水鞋，並隨身攜帶輕便摺疊傘與保暖手套。",
         items: [
-          { time: "10:50", route: "抵達浦東機場 ➔ 飯店寄物", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: false, main: ["抵達浦東機場 (PVG)，使用「滴滴出行」打車前往沙美大樓 Zhotel 寄放行李。"], backup: "若遇塞車或打車不便，可搭乘磁浮列車轉地鐵。", maps: [{ name: "浦東機場", query: "上海浦東國際機場" }, { name: "沙美大樓", query: "上海沙美大樓" }] },
-          { time: "12:30", route: "飯店 ➔ 大壺春", transportText: "🚶 步行/打車", transportType: "walk", mustGo: true, main: ["前往「大壺春」吃經典鮮肉生煎。","⚠️ 全程無海鮮，米其林推薦。"], backup: "若排隊過長，可尋找周邊其他本幫麵館。", maps: [{ name: "大壺春", query: "大壺春 上海" }] },
-          { time: "14:00", route: "沙美大樓 ➔ 外灘 Citywalk", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["在飯店沙美大樓露台拍下與東方明珠同框的神仙機位。","漫步外灘歐式街道 (萬國建築群)，拍攝背靠東方明珠的街頭寫真。"], backup: "N/A", maps: [{ name: "沙美大樓", query: "上海沙美大樓" }, { name: "外灘萬國建築群", query: "上海外灘" }] },
-          { time: "16:00", route: "外灘 ➔ 蘇州河畔", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["沿蘇州河畔散步（乍浦路橋、四川路橋一帶）。","欣賞橘紅晚霞與絕美日落。"], backup: "若天氣不佳無日落，可提早至咖啡廳休息。", maps: [{ name: "乍浦路橋", query: "乍浦路橋" }, { name: "四川路橋", query: "四川路橋" }] },
-          { time: "18:00", route: "蘇州河 ➔ 外灘家宴", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["預訂「外灘家宴」(本幫菜)，在正對東方明珠的絕美景觀中享用聖誕大餐。","⚠️ 必點：松鼠桂魚、紅燒肉（嚴格避開海鮮）。"], backup: "確保已提前訂位，若有突發狀況改吃周邊高檔無海鮮景觀餐廳。", maps: [{ name: "外灘家宴", query: "外灘家宴" }] },
-          { time: "20:30", route: "餐廳 ➔ 十六鋪碼頭", transportText: "🚶 散步", transportType: "walk", mustGo: true, main: ["散步至十六鋪碼頭，搭乘「豪華觀光遊船」(45分鐘)。","浪漫飽覽大氣江景與聖誕夜燈光。"], backup: "若遊船票售罄，改在外灘景觀酒吧小酌。", maps: [{ name: "十六鋪碼頭", query: "十六鋪碼頭" }] }
+          { time: "10:25", route: "抵達小松機場 ➔ 金澤車站", transportText: "🚌 巴士 40分", transportType: "bus", mustGo: false, main: ["出關直接搭乘機場巴士直達金澤車站西口（車程約40分）。"], backup: "若班機延誤或人潮眾多，改搭下一班機場巴士或轉乘JR。", maps: [{ name: "小松機場", query: "小松空港" }, { name: "金澤車站", query: "金沢駅" }] },
+          { time: "11:30", route: "金澤車站 ➔ 飯店寄物", transportText: "🚶 步行 4分", transportType: "walk", mustGo: false, main: ["金澤站西口大和Roynet飯店寄放大行李。"], backup: "若提早抵達或櫃檯人潮過多，可先使用金澤車站置物櫃寄物。", maps: [{ name: "西口大和Roynet", query: "Daiwa Roynet Hotel Kanazawa-Eki Nishiguchi" }] },
+          { time: "12:00", route: "飯店 ➔ 8番拉麵", transportText: "🚶 步行 4分", transportType: "walk", mustGo: false, main: ["8番拉麵（金澤車站百番街 Anto 內，清甜蔬菜拉麵適合阿鑫）。"], backup: "黑百合關東煮（百番街 Anto 內，提供熱湯關東煮）。", maps: [{ name: "8番拉麵", query: "8番らーめん 金沢駅店" }, { name: "黑百合關東煮", query: "黒百合 金沢百番街店" }] },
+          { time: "13:30", route: "車站 ➔ 尾山神社", transportText: "🚌 公車 10分", transportType: "bus", mustGo: true, main: ["搭公車至尾山神社欣賞特色神門，經鼠多門橋步入金澤城公園。"], transitNote: ["乘車處：東口公車總站 8、9、10 號月台", "下車站名：「南町・尾山神社」站下車"], backup: "若降雪過大或天候不佳，改搭公車直達兼六園下避開步道。", maps: [{ name: "東口巴士總站", query: "金沢駅東口バスターミナル" }, { name: "尾山神社", query: "尾山神社 金沢" }, { name: "鼠多門橋", query: "鼠多門橋" }] },
+          { time: "14:45", route: "金澤城 ➔ 兼六園", transportText: "🚶 步行 2分", transportType: "walk", mustGo: true, main: ["經金澤城 石川門(石川橋)直通兼六園入園，拍攝冬季絕景「雪吊」。"], backup: "若體力有限或天氣寒冷，縮短園區動線至時雨亭休憩喝茶。", maps: [{ name: "兼六園", query: "兼六園" }, { name: "石川門", query: "金沢城 石川門" }] },
+          { time: "16:15", route: "兼六園 ➔ 東茶屋街", transportText: "🚕 計程車 8分", transportType: "taxi", mustGo: true, main: ["⚠️ 先去 17:00 打烊的【烏雞庵】或【茶房懷華樓】喫茶！", "17:00 後再逛街並前往開至 18:00 的【箔一】品嘗金箔冰淇淋。"], backup: "若戶外風雪寒冷，直接進入室內座位享熱茶點避寒。", maps: [{ name: "烏雞庵", query: "烏鶏庵 東山店" }, { name: "茶房 懷華樓", query: "懐華樓 金沢" }, { name: "箔一", query: "箔一 東山店" }, { name: "東茶屋街", query: "ひがし茶屋街" }] },
+          { time: "18:20", route: "東茶屋街 ➔ 能登牛燒肉", transportText: "🚕 計程車 5分", transportType: "taxi", mustGo: true, main: ["【和牛焼肉 すずや】頂級 A5 能登牛燒肉（必點烤壽喜燒）。", "💡 提醒：座位僅 20 席，務必預約；若需寬敞包廂建議備案。"], backup: "【肉匠Jade金澤】（JA全農直營，座位寬敞且有包廂）。", maps: [{ name: "すずや", query: "和牛焼肉 すずや 金沢" }, { name: "肉匠Jade", query: "肉匠Jade金澤" }] },
+          { time: "20:30", route: "餐廳 ➔ 返回飯店", transportText: "🚶 步行 12分", transportType: "walk", mustGo: false, main: ["雪地步行約 12～15 分鐘返回西口飯店，享受大浴場。"], backup: "若雪地路滑，建議於餐廳門口搭計程車（約 4 分鐘）。", maps: [{ name: "西口大和Roynet", query: "Daiwa Roynet Hotel Kanazawa-Eki Nishiguchi" }] }
         ]
       },
-      2: { dayNum: 2, dateStr: "12/26 (六)", title: "法租界慵懶漫步 ➔ 城隍廟古風散策", subtitle: "梧桐樹下的文青時光 ➔ 豫園古典街景 ➔ 新天地聖誕市集", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・徐匯/黃浦", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "適合 Citywalk 的乾爽冬日", dayClothingTip: "法租界漫步非常適合著復古大衣與貝雷帽拍照，展現質感光影。",
+      2: { dayNum: 2, dateStr: "1/10 (日)", title: "金澤市場巡禮 ➔ 高山飛驒牛", subtitle: "近江町市場 ➔ 石川縣立圖書館 ➔ 高速巴士往高山 ➔ 高山櫻庵", weatherCityKey: "takayama", dayWeatherTitle: "岐阜縣・飛驒高山", dayTempRange: "-4°C ~ 4°C", dayWeatherDesc: "午後入山傍晚降雪結冰（機率 80%）", dayClothingTip: "下午抵達高山時氣溫比金澤低 4~5°C，下車前請穿好防寒配件。",
         items: [
-          { time: "10:30", route: "飯店 ➔ 法租界", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["睡到自然醒。打車前往法租界 (武康路、安福路)。","在梧桐樹下散步、逛質感買手店，用 Ricoh GR4 捕捉生活感光影。"], backup: "週末人潮較多，可穿梭於人少的小巷弄間取景。", maps: [{ name: "武康路", query: "武康路" }, { name: "安福路", query: "安福路" }] },
-          { time: "12:30", route: "法租界 ➔ 鮮得來", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["享用老字號「鮮得來」排骨年糕。","⚠️ 安全無海鮮。"], backup: "N/A", maps: [{ name: "鮮得來排骨年糕", query: "鮮得來 上海" }] },
-          { time: "14:00", route: "餐廳 ➔ 城隍廟/豫園", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["打車前往城隍廟與豫園商圈。","漫步欣賞江南古典建築群，拍攝中式古典窗櫺與古風街景。","⚠️ 餐飲備註：僅逛街拍照，全程避開蟹黃、蝦仁等過敏原小吃。"], backup: "若豫園人潮過多，僅在外圍街區感受傳統年味即可。", maps: [{ name: "城隍廟", query: "上海城隍廟" }, { name: "豫園", query: "豫園" }] },
-          { time: "17:00", route: "豫園 ➔ 購買伴手禮", transportText: "🚕 打車", transportType: "taxi", mustGo: false, main: ["順路購買本地人狂推的「國際飯店」蝴蝶酥與「凱司令」栗子蛋糕。"], backup: "若排隊太長，可使用外賣App(美團/餓了麼)直接送到飯店。", maps: [{ name: "國際飯店帆聲西餅屋", query: "國際飯店 蝴蝶酥" }, { name: "凱司令", query: "凱司令 上海" }] },
-          { time: "19:00", route: "伴手禮 ➔ 新天地", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["前往新天地逛聖誕市集。","感受石庫門的異國酒吧氛圍與節慶燈飾。"], backup: "N/A", maps: [{ name: "上海新天地", query: "上海新天地" }] }
+          { time: "08:30", route: "飯店 ➔ 近江町市場", transportText: "🚌 公車 5分", transportType: "bus", mustGo: true, main: ["退房寄行李後前往近江町市場：", "【可樂餅】/【草莓串】/【天狗中田串燒】/【Mori Mori 壽司】"], transitNote: ["乘車處：東口 6、7、8、9 號月台皆可", "下車站名：「武藏辻・近江町市場」"], backup: "人潮眾多時改於外圍熟食攤外帶。", maps: [{ name: "近江町市場", query: "近江町市場" }, { name: "可樂餅", query: "近江町コロッケ" }, { name: "草莓串", query: "フルーツ坂野 近江町" }, { name: "Mori Mori 壽司", query: "Mori Mori Sushi Omicho" }] },
+          { time: "10:00", route: "市場 ➔ 石川縣立圖書館", transportText: "🚕 計程車 20分", transportType: "taxi", mustGo: true, main: ["搭計程車欣賞壯闊圓形書牆與利用兒童閱讀區室內避寒。"], backup: "若遇休館或天候變化，改去金澤21世紀美術館。", maps: [{ name: "圖書館", query: "石川県立図書館" }, { name: "21世紀美術館", query: "金沢21世紀美術館" }] },
+          { time: "12:00", route: "圖書館 ➔ 車站領行李", transportText: "🚕 計程車 25分", transportType: "taxi", mustGo: false, main: ["回金澤車站整頓、泡奶換尿布，並至飯店領取大行李。"], backup: "若時間緊迫，大人分工提領行李，其他人照顧小孩。", maps: [{ name: "金澤車站", query: "金沢駅" }, { name: "西口大和Roynet", query: "Daiwa Roynet Hotel Kanazawa-Eki Nishiguchi" }] },
+          { time: "13:20", route: "金澤 ➔ 高山", transportText: "🚌 高速巴士 2.5h", transportType: "bus", mustGo: false, main: ["西口 4 號乘車處搭乘 13:20 巴士，直達高山濃飛巴士中心。"], backup: "遇大雪停駛時改搭北陸新幹線至富山轉乘 JR 特急 Hida。", maps: [{ name: "西口巴士總站", query: "金沢駅西口バスターミナル" }, { name: "高山濃飛巴士中心", query: "高山濃飛バスセンター" }] },
+          { time: "15:40", route: "高山車站 ➔ 高山櫻庵", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["步行至【高山櫻庵】入住休息。", "💡 戰術提醒：適逢三連休，【味藏天國】需現場抽號碼牌。建議 16:30 先派人去抽晚場號碼牌！"], backup: "若積雪路滑推行李不便，搭排班計程車直達飯店門口。", maps: [{ name: "高山櫻庵", query: "飛騨花里の湯 高山桜庵" }, { name: "味藏天國", query: "味蔵天国 高山" }, { name: "JR 高山站", query: "高山駅" }] },
+          { time: "18:30", route: "飯店 ➔ 飛驒牛燒肉", transportText: "🚶 步行 2分", transportType: "walk", mustGo: true, main: ["【味藏天國】憑號碼牌入場，享用厚切鹽味頂級飛驒牛燒肉。"], backup: "【丸明】飛驒高山店（若味藏天國候位截止的備案）。", maps: [{ name: "味藏天國", query: "味蔵天国 高山" }, { name: "丸明", query: "丸明 飛騨高山店" }] },
+          { time: "20:30", route: "餐廳 ➔ 返回飯店", transportText: "🚶 步行 2分", transportType: "walk", mustGo: false, main: ["散步回飯店，泡免費私人湯屋與享用頂樓大眾湯養足精神。"], backup: "若私人湯屋客滿，改使用客房衛浴或延後再前往大眾湯。", maps: [{ name: "高山櫻庵", query: "飛騨花里の湯 高山桜庵" }] }
         ]
       },
-      3: { dayNum: 3, dateStr: "12/27 (日)", title: "重返童話的迪士尼", subtitle: "專屬大人的夢幻遊樂園 ➔ 煙火秀", weatherCityKey: "shanghai", dayWeatherTitle: "上海迪士尼度假區", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "空曠園區風大", dayClothingTip: "迪士尼園區空曠且需久站，請穿著舒適好走的鞋子與極致防寒的外套。",
+      3: { dayNum: 3, dateStr: "1/11 (一)", title: "宮川朝市 ➔ 白川鄉合掌村點燈", subtitle: "飛騨の里 ➔ 宮川朝市＆老街 ➔ 午睡整備 ➔ 夢幻點燈專車", weatherCityKey: "shirakawago", dayWeatherTitle: "白川鄉合掌村", dayTempRange: "-6°C ~ 2°C", dayWeatherDesc: "豪雪嚴寒地帶（降雪機率 90%，入夜低於 -5°C）", dayClothingTip: "全趟最冷一天！13:30 回房改用嬰兒揹巾（推車留飯店），貼妥暖暖包。",
         items: [
-          { time: "09:00", route: "飯店 ➔ 上海迪士尼", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: true, main: ["趁週日人潮較少，打車前往上海迪士尼度假區。"], backup: "若路況壅塞，可搭乘地鐵11號線直達迪士尼站。", maps: [{ name: "上海迪士尼", query: "上海迪士尼度假區" }] },
-          { time: "全天", route: "迪士尼沉浸式體驗", transportText: "🚶 園區漫步", transportType: "walk", mustGo: true, main: ["毫無壓力地享受各項遊樂設施與異國童話氛圍。","觀賞聖誕特別版花車遊行。","⚠️ 園區內用餐請仔細確認無海鮮成分，多選擇美式或烤肉類。"], backup: "N/A", maps: [] },
-          { time: "20:00", route: "浪漫煙火秀", transportText: "🎇 觀賞", transportType: "walk", mustGo: true, main: ["在城堡前找個好位子，享受浪漫煙火秀與燈光投影。"], backup: "提早 40 分鐘卡位以獲得最佳視野。", maps: [] },
-          { time: "21:00", route: "迪士尼 ➔ 返回飯店", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: false, main: ["散場後打車返回沙美大樓 Zhotel 休息。"], backup: "散場打車需排隊，可至迪士尼小鎮稍作休息避開人潮高峰。", maps: [{ name: "沙美大樓", query: "上海沙美大樓" }] }
+          { time: "07:40", route: "飯店 ➔ 飛騨の里", transportText: "🚕 計程車 10分", transportType: "taxi", mustGo: true, main: ["*先至濃飛巴士中心換點燈巴士車票！", "再搭計程車前往飛騨の里 (8:30開園)。"], backup: "停留飯店休息。", maps: [{ name: "濃飛換票", query: "高山濃飛バスセンター" }, { name: "飛騨の里", query: "飛騨の里" }] },
+          { time: "10:00", route: "飛騨の里 ➔ 宮川朝市", transportText: "🚕 計程車 15分", transportType: "taxi", mustGo: true, main: ["宮川河畔散策：", "【林盛二郎蘋果】/【高山布丁亭】/【現烤焦香糰子】"], backup: "若降大雪，轉往沿街騎樓，或進咖啡店（喫茶去かつて）避寒。", maps: [{ name: "宮川朝市", query: "宮川朝市" }, { name: "高山布丁亭", query: "高山プリン亭" }, { name: "喫茶去かつて", query: "喫茶去かつて" }] },
+          { time: "10:45", route: "朝市 ➔ 高山老街", transportText: "🚶 步行 8分", transportType: "walk", mustGo: true, main: ["漫步三町筋老街：", "【飛驒こって牛】或【坂口屋】握壽司 /【飛驒牛包子】/ 清酒試飲"], backup: "若握壽司排隊過長改買串燒，或大人兵分兩路排隊。", maps: [{ name: "高山老街", query: "飛騨高山 古い町並" }, { name: "飛驒こって牛", query: "飛驒こって牛" }, { name: "坂口屋", query: "坂口屋 高山" }, { name: "原田酒造場", query: "原田酒造場" }, { name: "飛驒牛包子", query: "飛騨牛まん本舗" }] },
+          { time: "12:30", route: "老街 ➔ 高山拉麵午餐", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["【麵屋 Shirakawa】品嘗道地高山深色醬油拉麵。", "⚠️ 點燈日若排隊超過 20 分鐘，請果斷改吃備案確保午睡時間！"], backup: "【桔梗屋】傳統高山拉麵（排隊較快）。", maps: [{ name: "麵屋 Shirakawa", query: "麺屋しらかわ" }, { name: "桔梗屋", query: "桔梗屋 高山" }] },
+          { time: "13:30", route: "回飯店午睡與防寒整備", transportText: "🚶 步行 10分", transportType: "walk", mustGo: false, main: ["⚠️ 幼童回房睡午覺；改用嬰兒揹巾（推車留飯店）。"], backup: "若幼童未睡，在大廳泡足湯、檢查防寒與溫水瓶。", maps: [{ name: "高山櫻庵", query: "飛騨花里の湯 高山桜庵" }] },
+          { time: "15:15", route: "飯店 ➔ 濃飛巴士中心", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["憑「點燈專車」車票排隊上車 (15:40發車)。"], backup: "提早15分鐘抵達核對預約車次與乘車月台。", maps: [{ name: "高山濃飛巴士中心", query: "高山濃飛バスセンター" }] },
+          { time: "16:30", route: "抵達白川鄉 ➔ 主街", transportText: "🚌 專車 1小時", transportType: "bus", mustGo: true, main: ["停靠せせらぎ公園駐車場，步行過相逢橋至主街，拍攝白天雪景。"], backup: "若風雪過大，先至合掌造和田家付費參觀兼避寒。", maps: [{ name: "駐車場", query: "せせらぎ公園駐車場" }, { name: "相逢橋", query: "であい橋 白川郷" }, { name: "白川鄉主街", query: "白川郷荻町合掌造り集落" }, { name: "和田家", query: "白川郷 和田家" }] },
+          { time: "17:30", route: "💡 夢幻點燈開始", transportText: "🚶 村落漫步", transportType: "walk", mustGo: true, main: ["🎉 命中 2027 首場點燈（17:30～19:30）！", "天色變暗村落點燈，近距離欣賞橘黃暖光雪景。"], backup: "視幼童體感隨時進入休息站回溫，避免在零下受凍過久。", maps: [{ name: "白川鄉主街", query: "白川郷荻町合掌造り集落" }] },
+          { time: "18:00", route: "返回民家園 ➔ 喝熱湯", transportText: "🚶 步行回程", transportType: "walk", mustGo: true, main: ["回到「合掌造り民家園」喝熱紅豆湯暖身，等待集合。"], backup: "若民家園人潮過多，改至旁邊的巴士總站休息區避寒。", maps: [{ name: "民家園", query: "野外博物館 合掌造り民家園" }, { name: "巴士總站", query: "白川郷バスターミナル" }] },
+          { time: "19:20", route: "白川鄉 ➔ 高山", transportText: "🚌 專車 1小時", transportType: "bus", mustGo: false, main: ["準時集合搭專車返回高山，幼童於車上補眠。(19:20發)"], backup: "回程若遇大雪車潮延誤，車上備妥保溫瓶熱水與零食。", maps: [{ name: "巴士總站(上車)", query: "白川郷バスターミナル" }] },
+          { time: "20:30", route: "高山車站 ➔ 宵夜", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["【鍛治橋】居酒屋享用宵夜，或回飯店吃免費夜鳴拉麵。"], backup: "若全家疲憊不想外出，超商買熱食回房。", maps: [{ name: "鍛治橋", query: "味の与平 鍛治橋" }, { name: "高山櫻庵", query: "飛騨花里の湯 高山桜庵" }] }
         ]
       },
-      4: { dayNum: 4, dateStr: "12/28 (一)", title: "優雅收尾與返台", subtitle: "廣式甜品 ➔ Manner Coffee ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "舒適的早晨", dayClothingTip: "準備搭機，可將多餘的禦寒衣物打包，穿著輕鬆輕便的服裝。",
+      4: { dayNum: 4, dateStr: "1/12 (二)", title: "高山飛驒特急 ➔ 名古屋名物", subtitle: "金亀館便當 ➔ JR特急 Hida ➔ 炭焼うな富士 ➔ 大須商圈", weatherCityKey: "nagoya", dayWeatherTitle: "愛知縣・名古屋市", dayTempRange: "2°C ~ 9°C", dayWeatherDesc: "特急南下平原，轉為晴朗乾冷（機率 15%）", dayClothingTip: "抵達名古屋後地下街暖氣充足，可收起厚重雪具，換回輕便推車。",
         items: [
-          { time: "10:00", route: "飯店 ➔ 悠閒早午餐", transportText: "🚶 步行", transportType: "walk", mustGo: false, main: ["睡到自然醒，享受飯店復古氛圍。","外出品嚐「雙喜老鋪」廣式甜品 (雙皮奶等) 或道地街邊雞蛋餅。"], backup: "N/A", maps: [{ name: "雙喜老鋪", query: "雙喜老鋪 上海" }] },
-          { time: "13:00", route: "外灘最後巡禮", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["買杯 Manner Coffee 悠閒漫步。","採買最後的紀念品或在沙美大樓附近補拍底片。"], backup: "N/A", maps: [{ name: "Manner Coffee", query: "Manner Coffee 外灘" }] },
-          { time: "16:30", route: "飯店 ➔ 浦東機場", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: true, main: ["領取行李，從外灘飯店打車前往浦東機場 (PVG)。"], backup: "務必預留塞車時間，最遲 17:00 需出發。", maps: [{ name: "浦東機場", query: "上海浦東國際機場" }] },
-          { time: "19:50", route: "搭機 ➔ 返回台北 (TPE)", transportText: "✈️ 航班 2h", transportType: "flight", mustGo: false, main: ["搭乘中華航空晚班機 (19:50起飛)。","帶著滿滿的 Citywalk 與聖誕回憶，預計 21:55 返回台灣。"], backup: "N/A", maps: [{ name: "桃園機場", query: "桃園國際機場" }] }
+          { time: "08:30", route: "飯店 ➔ 退房往車站", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["高山櫻庵退房，推大件行李步行5分鐘至高山車站。"], backup: "路面積雪結冰難行時，請飯店協助叫計程車接送。", maps: [{ name: "高山櫻庵", query: "飛騨花里の湯 高山桜庵" }, { name: "JR 高山站", query: "高山駅" }] },
+          { time: "08:45", route: "高山車站 ➔ 採買早午餐", transportText: "🚶 車站東口", transportType: "walk", mustGo: false, main: ["車站戰術分工：", "主力至東口出站即達的【金亀館】買飛驒牛便當；後勤買熱飲。"], backup: "若售罄，改至車站內 Bellmart Kiosk 買熱食三明治。", maps: [{ name: "金亀館", query: "駅弁の金亀館 高山駅" }, { name: "Bellmart Kiosk", query: "ベルマートキヨスク 高山" }] },
+          { time: "09:36", route: "高山 ➔ 名古屋 (Hida 6號)", transportText: "🚄 特急 2.5h", transportType: "train", mustGo: true, main: ["搭乘 JR 特急 Hida 6 號（09:36 發 ➔ 12:04 抵達），請於 09:20 前進站。車上享用便當與飛驒川雪景。"], backup: "若遇大雪列車減速或延誤，備妥熱水與零食安撫幼童。", maps: [{ name: "JR 高山站", query: "高山駅" }, { name: "JR 名古屋站", query: "名古屋駅" }] },
+          { time: "12:10", route: "名古屋車站 ➔ 飯店寄物", transportText: "🚶 步行 4分", transportType: "walk", mustGo: false, main: ["抵達名古屋，步行至「名鐵格蘭飯店」寄放大行李。"], backup: "若遇雨雪不便，改走名古屋地下街通道前往飯店寄物。", maps: [{ name: "名鐵格蘭飯店", query: "名鉄グランドホテル" }] },
+          { time: "13:30", route: "飯店 ➔ 鰻魚飯午餐", transportText: "🚶 步行 2分", transportType: "walk", mustGo: true, main: ["【炭焼 うな富士 太閤口店】(已預約)，必點招牌「肝入鰻魚飯三吃」。"], backup: "N/A", maps: [{ name: "炭焼 うな富士 太閤口店", query: "炭焼 うな富士 名古屋駅太閤口店" }] },
+          { time: "14:30", route: "鰻魚飯 ➔ 草莓大福", transportText: "🚶 步行 4分", transportType: "walk", mustGo: true, main: ["散步至大名古屋大廈 B1F【弁才天】採買新鮮草莓大福。"], backup: "N/A", maps: [{ name: "弁才天 大名古屋", query: "覚王山フルーツ大福 弁才天 大名古屋ビルヂング店" }, { name: "大名古屋大廈", query: "大名古屋ビルヂング" }, { name: "鬼塚虎", query: "鬼塚虎 名古屋店" }, { name: "OSHMAN'S(on)", query: "OSHMAN'S 名古屋店" }] },
+          { time: "16:00", route: "車站 ➔ 大須商店街", transportText: "🚇 地鐵 10分", transportType: "subway", mustGo: true, main: ["搭地鐵至大須觀音站，逛超大有棚商店街（推嬰兒車極度好逛，小吃、藥妝、扭蛋）。"], backup: "若天候不佳或體力有限，改逛名古屋車站直結之高島屋。", maps: [{ name: "大須商店街", query: "大須商店街" }, { name: "大須觀音站", query: "大須観音駅" }, { name: "JR高島屋", query: "ジェイアール名古屋タカシマヤ" }] },
+          { time: "19:00", route: "大須 ➔ 世界的手羽先", transportText: "🚇 地鐵 10分", transportType: "subway", mustGo: true, main: ["【世界の山ちゃん】招牌手羽先（長輩下酒首選），另點不辣炒飯給幼童。"], backup: "若候位過久或太擁擠，改外帶回飯店，或換鄰近【風來坊】。", maps: [{ name: "世界の山ちゃん", query: "世界の山ちゃん 名駅西口店" }, { name: "風來坊", query: "風来坊 名駅新幹線口店" }] },
+          { time: "21:00", route: "餐廳 ➔ 返回飯店", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["散步回名鐵格蘭飯店休息，利用乾濕分離大浴室洗澡。"], backup: "若戰利品過多或疲倦，於居酒屋門口搭計程車回飯店。", maps: [{ name: "名鐵格蘭飯店", query: "名鉄グランドホテル" }] }
+        ]
+      },
+      5: { dayNum: 5, dateStr: "1/13 (三)", title: "名站最後採買 ➔ 機場 μ-SKY", subtitle: "Bic Camera/千里馬 ➔ ESCA 親子丼 ➔ 名鐵 μ-SKY ➔ 溫暖返台", weatherCityKey: "nagoya", dayWeatherTitle: "名古屋車站商圈 ➔ 機場", dayTempRange: "2°C ~ 9°C", dayWeatherDesc: "晴時多雲舒適乾冷（室內地下街＆機場直通）", dayClothingTip: "今日全數為室內動線，穿著輕便保暖即可，把厚外套打包進行李。",
+        items: [
+          { time: "10:00", route: "飯店 ➔ 車站商圈採買", transportText: "🚶 步行 10分", transportType: "walk", mustGo: true, main: ["睡到自然醒後退房寄行李，逛 Bic Camera 與 千里馬藥局。"], backup: "若遇天候不佳改逛 JR Gate Tower 商圈與三省堂書店，免走戶外。", maps: [{ name: "Bic Camera", query: "ビックカメラ 名古屋駅西店" }, { name: "千里馬藥局", query: "千里馬薬局 名駅店" }, { name: "JR Gate Tower", query: "JRゲートタワー 名古屋" }] },
+          { time: "13:00", route: "商圈 ➔ ESCA 地下街午餐", transportText: "🚶 步行 5分", transportType: "walk", mustGo: true, main: ["【鳥開總本家】親子丼 / 【山本屋本店】味噌烏龍麵。"], backup: "N/A", maps: [{ name: "ESCA 地下街", query: "エスカ地下街 名古屋" }, { name: "鳥開總本家", query: "鳥開総本家 名駅エスカ店" }, { name: "山本屋本店", query: "山本屋本店 エスカ店" }] },
+          { time: "15:30", route: "午餐 ➔ 飯店領行李打包", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["回飯店領取戰利品，於大廳做最後裝箱打包與重量分配。"], backup: "若行李箱超重，現場分裝至手提行李袋備用。", maps: [{ name: "名鐵格蘭飯店", query: "名鉄グランドホテル" }] },
+          { time: "16:00", route: "飯店 ➔ 名鐵名古屋站", transportText: "🚶 步行 5分", transportType: "walk", mustGo: false, main: ["推行李沿平坦騎樓步行前往名鐵車站。"], backup: "若戶外風雨較大，改由地下街搭乘無障礙電梯直通閘門。", maps: [{ name: "名鐵名古屋站", query: "名鉄名古屋駅" }] },
+          { time: "16:19", route: "名古屋 ➔ 中部國際機場", transportText: "🚄 列車 28分", transportType: "train", mustGo: false, main: ["🚄 方案1 (μ-SKY)：16:19 或 16:49 發車，28分直達。", "🚆 方案2 (特急)：16:30 發車，36分抵達。依打包進度彈性搭車！"], backup: "班次極密集，現場購票即可。", maps: [{ name: "名鐵名古屋站", query: "名鉄名古屋駅" }, { name: "中部國際機場", query: "中部国際空港 セントレア" }] },
+          { time: "17:00", route: "機場報到 ➔ 免稅店", transportText: "🚶 步行", transportType: "walk", mustGo: true, main: ["機場報到託運後，至 4F「提燈橫丁」買「蝦仙貝之里」。"], backup: "若 4F 排隊過長，通關後至免稅店買赤福等銘菓。", maps: [{ name: "蝦仙貝之里", query: "えびせんべいの里 セントレア店" }, { name: "4F 提燈橫丁", query: "中部国際空港 ちょうちん横丁" }] },
+          { time: "19:40", route: "搭機 ➔ 返回台北 (TPE)", transportText: "✈️ 航班 2.5h", transportType: "flight", mustGo: false, main: ["搭乘星宇 JX839 (19:40起飛)，預計 22:15 抵達桃園。"], backup: "若遇延誤，於候機長廊遊戲區安撫幼童。", maps: [{ name: "機場第1航廈", query: "中部国際空港 第1ターミナル" }, { name: "桃園機場", query: "桃園國際機場" }] }
         ]
       }
     };
@@ -806,13 +910,13 @@
       wrapper.classList.remove("modal-enter"); void wrapper.offsetWidth; wrapper.classList.add("modal-enter");
 
       const cityObj = CITIES_WEATHER[dayData.weatherCityKey];
-      const liveWeatherTag = cityObj && cityObj.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 ml-2">即時：${cityObj.liveTemp}°C</span>` : ``;
+      const liveWeatherTag = cityObj && cityObj.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30 ml-2">即時：${cityObj.liveTemp}°C</span>` : ``;
       const filteredItems = onlyMustGo ? dayData.items.filter(item => item.mustGo) : dayData.items;
 
       let timelineHTML = `
         <div class="mb-5">
-          <h2 class="text-[22px] font-medium text-[#2b2523] mb-1.5 leading-snug">${dayData.title}</h2>
-          <div class="text-[13px] text-[#8a837e] leading-relaxed">${dayData.subtitle}</div>
+          <h2 class="text-[22px] font-medium text-[#26343b] mb-1.5 leading-snug">${dayData.title}</h2>
+          <div class="text-[13px] text-[#849098] leading-relaxed">${dayData.subtitle}</div>
         </div>
         
         <div class="card mb-6 !p-4 sm:!p-5">
@@ -820,18 +924,18 @@
             <div class="text-[32px] leading-none">${getWeatherEmoji(cityObj ? cityObj.liveTemp !== null ? 0 : 71 : 71)}</div>
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
-                <h4 class="font-medium text-[15px] text-[#2b2523]">${dayData.dayWeatherTitle}</h4>
+                <h4 class="font-medium text-[15px] text-[#26343b]">${dayData.dayWeatherTitle}</h4>
                 ${liveWeatherTag}
               </div>
-              <div class="flex flex-wrap gap-2 mt-1 text-[12px] text-[#8a837e]">
+              <div class="flex flex-wrap gap-2 mt-1 text-[12px] text-[#849098]">
                 <span>🌡️ ${dayData.dayTempRange}</span>
                 <span>·</span>
                 <span>${dayData.dayWeatherDesc}</span>
               </div>
             </div>
           </div>
-          <div class="mt-3 pt-3 border-t border-[#e8eae8] text-[12.5px] text-[#8b3a3a] leading-relaxed">
-            <b class="text-[#2b2523]">🧣 穿搭提醒：</b>${dayData.dayClothingTip}
+          <div class="mt-3 pt-3 border-t border-[#e8eae8] text-[12.5px] text-[#526d7c] leading-relaxed">
+            <b class="text-[#26343b]">🧣 穿搭提醒：</b>${dayData.dayClothingTip}
           </div>
         </div>
 
@@ -872,8 +976,9 @@
 
         const inspirationGalleryHTML = photos.length > 0 ? `<div class="inspiration-grid mt-2">${photosHTML}</div>` : "";
 
+        // 💡 修改處：幫 stop 加上動態 id，以便 autoFocusItinerary 可以錨定
         timelineHTML += `
-          <div class="stop relative ${isLast ? '!border-transparent' : ''}">
+          <div id="stop-${currentDay}-${idx}" class="stop relative ${isLast ? '!border-transparent' : ''}">
             <div class="absolute left-[-4.5px] top-[7px] w-2 h-2 rounded-full ${item.mustGo ? 'bg-[#b39b74] shadow-[0_0_0_2px_#fff]' : 'bg-[#e8eae8] border border-[#8a837e]'}"></div>
             
             <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -944,46 +1049,113 @@
     function updateDualClocks() {
       const now = new Date();
       const format = (tz, isDate) => new Intl.DateTimeFormat("zh-TW", { timeZone: tz, hour12: false, ...isDate ? {year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"} : {hour:"2-digit", minute:"2-digit", second:"2-digit"} }).format(now);
-      const els = ["clock-tw-time", "clock-tw-date", "clock-cn-time", "clock-cn-date"];
-      [format("Asia/Taipei"), format("Asia/Taipei", 1), format("Asia/Shanghai"), format("Asia/Shanghai", 1)].forEach((v, i) => { if(document.getElementById(els[i])) document.getElementById(els[i]).textContent = v; });
+      const els = ["clock-tw-time", "clock-tw-date", "clock-jp-time", "clock-jp-date"];
+      [format("Asia/Taipei"), format("Asia/Taipei", 1), format("Asia/Tokyo"), format("Asia/Tokyo", 1)].forEach((v, i) => { if(document.getElementById(els[i])) document.getElementById(els[i]).textContent = v; });
     }
 
-    /* ================= 啟動與自動轉移舊資料 ================= */
+    /* ================= 智慧定位行程 (Auto-Focus) ================= */
+    function autoFocusItinerary() {
+      const jstDateString = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
+      const jstTime = new Date(jstDateString);
+      
+      let targetDay = 1;
+      const y = jstTime.getFullYear(), m = jstTime.getMonth() + 1, d = jstTime.getDate();
+      
+      const isDuringTrip = (y === 2027 && m === 1 && d >= 9 && d <= 13);
+      if (isDuringTrip) {
+        targetDay = d - 8;
+      }
+      
+      selectDay(targetDay, false);
+      if (!isDuringTrip) return;
+
+      const currentHour = jstTime.getHours();
+      const currentMin = jstTime.getMinutes();
+      const currentTimeNum = currentHour * 60 + currentMin;
+      
+      const dayData = ITINERARY_DATA[targetDay];
+      const filteredItems = onlyMustGo ? dayData.items.filter(item => item.mustGo) : dayData.items;
+      
+      let targetIdx = -1;
+      for (let i = 0; i < filteredItems.length; i++) {
+        const timeParts = filteredItems[i].time.split(":");
+        if(timeParts.length === 2) {
+          const itemTimeNum = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+          if (itemTimeNum >= currentTimeNum) {
+            targetIdx = i;
+            break;
+          }
+        }
+      }
+      
+      if (targetIdx === -1 && filteredItems.length > 0) {
+        targetIdx = filteredItems.length - 1;
+      }
+      
+      if (targetIdx !== -1) {
+        setTimeout(() => {
+          // 💡 此處依賴上面加入的 stop ID 定位
+          const targetEl = document.getElementById(`stop-${targetDay}-${targetIdx}`);
+          if (targetEl) {
+            const headerHeight = document.querySelector("header") ? document.querySelector("header").getBoundingClientRect().height : 60;
+            const subNav = document.querySelector(".sticky-sub-nav");
+            const subNavHeight = subNav ? subNav.getBoundingClientRect().height : 50;
+            const offset = headerHeight + subNavHeight + 10;
+            
+            window.scrollTo({
+              top: targetEl.getBoundingClientRect().top + window.pageYOffset - offset,
+              behavior: "smooth"
+            });
+            
+            targetEl.style.backgroundColor = "rgba(197, 173, 133, 0.15)";
+            targetEl.style.borderRadius = "8px";
+            setTimeout(() => { targetEl.style.backgroundColor = "transparent"; }, 2000);
+          }
+        }, 300);
+      }
+    }
+
+    /* ================= 啟動與整合邏輯 ================= */
     window.addEventListener("DOMContentLoaded", async () => {
+      // 1. 初始化資料庫並讀取資料
       try {
         await idb.init();
         const savedShopping = await idb.get('shoppingData');
         const savedPhotos = await idb.get('itineraryPhotos');
         
-        // 舊 localStorage 資料無痛轉移機制
-        if (!savedPhotos && localStorage.getItem('shanghai_itinerary_photos_v1')) {
-            itineraryPhotos = JSON.parse(localStorage.getItem('shanghai_itinerary_photos_v1')) || {};
+        // 舊 localStorage 資料轉移 (名稱已改為 hokuriku 防衝突)
+        if (!savedPhotos && localStorage.getItem('hokuriku_itinerary_photos_v1')) {
+            itineraryPhotos = JSON.parse(localStorage.getItem('hokuriku_itinerary_photos_v1')) || {};
             await idb.set('itineraryPhotos', itineraryPhotos);
             console.log("已從舊版成功轉移行程相片！");
         } else {
             itineraryPhotos = savedPhotos ? savedPhotos : {};
         }
 
-        if (!savedShopping && localStorage.getItem('shanghai_shopping_v1')) {
-            shoppingData = JSON.parse(localStorage.getItem('shanghai_shopping_v1')) || defaultShopping;
+        if (!savedShopping && localStorage.getItem('hokuriku_shopping_v1')) {
+            shoppingData = JSON.parse(localStorage.getItem('hokuriku_shopping_v1')) || defaultShopping;
             await idb.set('shoppingData', shoppingData);
             console.log("已從舊版成功轉移購物清單！");
         } else {
             shoppingData = savedShopping ? savedShopping : defaultShopping;
         }
-
       } catch (e) {
         console.error("IndexedDB 初始化失敗，進入降級模式", e);
         shoppingData = defaultShopping;
         itineraryPhotos = {};
       }
 
-      updateDualClocks(); setInterval(updateDualClocks, 1000);
-      renderWeatherGrid(); renderDayTimeline();
-      fetchAllWeather();
-      switchMainTab('itinerary'); selectDay(1, false);
+      // 2. 啟動時鐘與 UI 渲染
+      updateDualClocks(); 
+      setInterval(updateDualClocks, 1000);
+      
+      renderFourCitiesWeather(); 
+      fetchAllJapanWeather();
+      
+      // 3. 初始化畫面與智慧定位
+      switchMainTab('itinerary'); 
+      autoFocusItinerary(); 
     });
-
   </script>
 </body>
 </html>
