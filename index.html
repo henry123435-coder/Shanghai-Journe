@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -117,12 +118,40 @@
     /* 彈跳動畫 */
     @keyframes bounceIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
     .modal-enter { animation: bounceIn 0.2s ease-out forwards; }
+
+    /* ================= 靈感圖集與燈箱樣式 ================= */
+    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.2s ease-out forwards; }
+    
+    .inspiration-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 10px; }
+    .inspiration-item {
+      position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--line); background: #fafafa; cursor: zoom-in;
+    }
+    .inspiration-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+    .inspiration-item:hover img { transform: scale(1.05); }
+    .inspiration-delete {
+      position: absolute; top: 4px; right: 4px; background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center;
+      justify-content: center; font-size: 11px; color: #8b3a3a;
+      border: 1px solid rgba(0,0,0,0.1); cursor: pointer; z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .inspiration-delete:hover { background: #fff; transform: scale(1.1); }
   </style>
 </head>
 
 <body>
+  <!-- 原本就有的隱藏上傳元件 -->
   <input type="file" id="hidden-img-upload" accept="image/*" class="hidden">
 
+  <!-- 👇👇 貼在這裡：全螢幕看圖 Lightbox 👇👇 -->
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4 fade-in" onclick="closeLightbox()">
+    <button class="absolute top-4 right-4 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
+  </div>
+  <!-- 👆👆 貼在這裡 👆👆 -->
+  
   <!-- 計算機 Modal 對話框 -->
   <div id="tax-modal" class="hidden fixed inset-0 z-[60] bg-[#2b2523]/40 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card w-full max-w-xs modal-enter relative !p-6">
@@ -156,7 +185,7 @@
       
       <div class="navlinks">
         <a href="javascript:void(0)" onclick="switchMainTab('itinerary')" id="nav-desk-itinerary" class="active">每日行程</a>
-        <a href="javascript:void(0)" onclick="switchMainTab('weather')" id="nav-desk-weather">時間天氣</a>
+        <a href="javascript:void(0)" onclick="switchMainTab('weather')" id="nav-desk-weather">时间天氣</a>
         <a href="javascript:void(0)" onclick="switchMainTab('flights')" id="nav-desk-flights">航班交通</a>
         <a href="javascript:void(0)" onclick="switchMainTab('hotels')" id="nav-desk-hotels">住宿指南</a>
         <a href="javascript:void(0)" onclick="switchMainTab('shopping')" id="nav-desk-shopping">購物清單</a>
@@ -373,16 +402,60 @@
   </nav>
 
   <script>
-    // PWA Service Worker
+
+    // PWA Service Worker (Network-First 策略，確保能讀到最新代碼)
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'shanghai-trip-v1';
-        self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll([location.href]))); });
-        self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(res => { return res || fetch(e.request).catch(() => new Response('Offline', { status: 200 })); })); });
+        const CACHE_NAME = 'shanghai-trip-v2.0-idb';
+        self.addEventListener('install', e => { self.skipWaiting(); });
+        self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
+        self.addEventListener('fetch', e => {
+          e.respondWith(
+            fetch(e.request).then(res => {
+              const resClone = res.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+              return res;
+            }).catch(() => caches.match(e.request))
+          );
+        });
       `;
       const blob = new Blob([swCode], { type: 'application/javascript' });
       navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
     }
+
+    /* ================= IndexedDB 本機資料庫引擎 ================= */
+    const idb = {
+      db: null,
+      init: function() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open('ShanghaiTripDB', 1);
+          req.onupgradeneeded = e => {
+            const db = e.target.result;
+            if(!db.objectStoreNames.contains('TripStore')) {
+              db.createObjectStore('TripStore');
+            }
+          };
+          req.onsuccess = e => { this.db = e.target.result; resolve(); };
+          req.onerror = e => reject(e.target.error);
+        });
+      },
+      get: function(key) {
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction('TripStore', 'readonly');
+          const req = tx.objectStore('TripStore').get(key);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      },
+      set: function(key, val) {
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction('TripStore', 'readwrite');
+          const req = tx.objectStore('TripStore').put(val, key);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      }
+    };
 
     /* ================= 計算機邏輯 ================= */
     function toggleTaxModal() {
@@ -401,27 +474,57 @@
       document.getElementById('tax-twd').textContent = Math.round(cny * rate).toLocaleString();
     }
 
-    /* ================= 購物清單邏輯 ================= */
-    const defaultShopping = [
-      { id: 'g1', title: '🎁 老字號伴手禮', isOpen: true, items: [
-        { id: 'i1', name: '國際飯店 蝴蝶酥', spec: '大盒', memo: '本地人狂推', price: 60, bought: false, img: '🦋' },
-        { id: 'i2', name: '凱司令 栗子蛋糕', spec: '招牌', memo: '法租界順路買', price: 20, bought: false, img: '🍰' }
-      ]},
-      { id: 'g2', title: '👗 法租界質感買手店', isOpen: true, items: [
-        { id: 'i3', name: '質感服飾/香氛', spec: '武康路/安福路', memo: '看中即買', price: 0, bought: false, img: '🛍️' }
-      ]}
-    ];
+    /* ================= 圖片燈箱與儲存邏輯 ================= */
+    let currentUploadTarget = { type: null, gId: null, iId: null, dayId: null, stopIdx: null };
+    let itineraryPhotos = {};
+    let shoppingData = [];
 
-    let shoppingData = JSON.parse(localStorage.getItem('shanghai_shopping_v1')) || defaultShopping;
-    let currentUploadTarget = { gId: null, iId: null };
-
-    function triggerImageUpload(gId, iId) {
-      currentUploadTarget = { gId, iId };
-      const fileInput = document.getElementById('hidden-img-upload');
-      fileInput.value = '';
-      fileInput.click();
+    function openLightbox(base64Str) {
+        document.getElementById('lightbox-img').src = base64Str;
+        document.getElementById('lightbox-modal').classList.remove('hidden');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox-modal').classList.add('hidden');
+        document.getElementById('lightbox-img').src = '';
     }
 
+    function triggerImageUpload(gId, iId) {
+      currentUploadTarget = { type: 'shopping', gId, iId };
+      const fileInput = document.getElementById('hidden-img-upload');
+      fileInput.value = ''; fileInput.click();
+    }
+    
+    function triggerItineraryUpload(dayId, stopIdx) {
+      currentUploadTarget = { type: 'itinerary', dayId, stopIdx };
+      const fileInput = document.getElementById('hidden-img-upload');
+      fileInput.value = ''; fileInput.click();
+    }
+    
+    function removeItineraryPhoto(dayId, stopIdx, photoIdx) {
+      if(confirm('確定移除這張靈感照片嗎？')) {
+        const key = `${dayId}-${stopIdx}`;
+        if (itineraryPhotos[key]) {
+            itineraryPhotos[key].splice(photoIdx, 1);
+            idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
+        }
+      }
+    }
+
+    // 購物清單專屬：移除照片並恢復成空按鈕
+    function removeShoppingImage(gId, iId) {
+      if(confirm('確定移除這張商品相片嗎？')) {
+        const g = shoppingData.find(x => x.id === gId);
+        if (g) {
+          const i = g.items.find(x => x.id === iId);
+          if (i) {
+            i.img = '🛍️';
+            saveShopping();
+          }
+        }
+      }
+    }
+
+    // 圖片壓縮引擎 (統一提升至 600px)
     document.addEventListener('DOMContentLoaded', () => {
       const fileInput = document.getElementById('hidden-img-upload');
       if (fileInput) {
@@ -433,7 +536,8 @@
             const img = new Image();
             img.onload = function() {
               const canvas = document.createElement('canvas');
-              const MAX_SIZE = 300;
+              const MAX_SIZE = 600; // 雙邊統一 600px，畫質升級
+              
               let w = img.width, h = img.height;
               if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
               else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
@@ -441,9 +545,22 @@
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
               ctx.drawImage(img, 0, 0, w, h);
-              if (currentUploadTarget.gId && currentUploadTarget.iId) {
-                updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', canvas.toDataURL('image/jpeg', 0.7));
-                saveShopping();
+              
+              // 採用 0.7 壓縮品質
+              const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+              if (currentUploadTarget.type === 'shopping' && currentUploadTarget.gId && currentUploadTarget.iId) {
+                updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', compressedBase64); // 內部會呼叫 saveShopping
+              } else if (currentUploadTarget.type === 'itinerary' && currentUploadTarget.dayId) {
+                const key = `${currentUploadTarget.dayId}-${currentUploadTarget.stopIdx}`;
+                if (!itineraryPhotos[key]) itineraryPhotos[key] = [];
+                
+                if (itineraryPhotos[key].length >= 3) {
+                    alert("每個景點最多只能上傳3張照片喔！");
+                    return;
+                }
+                itineraryPhotos[key].push(compressedBase64);
+                idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
               }
             };
             img.src = event.target.result;
@@ -453,13 +570,37 @@
       }
     });
 
-    function saveShopping() { localStorage.setItem('shanghai_shopping_v1', JSON.stringify(shoppingData)); renderShopping(); }
+    /* ================= 購物清單邏輯 (升級 IndexedDB) ================= */
+    const defaultShopping = [
+      { id: 'g1', title: '🎁 老字號伴手禮', isOpen: true, items: [
+        { id: 'i1', name: '國際飯店 蝴蝶酥', spec: '大盒', memo: '本地人狂推', price: 60, bought: false, img: '🦋' },
+        { id: 'i2', name: '凱司令 栗子蛋糕', spec: '招牌', memo: '法租界順路買', price: 20, bought: false, img: '🍰' }
+      ]},
+      { id: 'g2', title: '👗 法租界質感買手店', isOpen: true, items: [
+        { id: 'i3', name: '質感服飾/香氛', spec: '武康路/安福路', memo: '看中即買', price: 0, bought: false, img: '🛍️' }
+      ]}
+    ];
+
+    function saveShopping() { 
+      idb.set('shoppingData', shoppingData).then(() => renderShopping()); 
+    }
+    
     function addShoppingGroup() { const t = prompt('請輸入群組名稱'); if (t) { shoppingData.push({ id: 'g_' + Date.now(), title: t, isOpen: true, items: [] }); saveShopping(); } }
     function removeGroup(gId) { if(confirm('確定刪除此群組？')) { shoppingData = shoppingData.filter(g => g.id !== gId); saveShopping(); } }
     function toggleGroup(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.isOpen = !g.isOpen; saveShopping(); } }
     function addItem(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.items.push({ id: 'i_' + Date.now(), name: '', spec: '', memo: '', price: 0, bought: false, img: '🛍️' }); g.isOpen = true; saveShopping(); } }
     function removeItem(gId, iId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.items = g.items.filter(i => i.id !== iId); saveShopping(); } }
-    function updateItem(gId, iId, f, v) { const g = shoppingData.find(x => x.id === gId); if (g) { const i = g.items.find(x => x.id === iId); if (i) { i[f] = f === 'price' ? (parseFloat(v) || 0) : v; localStorage.setItem('shanghai_shopping_v1', JSON.stringify(shoppingData)); if(f==='price'||f==='bought') renderTotal(); } } }
+    function updateItem(gId, iId, f, v) { 
+      const g = shoppingData.find(x => x.id === gId); 
+      if (g) { 
+        const i = g.items.find(x => x.id === iId); 
+        if (i) { 
+          i[f] = f === 'price' ? (parseFloat(v) || 0) : v; 
+          saveShopping(); 
+          if(f==='price'||f==='bought') renderTotal(); 
+        } 
+      } 
+    }
     function toggleBought(gId, iId) { const g = shoppingData.find(x => x.id === gId); if (g) { const i = g.items.find(x => x.id === iId); if (i) { i.bought = !i.bought; saveShopping(); } } }
     function renderTotal() {
       let t = 0; shoppingData.forEach(g => g.items.forEach(i => { if(!i.bought) t += i.price; }));
@@ -487,11 +628,28 @@
           html += `<div class="space-y-4 pt-1">`;
           g.items.forEach(i => {
             const isImg = i.img.startsWith('http') || i.img.startsWith('data:');
-            const imgHtml = isImg ? `<img src="${i.img}" class="w-full h-full object-cover">` : `<span class="text-4xl">${i.img}</span>`;
+            let imgHtml = '';
+            
+            // 💡 全新購物相片渲染邏輯：支援獨立刪除鈕與點擊放大
+            if (isImg) {
+              imgHtml = `
+                <div class="relative w-full h-full group">
+                  <div class="inspiration-delete" title="移除相片" onclick="event.stopPropagation(); removeShoppingImage('${g.id}', '${i.id}')">✖</div>
+                  <img src="${i.img}" class="w-full h-full object-cover cursor-zoom-in transition-transform duration-200 hover:scale-105" onclick="openLightbox('${i.img}')">
+                </div>
+              `;
+            } else {
+              imgHtml = `
+                <div class="w-full h-full flex items-center justify-center cursor-pointer hover:bg-[#e8eae8] transition-colors" onclick="triggerImageUpload('${g.id}', '${i.id}')">
+                  <span class="text-4xl">${i.img}</span>
+                </div>
+              `;
+            }
+
             html += `
               <div class="flex gap-3 relative ${i.bought ? 'opacity-60' : ''} transition-opacity">
                 <button onclick="removeItem('${g.id}','${i.id}')" class="absolute -top-1.5 -left-1.5 bg-white border border-[#e8eae8] text-[#8a837e] rounded-full w-5 h-5 text-[10px] flex items-center justify-center shadow-sm z-10 hover:text-[#2b2523]">&times;</button>
-                <div class="w-28 h-28 shrink-0 bg-[#f7f7f4] border border-[#e8eae8] rounded-xl flex items-center justify-center overflow-hidden cursor-pointer" onclick="triggerImageUpload('${g.id}','${i.id}')">
+                <div class="w-28 h-28 shrink-0 bg-[#f7f7f4] border border-[#e8eae8] rounded-xl flex items-center justify-center overflow-hidden">
                   ${imgHtml}
                 </div>
                 <div class="flex-1 flex flex-col justify-center gap-2.5 min-w-0">
@@ -528,14 +686,8 @@
           else { el.classList.add('hidden'); el.classList.remove('block', 'modal-enter'); }
         }
       });
-      TABS.forEach(t => {
-        const deskBtn = document.getElementById('nav-desk-' + t);
-        if (deskBtn) deskBtn.className = (t === tabId) ? 'active' : '';
-      });
-      TABS.forEach(t => {
-        const mobBtn = document.getElementById('nav-mob-' + t);
-        if (mobBtn) mobBtn.className = (t === tabId) ? 'active' : '';
-      });
+      TABS.forEach(t => { const deskBtn = document.getElementById('nav-desk-' + t); if (deskBtn) deskBtn.className = (t === tabId) ? 'active' : ''; });
+      TABS.forEach(t => { const mobBtn = document.getElementById('nav-mob-' + t); if (mobBtn) mobBtn.className = (t === tabId) ? 'active' : ''; });
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if(tabId === 'shopping') renderShopping();
     }
@@ -699,6 +851,26 @@
         if (item.maps && item.maps.length > 0) {
           mapsButtonsHTML = `<div class="flex flex-wrap gap-1.5 mt-2.5">${item.maps.map(m => `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.query)}" target="_blank" class="map-pill">📍 ${m.name}</a>`).join("")}</div>`;
         }
+        
+        const photoKey = `${currentDay}-${idx}`;
+        const photos = itineraryPhotos[photoKey] || [];
+        
+        let addPhotoBtn = "";
+        if (photos.length < 3) {
+            addPhotoBtn = `<button onclick="triggerItineraryUpload(${currentDay}, ${idx})" class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 mt-2 hover:!bg-[#f5eedf] transition-colors">📸 ＋ 新增參考圖</button>`;
+        }
+        
+        let photosHTML = "";
+        photos.forEach((base64Str, pIdx) => {
+           photosHTML += `
+             <div class="inspiration-item" onclick="openLightbox('${base64Str}')" title="點擊放大">
+               <div class="inspiration-delete" title="移除圖片" onclick="event.stopPropagation(); removeItineraryPhoto(${currentDay}, ${idx}, ${pIdx})">✖</div>
+               <img src="${base64Str}" alt="靈感照">
+             </div>
+           `; 
+        });
+
+        const inspirationGalleryHTML = photos.length > 0 ? `<div class="inspiration-grid mt-2">${photosHTML}</div>` : "";
 
         timelineHTML += `
           <div class="stop relative ${isLast ? '!border-transparent' : ''}">
@@ -718,6 +890,9 @@
             
             ${backupBoxHTML}
             ${mapsButtonsHTML}
+            
+            ${addPhotoBtn}
+            ${inspirationGalleryHTML}
           </div>
         `;
       });
@@ -770,15 +945,143 @@
       const now = new Date();
       const format = (tz, isDate) => new Intl.DateTimeFormat("zh-TW", { timeZone: tz, hour12: false, ...isDate ? {year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"} : {hour:"2-digit", minute:"2-digit", second:"2-digit"} }).format(now);
       const els = ["clock-tw-time", "clock-tw-date", "clock-cn-time", "clock-cn-date"];
-      // 上海與台北皆為 UTC+8，因此時間一致
       [format("Asia/Taipei"), format("Asia/Taipei", 1), format("Asia/Shanghai"), format("Asia/Shanghai", 1)].forEach((v, i) => { if(document.getElementById(els[i])) document.getElementById(els[i]).textContent = v; });
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    /* ================= 啟動與自動轉移舊資料 ================= */
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        await idb.init();
+        const savedShopping = await idb.get('shoppingData');
+        const savedPhotos = await idb.get('itineraryPhotos');
+        
+        // 舊 localStorage 資料無痛轉移機制
+        if (!savedPhotos && localStorage.getItem('shanghai_itinerary_photos_v1')) {
+            itineraryPhotos = JSON.parse(localStorage.getItem('shanghai_itinerary_photos_v1')) || {};
+            await idb.set('itineraryPhotos', itineraryPhotos);
+            console.log("已從舊版成功轉移行程相片！");
+        } else {
+            itineraryPhotos = savedPhotos ? savedPhotos : {};
+        }
+
+        if (!savedShopping && localStorage.getItem('shanghai_shopping_v1')) {
+            shoppingData = JSON.parse(localStorage.getItem('shanghai_shopping_v1')) || defaultShopping;
+            await idb.set('shoppingData', shoppingData);
+            console.log("已從舊版成功轉移購物清單！");
+        } else {
+            shoppingData = savedShopping ? savedShopping : defaultShopping;
+        }
+
+      } catch (e) {
+        console.error("IndexedDB 初始化失敗，進入降級模式", e);
+        shoppingData = defaultShopping;
+        itineraryPhotos = {};
+      }
+
       updateDualClocks(); setInterval(updateDualClocks, 1000);
       renderWeatherGrid(); renderDayTimeline();
       fetchAllWeather();
       switchMainTab('itinerary'); selectDay(1, false);
+    });
+
+  /* ================= 智慧定位行程 (Auto-Focus) ================= */
+    function autoFocusItinerary() {
+      // 取得日本當前時間 (JST)
+      const jstDateString = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"});
+      const jstTime = new Date(jstDateString);
+      
+      let targetDay = 1;
+      const y = jstTime.getFullYear(), m = jstTime.getMonth() + 1, d = jstTime.getDate();
+      
+      // 判斷是否落在旅程期間 (2027/1/9 - 1/13)
+      const isDuringTrip = (y === 2027 && m === 1 && d >= 9 && d <= 13);
+      if (isDuringTrip) {
+        targetDay = d - 8; // 9日->Day1, 13日->Day5
+      }
+      
+      selectDay(targetDay, false);
+      
+      // 💡 關鍵修正：若非實際旅程期間（平時測試時），直接保持在頂部，不進行時間自動對標滾動
+      if (!isDuringTrip) return;
+
+      // 比對時間自動滾動
+      const currentHour = jstTime.getHours();
+      const currentMin = jstTime.getMinutes();
+      const currentTimeNum = currentHour * 60 + currentMin;
+      
+      const dayData = ITINERARY_DATA[targetDay];
+      const filteredItems = onlyMustGo ? dayData.items.filter(item => item.mustGo) : dayData.items;
+      
+      let targetIdx = -1;
+      for (let i = 0; i < filteredItems.length; i++) {
+        const timeParts = filteredItems[i].time.split(":");
+        if(timeParts.length === 2) {
+          const itemTimeNum = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+          // 找到第一個時間大於等於當前時間的行程
+          if (itemTimeNum >= currentTimeNum) {
+            targetIdx = i;
+            break;
+          }
+        }
+      }
+      
+      // 若時間已超過當日所有行程，則停留在最後一個
+      if (targetIdx === -1 && filteredItems.length > 0) {
+        targetIdx = filteredItems.length - 1;
+      }
+      
+      if (targetIdx !== -1) {
+        setTimeout(() => {
+          const targetEl = document.getElementById(`stop-${targetDay}-${targetIdx}`);
+          if (targetEl) {
+            const headerHeight = document.querySelector("header") ? document.querySelector("header").getBoundingClientRect().height : 60;
+            const subNav = document.querySelector(".sticky-sub-nav");
+            const subNavHeight = subNav ? subNav.getBoundingClientRect().height : 50;
+            const offset = headerHeight + subNavHeight + 10;
+            
+            window.scrollTo({
+              top: targetEl.getBoundingClientRect().top + window.pageYOffset - offset,
+              behavior: "smooth"
+            });
+            
+            // 加入提示閃爍效果
+            targetEl.style.backgroundColor = "rgba(197, 173, 133, 0.15)";
+            targetEl.style.borderRadius = "8px";
+            setTimeout(() => { targetEl.style.backgroundColor = "transparent"; }, 2000);
+          }
+        }, 300);
+      }
+    }
+
+    function toggleMustGoFilter() {
+      onlyMustGo = !onlyMustGo;
+      const btn = document.getElementById("btn-filter-must");
+      if (onlyMustGo) { btn.classList.add("!bg-[#fcf7f0]", "!text-[#c5ad85]", "!border-[#c5ad85]/30"); btn.innerHTML = "⭐ 顯示全部"; } 
+      else { btn.classList.remove("!bg-[#fcf7f0]", "!text-[#c5ad85]", "!border-[#c5ad85]/30"); btn.innerHTML = "⭐ 僅看必去"; }
+      renderDayTimeline();
+    }
+
+    function toggleAllBackups() {
+      showBackups = !showBackups;
+      const btnText = document.getElementById("backup-btn-text"), btn = document.getElementById("btn-toggle-backup");
+      if (showBackups) { btnText.textContent = "🛡️ 隱藏備案"; btn.classList.remove("!bg-[#f4f7f4]", "!text-[#527c5a]", "!border-[#527c5a]/30"); } 
+      else { btnText.textContent = "🛡️ 顯示備案"; btn.classList.add("!bg-[#f4f7f4]", "!text-[#527c5a]", "!border-[#527c5a]/30"); }
+      renderDayTimeline();
+    }
+
+    function updateDualClocks() {
+      const now = new Date();
+      const format = (tz, isDate) => new Intl.DateTimeFormat("zh-TW", { timeZone: tz, hour12: false, ...isDate ? {year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"} : {hour:"2-digit", minute:"2-digit", second:"2-digit"} }).format(now);
+      const els = ["clock-tw-time", "clock-tw-date", "clock-jp-time", "clock-jp-date"];
+      [format("Asia/Taipei"), format("Asia/Taipei", 1), format("Asia/Tokyo"), format("Asia/Tokyo", 1)].forEach((v, i) => { if(document.getElementById(els[i])) document.getElementById(els[i]).textContent = v; });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      updateDualClocks(); setInterval(updateDualClocks, 1000);
+      renderFourCitiesWeather();
+      fetchAllJapanWeather();
+      switchMainTab('itinerary'); 
+      autoFocusItinerary(); // 啟用智慧對標
     });
   </script>
 </body>
