@@ -1,0 +1,15 @@
+{
+  "name": "Shanghai Journey | 上海旅誌",
+  "short_name": "上海旅誌",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f7f4",
+  "theme_color": "#f7f7f4",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
