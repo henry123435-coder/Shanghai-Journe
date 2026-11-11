@@ -30,45 +30,6 @@
     <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
   </div>
 
-  <!-- 票券新增 Modal -->
-  <div id="ticket-modal" onclick="if(event.target===this) closeTicketModal()" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="card w-full max-w-sm modal-enter relative !p-6">
-      <button onclick="closeTicketModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-xl leading-none">&times;</button>
-      <h3 class="text-lg font-medium mb-5 text-[#26343b] flex items-center gap-2">
-        <span class="text-xl">➕</span> 新增票券檔案
-      </h3>
-      <div class="space-y-4">
-        <div>
-          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">分類</label>
-          <select id="t-cat" class="shop-input bg-white">
-            <option value="transport">🚆 交通運輸</option>
-            <option value="hotel">🏨 住宿憑證</option>
-            <option value="other">📱 其他預約</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">顯示名稱 (必填)</label>
-          <input type="text" id="t-name" placeholder="例：沙美大樓 確認信" class="shop-input font-medium text-[#26343b]">
-        </div>
-        <div>
-          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">補充說明</label>
-          <input type="text" id="t-desc" placeholder="例：訂房代號 12345" class="shop-input text-[#26343b]">
-        </div>
-        <div class="flex gap-3">
-          <div class="w-1/3">
-            <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">圖示</label>
-            <input type="text" id="t-icon" value="🎫" class="shop-input text-center text-lg">
-          </div>
-          <div class="flex-1">
-            <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">檔案連結</label>
-            <input type="url" id="t-link" placeholder="貼上 Drive 連結..." class="shop-input text-[#26343b]">
-          </div>
-        </div>
-        <button onclick="addTicket()" class="w-full bg-[#526d7c] text-white font-medium py-2.5 rounded-lg mt-2 hover:bg-[#3e5663] transition-colors">儲存票券</button>
-      </div>
-    </div>
-  </div>
-
   <!-- 計算機 Modal -->
   <div id="tax-modal" onclick="if(event.target===this) toggleTaxModal()" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="card w-full max-w-xs modal-enter relative !p-6">
@@ -106,7 +67,6 @@
         <a href="javascript:void(0)" onclick="switchMainTab('flights')" id="nav-desk-flights">航班交通</a>
         <a href="javascript:void(0)" onclick="switchMainTab('hotels')" id="nav-desk-hotels">住宿指南</a>
         <a href="javascript:void(0)" onclick="switchMainTab('shopping')" id="nav-desk-shopping">購物清單</a>
-        <a href="javascript:void(0)" onclick="switchMainTab('tickets')" id="nav-desk-tickets">憑證票券</a>
       </div>
       <div>
         <button onclick="toggleTaxModal()" class="pill !bg-white !border !border-[#e8eae8] shadow-sm hover:!bg-[#f7f7f4] transition-colors">
@@ -281,27 +241,6 @@
       <div id="shopping-groups-container" class="space-y-4"></div>
     </section>
 
-    <!-- 分頁 6：動態票券 -->
-    <section id="tab-tickets" class="tab-pane hidden pb-12">
-      <div class="mb-6 flex flex-wrap justify-between items-end gap-3 border-b border-[#e8eae8] pb-4">
-        <div>
-          <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">06 / TICKETS</small>
-          <h2 class="text-2xl font-medium text-[#26343b] mt-1">憑證與電子票券</h2>
-        </div>
-        <button onclick="openTicketModal()" class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 hover:!bg-[#f5eedf]">
-          ➕ 新增票券檔案
-        </button>
-      </div>
-
-      <div class="bg-[#fcf7f0] border border-[#c5ad85]/30 rounded-xl p-3 mb-6 text-center text-[12px] text-[#b39b74] font-medium">
-        💡 建議將憑證檔案或截圖離線儲存，方便在當地網路不穩時快速開啟
-      </div>
-
-      <div id="tickets-container" class="space-y-6">
-        <!-- 動態渲染票券列表 -->
-      </div>
-    </section>
-
   </main>
 
   <!-- 手機版底部導航列 -->
@@ -320,9 +259,6 @@
     </button>
     <button onclick="switchMainTab('shopping')" id="nav-mob-shopping">
       <span class="icon">￥</span><span>購物</span>
-    </button>
-    <button onclick="switchMainTab('tickets')" id="nav-mob-tickets">
-      <span class="icon">🎟︎</span><span>票券</span>
     </button>
   </nav>
 
@@ -582,94 +518,8 @@
       renderTotal();
     }
 
-    /* ================= 動態票券管理邏輯 (含空連結防呆) ================= */
-    const defaultTickets = [
-      { id: 't_demo1', cat: 'transport', name: '去程機票 (中華航空)', desc: 'TPE 08:45 ➔ PVG 10:50', icon: '✈️', link: '#' },
-      { id: 't_demo2', cat: 'transport', name: '回程機票 (中華航空)', desc: 'PVG 19:50 ➔ TPE 21:55', icon: '✈️', link: '#' },
-      { id: 't_demo3', cat: 'hotel', name: '上海沙美大樓 Zhotel 確認信', desc: '12/25 - 12/28 連泊 3 晚', icon: '🛏️', link: '#' }
-    ];
-    let ticketsData = [];
-
-    function saveTickets() {
-      idb.set('ticketsData', ticketsData).then(() => renderTickets());
-    }
-
-    function openTicketModal() {
-      document.getElementById('t-name').value = '';
-      document.getElementById('t-desc').value = '';
-      document.getElementById('t-link').value = '';
-      document.getElementById('t-icon').value = '🎫';
-      document.getElementById('ticket-modal').classList.remove('hidden');
-    }
-
-    function closeTicketModal() {
-      document.getElementById('ticket-modal').classList.add('hidden');
-    }
-
-    function addTicket() {
-      const cat = document.getElementById('t-cat').value;
-      const name = document.getElementById('t-name').value.trim();
-      const desc = document.getElementById('t-desc').value.trim();
-      const icon = document.getElementById('t-icon').value.trim() || '🎫';
-      const link = document.getElementById('t-link').value.trim() || '#';
-
-      if (!name) { alert("請輸入顯示名稱！"); return; }
-
-      ticketsData.push({ id: 't_' + Date.now(), cat, name, desc, icon, link });
-      saveTickets();
-      closeTicketModal();
-    }
-
-    function deleteTicket(id) {
-      if(confirm("確定要刪除這個票券連結嗎？")) {
-        ticketsData = ticketsData.filter(t => t.id !== id);
-        saveTickets();
-      }
-    }
-
-    function renderTickets() {
-      const container = document.getElementById('tickets-container');
-      const cats = [
-        { id: 'transport', title: '🚆 交通運輸' },
-        { id: 'hotel', title: '🏨 住宿憑證' },
-        { id: 'other', title: '📱 其他預約' }
-      ];
-
-      let html = '';
-      cats.forEach(c => {
-        const groupTickets = ticketsData.filter(t => t.cat === c.id);
-        if (groupTickets.length > 0) {
-          html += `<div><h3 class="text-[14px] font-bold text-[#849098] mb-3 ml-1">${c.title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">`;
-          groupTickets.forEach(t => {
-            const hasValidLink = t.link && /^https?:\/\//i.test(t.link);
-            const linkAttr = hasValidLink 
-              ? `href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer"` 
-              : `href="javascript:void(0)" onclick="alert('此票券尚未設定有效連結喔！')"`;
-            html += `
-              <div class="card !p-4 flex items-center justify-between gap-3 group relative hover:shadow-md transition-shadow">
-                <button onclick="deleteTicket('${t.id}')" class="absolute -top-1.5 -right-1.5 bg-white border border-[#e8eae8] text-[#8a837e] rounded-full w-6 h-6 text-[12px] flex items-center justify-center shadow-sm z-10 hover:text-[#a35e5e]">&times;</button>
-                <a ${linkAttr} class="flex items-center gap-4 flex-1 min-w-0">
-                  <div class="text-3xl bg-[#f7f7f4] w-12 h-12 flex items-center justify-center rounded-xl group-hover:scale-105 transition-transform shrink-0">${escapeHtml(t.icon)}</div>
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-[15px] font-medium text-[#26343b] truncate">${escapeHtml(t.name)}</h4>
-                    <p class="text-[12px] text-[#849098] mt-0.5 truncate">${escapeHtml(t.desc) || (hasValidLink ? '點擊開啟憑證' : '尚未設定連結')}</p>
-                  </div>
-                </a>
-              </div>
-            `;
-          });
-          html += `</div></div>`;
-        }
-      });
-
-      if (ticketsData.length === 0) {
-        html = `<div class="text-center text-[#849098] py-12 text-[13px] border-2 border-dashed border-[#e8eae8] rounded-2xl">目前沒有任何票券檔案，點擊上方新增吧！</div>`;
-      }
-      container.innerHTML = html;
-    }
-
     /* ================= 導航與分頁切換邏輯 ================= */
-    const TABS = ['itinerary', 'weather', 'flights', 'hotels', 'shopping', 'tickets'];
+    const TABS = ['itinerary', 'weather', 'flights', 'hotels', 'shopping'];
     function switchMainTab(tabId) {
       TABS.forEach(t => {
         const el = document.getElementById('tab-' + t);
@@ -1031,7 +881,6 @@ function loadCachedWeather() {
         await idb.init();
         const savedShopping = await idb.get('shoppingData');
         const savedPhotos = await idb.get('itineraryPhotos');
-        const savedTickets = await idb.get('ticketsData');
         
         if (!savedPhotos && localStorage.getItem('shanghai_itinerary_photos_v1')) {
             itineraryPhotos = JSON.parse(localStorage.getItem('shanghai_itinerary_photos_v1')) || {};
@@ -1042,15 +891,8 @@ function loadCachedWeather() {
             shoppingData = JSON.parse(localStorage.getItem('shanghai_shopping_v1')) || defaultShopping;
             await idb.set('shoppingData', shoppingData);
         } else { shoppingData = savedShopping || defaultShopping; }
-
-        if (savedTickets) {
-            ticketsData = savedTickets;
-        } else {
-            ticketsData = defaultTickets;
-            await idb.set('ticketsData', ticketsData);
-        }
       } catch (e) {
-        shoppingData = defaultShopping; itineraryPhotos = {}; ticketsData = defaultTickets;
+        shoppingData = defaultShopping; itineraryPhotos = {};
       }
 
       updateDualClocks(); 
@@ -1060,7 +902,6 @@ function loadCachedWeather() {
       fetchAllWeather();
       
       renderShopping();
-      renderTickets();
       switchMainTab('itinerary'); 
       autoFocusItinerary(); 
     });
