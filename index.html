@@ -904,33 +904,34 @@
       1: { dayNum: 1, dateStr: "12/25 (五)", title: "圓夢蟹黃 ➔ 法租界 ➔ 豫園新天地", subtitle: "沙美大樓 ➔ 李百蟹 ➔ RAC Bar / 武康大樓 ➔ 豫園 ➔ 新天地", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・黃浦/徐匯", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區 Citywalk 與夜間點燈", dayClothingTip: "午後散步舒適，傍晚氣溫下降，建議洋蔥式穿搭搭防風大衣。",
         items: [
           { time: "10:50", route: "抵達飯店：Zhotel 沙美大樓", transportText: "🚇 地鐵2/10號線", transportType: "subway", mustGo: false,
-            transitNote: ["🚇 2/10號線「南京東路站」6號口步行 5–8 分（北京東路190號）"],
+            transitNote: ["🚇 2/10號線「南京東路站」6號口步行 5–8 分"],
             main: ["先寄放行李，輕裝出發", "🚽 飯店內"], backup: "N/A",
+            driver: { name: "Zhotel 沙美大樓", addr: "上海市黃浦區北京東路190號", note: "近南京東路站6號出口" },
             maps: [{ name: "浦東機場", query: "上海浦東國際機場" }, { name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
           },
           { time: "13:00", route: "午餐：1️⃣ 🏆 李百蟹·蟹黃麵 (外灘店)", transportText: "🚕 打車8–10分", transportType: "taxi", mustGo: true,
-            transitNote: ["🚕 打車約 8–10 分（黃浦區中山東二路22號3樓）"],
+            transitNote: ["🚕 打車約 8–10 分（外灘22號 3樓）"],
             main: ["📌 必點：蟹黃麵(你) / 炸豬排(馳)", "🚽 餐廳內"],
-            backup: "2️⃣ 【蟹三寶】天津路513號（打車 6 分｜必點：蟹黃金撈 / 蔥油拌麵）<br>3️⃣ 【鮮得來】雲南南路46號（打車 8–10 分｜必點：排骨年糕、雙檔湯）",
+            backup: "2️⃣ 【蟹三寶】天津路513號（打車 6 分｜蟹黃金撈 / 蔥油拌麵）<br>3️⃣ 【鮮得來】雲南南路46號（打車 8–10 分｜排骨年糕、雙檔湯）",
             maps: [{ name: "李百蟹(外灘店)", query: "李百蟹 上海市黃浦區中山東二路22號" }, { name: "蟹三寶", query: "蟹三寶 上海市黃浦區天津路513號" }, { name: "鮮得來", query: "上海市黃浦區雲南南路46號" }]
           },
           { time: "14:30", route: "法租界：RAC Bar ➔ Luneurs ➔ 武康大樓", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 10號線「上海圖書館站」（或2轉7號線「常熟路站」）➔ 沿安福路/武康路南走至「交通大學站」"],
-            main: ["📸 RAC Bar 拱門（安福路322號）➔ Luneurs 焦糖海鹽冰淇淋（武康路286號）➔ 武康大樓（淮海中路1850號），餘裕 2.5h", "🚽 周邊商場 / 咖啡廳"],
+            transitNote: ["🚇 10號線「上海圖書館站」（或2轉7號線「常熟路站」）➔ 南走至「交通大學站」"],
+            main: ["📸 RAC Bar 拱門 ➔ Luneurs 焦糖海鹽冰淇淋 ➔ 武康大樓街角（餘裕 2.5h）", "🚽 周邊商場 / 咖啡廳"],
             backup: "N/A",
             maps: [{ name: "RAC Bar", query: "RAC Bar 上海市徐匯區安福路322號" }, { name: "Luneurs", query: "Luneurs 上海市徐匯區武康路286號" }, { name: "武康大樓", query: "上海市徐匯區淮海中路1850號 武康大樓" }]
           },
           { time: "17:00", route: "豫園點燈：寧波湯糰店 ➔ 涵春茶肆 / 霸王茶姬", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 「交通大學站」10號線直達「豫園站」1號口（豫園老街105號）"],
+            transitNote: ["🚇 「交通大學站」10號線直達「豫園站」1號口"],
             main: ["📌 寧波湯糰：雙拼湯圓（鮮肉＋黑洋酥）", "🥤 涵春茶肆 / 霸王茶姬：逛九曲橋夜景", "💡 16:30 先用微信預點新天地【阿嬤手作】", "🚽 豫園商城內"],
             backup: "N/A",
             maps: [{ name: "豫園商城", query: "上海豫園商城" }]
           },
           { time: "19:00", route: "晚餐：🥤 阿嬤手作 ➔ 1️⃣ 圓苑 (東台里店)", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 10號線「一大會址·新天地站」6號口（時尚II B1，馬當路245號）➔ 步行 6–8 分至東台里B棟（西藏南路328號）"],
+            transitNote: ["🚇 10號線「一大會址·新天地站」6號口（時尚II B1）➔ 步行 6–8 分至東台里B棟"],
             main: ["🥤 阿嬤手作：打·米麻薯、老椰清補涼（線上點單直接取餐）", "📌 圓苑必點：紅燒肉(馳) / 蔥油鰣魚(你) / 桂花糖藕（建議大眾點評先取號）", "🚽 商場內"],
             backup: "2️⃣ 【GREEN & SAFE / Shake Shack】太倉路181弄 新天地北里（步行 5 分｜香烤半雞、松露麵 / 牛肉堡）",
-            maps: [{ name: "阿嬤手作 新天地", query: "上海市黃浦區馬當路245號 新天地時尚" }, { name: "圓苑 東台里", query: "上海市黃浦區西藏南路328號 新天地東台里" }, { name: "太倉路181弄", query: "上海市黃浦區太倉路181弄" }]
+            maps: [{ name: "圓苑 東台里", query: "上海市黃浦區西藏南路328號 新天地東台里" }, { name: "阿嬤手作 新天地", query: "上海市黃浦區馬當路245號 新天地時尚" }, { name: "太倉路181弄", query: "上海市黃浦區太倉路181弄" }]
           },
           { time: "21:30", route: "回飯店 ➔ 宵夜：很久以前羊肉串", transportText: "🚇 地鐵 / 📱 外送", transportType: "subway", mustGo: false,
             transitNote: ["🚇 10號線「一大會址·新天地站」➔「南京東路站」（3站），步行 5–8 分回飯店"],
@@ -943,55 +944,55 @@
       2: { dayNum: 2, dateStr: "12/26 (六)", title: "外灘單向北行 ➔ 蘇州河日落 ➔ 夜景", subtitle: "沙美頂樓 ➔ 海關大樓 ➔ 和平飯店 ➔ 洛克外灘源 ➔ 郵政博物館 ➔ 乍浦路橋", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘/虹口", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "江邊與河畔風大", dayClothingTip: "江邊徒步吹風時間長，建議穿保暖防風大衣與圍巾。",
         items: [
           { time: "09:00", route: "頂樓晨拍：沙美大樓 7F 露台", transportText: "🚶 飯店電梯直達", transportType: "walk", mustGo: true,
-            transitNote: ["📍 北京東路190號 7樓頂樓"],
+            transitNote: ["🛗 飯店電梯直達 7 樓頂樓"],
             main: ["📸 巴洛克穹頂與東方明珠晨景", "⚠️ 若限 10 點開放，09:50 先於電梯口等"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
           },
           { time: "10:00", route: "外灘起點：海關大樓 (外灘鐘樓)", transportText: "🚕 打車起點", transportType: "taxi", mustGo: true,
-            transitNote: ["🚕 打車起步價至中山東一路13號（或步行 8 分）"],
+            transitNote: ["🚕 打車起步價至海關大樓（或步行 8 分）"],
             main: ["📸 拍鐘樓與萬國建築群，一路往北不走回頭路", "🚽 往北至外灘中央廣場"],
             backup: "N/A",
             maps: [{ name: "海關大樓", query: "上海市黃浦區中山東一路13號 海關大樓" }]
           },
           { time: "10:45", route: "外灘街拍：九江路口 ➔ 和平飯店", transportText: "🚶 步行往北", transportType: "walk", mustGo: true,
-            transitNote: ["🚶 沿中山東一路往北約 350 公尺（中山東一路20號）"],
+            transitNote: ["🚶 沿中山東一路往北約 350 公尺"],
             main: ["📸 九江路街谷＋東方明珠同框、和平飯店綠銅頂", "🚽 外灘中央廣場商場"],
             backup: "N/A",
             maps: [{ name: "和平飯店", query: "上海市黃浦區中山東一路20號 和平飯店" }]
           },
           { time: "12:30", route: "午餐：1️⃣ 🏆 滬公館·上海菜", transportText: "🚶 步行3–5分", transportType: "walk", mustGo: true,
-            transitNote: ["🚶 和平飯店過馬路步行 3–5 分（九江路80號 2樓202室）"],
+            transitNote: ["🚶 和平飯店過馬路步行 3–5 分（2樓202室）"],
             main: ["📌 必點：響油鱔絲(你) / 招牌紅燒肉(馳)", "🚽 餐廳 / 大樓內"],
             backup: "2️⃣ 【姥姥家常菜】福州路70號（步行 8 分｜蒜茸蒸蝦(你) / 紅燒肉(馳)）<br>3️⃣ 【德興館】廣東路471號（步行 12 分 / 打車 5 分｜爆魚麵(你) / 燜肉麵(馳)、小籠）",
             maps: [{ name: "滬公館", query: "滬公館 上海市黃浦區九江路80號" }, { name: "姥姥家常菜", query: "上海市黃浦區福州路70號" }, { name: "德興館", query: "上海市黃浦區廣東路471號" }]
           },
           { time: "14:30", route: "洛克外灘源：Manner Coffee ➔ % Arabica", transportText: "🚶 步行往北", transportType: "walk", mustGo: true,
-            transitNote: ["🚶 圓明園路209號（Manner）➔ 圓明園路169號 協進大樓1樓（% Arabica）"],
+            transitNote: ["🚶 沿圓明園路往北步行（距飯店僅 1 個街區）"],
             main: ["📸 Manner 熱拿鐵配紅磚街拍 ➔ % Arabica 純白工業風庭院", "🚽 洛克外灘源商區"],
             backup: "N/A",
             maps: [{ name: "Manner外灘源", query: "上海市黃浦區圓明園路209號" }, { name: "% Arabica", query: "上海市黃浦區圓明園路169號" }]
           },
           { time: "15:30", route: "上海郵政博物館", transportText: "🚶 過四川路橋", transportType: "walk", mustGo: true,
-            transitNote: ["🚶 圓明園路往北過四川路橋約 5 分（北蘇州路250號）"],
+            transitNote: ["🚶 圓明園路往北過四川路橋約 5 分"],
             main: ["📸 正門外框包覆東方明珠", "⚠️ 週六開放，16:00 停止入館", "🚽 館內"],
             backup: "N/A",
             maps: [{ name: "上海郵政博物館", query: "上海市虹口區北蘇州路250號" }]
           },
-          { time: "16:15", route: "蘇州河日落：乍浦路橋 ", transportText: "🚶 步行150公尺", transportType: "walk", mustGo: true,
+          { time: "16:15", route: "蘇州河日落：乍浦路橋", transportText: "🚶 步行150公尺", transportType: "walk", mustGo: true,
             transitNote: ["🚶 郵政博物館東側約 150 公尺"],
             main: ["📸 蘇州河畔日落＋陸家嘴三件套同框", "🚽 周邊咖啡館"],
             backup: "N/A",
             maps: [{ name: "乍浦路橋", query: "上海市虹口區乍浦路橋" }]
           },
           { time: "18:30", route: "晚餐：1️⃣ 🏆 外灘家宴 (南外灘店)", transportText: "🚕 打車8–10分", transportType: "taxi", mustGo: true,
-            transitNote: ["🚕 乍浦路橋打車往南 8–10 分（中山東二路22號 2樓）"],
+            transitNote: ["🚕 乍浦路橋打車往南 8–10 分（2樓）"],
             main: ["📌 必點：松鼠桂魚(你) / 糖醋排骨(馳)", "🚽 餐廳內"],
-            backup: "2️⃣ 【Canton Table 三號黃浦會】中山東一路3號 外灘三號5樓（打車 6–8 分｜粵菜點心 / 叉燒 / 脆皮雞）<br>3️⃣ 【The Captain 船長5號】福州路37號 6樓（打車 5 分｜戰斧牛排 / 烤雞，露台看夜景）",
+            backup: "2️⃣ 【Canton Table 三號黃浦會】外灘三號5樓（打車 6–8 分｜粵菜點心 / 叉燒 / 脆皮雞）<br>3️⃣ 【The Captain 船長5號】福州路37號 6樓（打車 5 分｜戰斧牛排 / 烤雞，露台看夜景）",
             maps: [{ name: "外灘家宴", query: "上海市黃浦區中山東二路22號" }, { name: "三號黃浦會", query: "上海市黃浦區中山東一路3號 外灘三號" }, { name: "The Captain", query: "上海市黃浦區福州路37號" }]
           },
           { time: "20:30", route: "外灘夜景：陳毅廣場觀景台", transportText: "🚶 沿江往北散步", transportType: "walk", mustGo: true,
-            transitNote: ["🚶 沿中山東一路親水平台往北順走至陳毅廣場"],
+            transitNote: ["🚶 沿親水平台往北順走至陳毅廣場"],
             main: ["📸 金色外灘與陸家嘴夜景大片（不上船吹冷風）", "🚽 沿線公共洗手間"],
             backup: "N/A",
             maps: [{ name: "外灘觀景台", query: "陳毅廣場 上海外灘" }]
@@ -1024,13 +1025,13 @@
             maps: []
           },
           { time: "17:30", route: "提早出園回市區", transportText: "🚕 打車45–50分", transportType: "taxi", mustGo: false,
-            transitNote: ["🚕 西公交樞紐 / 網約車上客點打車回市區（約 45–50 分，避開 21:00 散場塞車）"],
+            transitNote: ["🚕 西公交樞紐 / 網約車上客點打車回市區（約 45–50 分）"],
             main: ["💡 取消迪士尼小鎮用餐，直接進市區吃大餐", "⚠️ 16:00 前用支付寶跑腿買【國際飯店蝴蝶酥】送飯店前台"],
             backup: "N/A",
             maps: [{ name: "BFC外灘金融中心", query: "上海市黃浦區中山東二路600號 BFC外灘金融中心" }]
           },
           { time: "18:30", route: "晚餐：1️⃣ 🏆 遇外灘 (BFC南區3樓S301)", transportText: "🚕 回飯店順路", transportType: "taxi", mustGo: true,
-            transitNote: ["🚕 過南浦大橋沿中山東二路600號順路直達（距飯店 5 分）"],
+            transitNote: ["🚕 過南浦大橋順路直達 BFC 南區 3樓 S301（距飯店 5 分）"],
             main: ["📌 必點：紅蟳蒸米糕(你) / 廈門沙茶海鮮鍋(馳) / 荔枝肉（建議先訂位）", "🚽 BFC 商場"],
             backup: "2️⃣ 【左庭右院(新世界城店)】南京西路2-68號 9樓（吊龍、匙柄、手打牛肉丸｜大眾點評可取號）<br>3️⃣ 【老正興菜館】福州路556號（距飯店 1 公里｜草頭圈子(你) / 正興醬方(馳) / 油爆河蝦）",
             maps: [{ name: "遇外灘(BFC)", query: "上海市黃浦區中山東二路600號 BFC外灘金融中心" }, { name: "左庭右院(新世界城)", query: "上海市黃浦區南京西路2-68號 新世界城" }, { name: "老正興菜館", query: "上海市黃浦區福州路556號" }]
@@ -1046,21 +1047,22 @@
       4: { dayNum: 4, dateStr: "12/28 (一)", title: "星巴克工坊 ➔ 南京東路 ➔ 返台", subtitle: "吳江路早點/蛋餅 ➔ 星巴克烘焙工坊 ➔ 萊萊小籠/滿記甜品 ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・靜安/黃浦 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區早午餐與返程", dayClothingTip: "準備搭機，整理多餘禦寒衣物，穿著輕便保暖。",
         items: [
           { time: "09:30", route: "早餐 ➔ 星巴克臻選烘焙工坊", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 2號線「南京東路站」➔「南京西路站」3號口步行 2 分（南京西路789號 興業太古匯）"],
+            transitNote: ["🚇 2號線「南京東路站」➔「南京西路站」3號口步行 2 分（興業太古匯）"],
             main: ["🍳 早餐：09:00 跑腿叫定興路蛋餅（加里脊肉，10點收攤）或吳江路順路吃（雙喜老鋪水牛奶可於此區買）", "☕ 星巴克工坊：餘裕 2h 喝桶釀熟成特調、拍大銅罐", "🚽 工坊內 / 興業太古匯"],
             backup: "N/A",
-            maps: [{ name: "吳江路休閒街", query: "上海市靜安區吳江路" }, { name: "星巴克臻選工坊", query: "上海市靜安區南京西路789號" }]
+            maps: [{ name: "星巴克臻選工坊", query: "上海市靜安區南京西路789號" }, { name: "吳江路休閒街", query: "上海市靜安區吳江路" }]
           },
           { time: "12:00", route: "午餐：1️⃣ 🏆 萊萊小籠 ➔ 🍨 滿記甜品", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 2號線「南京西路站」➔「人民廣場站」19號口步行 5 分（天津路506號）"],
+            transitNote: ["🚇 2號線「南京西路站」➔「人民廣場站」19號口步行 5 分"],
             main: ["📌 萊萊小籠：蟹粉小籠、蟹黃鮮肉小籠、炸豬排", "🍨 滿記甜品（宏伊 / 置地廣場）：楊枝甘露、芒果班戟 / 雙皮奶", "🚽 餐廳內 / 宏伊廣場"],
             backup: "2️⃣ 【小楊生煎】南京東路299號 宏伊廣場B1（南京東路站 2/3號口｜大蝦生煎(你) / 鮮肉生煎(馳)）<br>3️⃣ 【渝信川菜】九江路399號 華盛大廈5F（4號口步行 3 分｜水煮魚(你) / 辣子雞(馳)）",
             maps: [{ name: "萊萊小籠", query: "上海市黃浦區天津路506號 萊萊小籠" }, { name: "宏伊國際廣場", query: "上海市黃浦區南京東路299號 宏伊國際廣場" }, { name: "渝信川菜", query: "上海市黃浦區九江路399號" }]
           },
           { time: "14:30", route: "回飯店拿行李 ➔ 浦東機場 (PVG)", transportText: "🚶 5–6分 / 🚕 打車", transportType: "flight", mustGo: false,
-            transitNote: ["🚶 宏伊廣場轉四川/江西中路步行 5–6 分回沙美大樓", "🚕 拿行李打車約 50–60 分赴浦東機場（或 2號線至龍陽路轉磁浮 8 分）"],
+            transitNote: ["🚶 宏伊廣場轉四川/江西中路步行 5–6 分回飯店", "🚕 拿行李打車約 50–60 分赴浦東機場（或 2號線至龍陽路轉磁浮 8 分）"],
             main: ["確認台胞證、護照與伴手禮齊全", "🍽️ 機場晚餐：翠華餐廳 / 和府撈麵 / 漢堡王"],
             backup: "N/A",
+            driver: { name: "上海浦東國際機場 (PVG)", addr: "上海市浦東新區迎賓大道6000號", note: "19:50 中華航空返台" },
             maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }, { name: "浦東機場", query: "上海浦東國際機場" }]
           }
         ]
@@ -1073,7 +1075,7 @@
       amap: {
         label: '🗺️ 高德地圖',
         build: q => isIOSDevice
-          ? `iosamap://path?sourceApplication=ShanghaiTrip&dname=${encodeURIComponent(q)}&dev=0&t=0`
+          ? `iosamap://poi?sourceApplication=ShanghaiTrip&keywords=${encodeURIComponent(q)}&dev=0`
           : `https://uri.amap.com/search?keyword=${encodeURIComponent(q)}&city=上海`
       },
       google: { label: '🗺️ Google 地圖', build: q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` }
