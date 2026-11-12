@@ -1075,7 +1075,7 @@
       amap: {
         label: '🗺️ 高德地圖',
         build: q => isIOSDevice
-          ? `iosamap://poi?sourceApplication=ShanghaiTrip&keywords=${encodeURIComponent(q)}&dev=0`
+          ? `iosamap://poi?sourceApplication=ShanghaiTrip&name=${encodeURIComponent(q)}&dev=0`
           : `https://uri.amap.com/search?keyword=${encodeURIComponent(q)}&city=上海`
       },
       google: { label: '🗺️ Google 地圖', build: q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` }
