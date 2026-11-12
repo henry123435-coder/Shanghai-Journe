@@ -2,17 +2,19 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta name="theme-color" content="#f7f7f4">
+  <meta name="format-detection" content="telephone=no">
   <title>Shanghai Journey | 上海聖誕充電之旅</title>
   
   <!-- PWA 實體設定與圖示 (請確認同目錄下有對應檔案) -->
   <link rel="manifest" href="manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="上海旅誌">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png">
 
   <!-- 外部獨立樣式表 (請依你的實際 CSS 檔名修改 href) -->
   <link rel="stylesheet" href="style.css">
@@ -23,11 +25,31 @@
 <body>
   <!-- 隱藏的圖片上傳元件 -->
   <input type="file" id="hidden-img-upload" accept="image/*" class="hidden">
+  <input type="file" id="hidden-backup-import" accept="application/json,.json" class="hidden">
 
   <!-- 燈箱 Modal -->
-  <div id="lightbox-modal" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4 fade-in" onclick="closeLightbox()">
-    <button class="absolute top-4 right-4 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" onclick="closeLightbox()">&times;</button>
-    <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4" onclick="closeLightbox()">
+    <button class="absolute right-4 z-10 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" style="top:calc(16px + env(safe-area-inset-top))" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" alt="放大檢視" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
+  </div>
+
+  <!-- 司機出示大字卡 Modal -->
+  <div id="driver-modal" onclick="if(event.target===this) closeDriverModal()" class="hidden fixed inset-0 z-[65] bg-[#26343b]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="card w-full max-w-md modal-enter relative !p-6 bg-white">
+      <button onclick="closeDriverModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-2xl leading-none px-2">&times;</button>
+      <div class="text-[11px] font-bold text-[#c5ad85] tracking-[2px] mb-1">🚕 TAXI DRIVER CARD</div>
+      <div class="text-xs text-[#849098] mb-3">請直接將手機畫面出示給計程車師傅，或複製貼到滴滴出行</div>
+      <div class="bg-[#f7f7f4] border border-[#e8eae8] rounded-2xl p-5 mb-4">
+        <div class="text-xs font-bold text-[#526d7c] mb-2">師傅，請到這裡：</div>
+        <div id="driver-sh-name" class="text-2xl sm:text-3xl font-bold text-[#26343b] leading-snug break-words"></div>
+        <div id="driver-sh-addr" class="text-sm sm:text-base font-medium text-[#526d7c] leading-relaxed mt-2 break-words hidden"></div>
+        <div id="driver-sh-note" class="mt-3 pt-3 border-t border-[#e8eae8] text-xs text-[#8a837e] hidden"></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="copyDriverText()" id="btn-copy-driver" class="flex-1 bg-[#526d7c] text-white font-medium py-2.5 rounded-xl text-sm hover:bg-[#3e5663] transition-colors">📋 複製地址</button>
+        <button onclick="closeDriverModal()" class="px-5 bg-[#f7f7f4] text-[#26343b] font-medium py-2.5 rounded-xl text-sm border border-[#e8eae8]">關閉</button>
+      </div>
+    </div>
   </div>
 
   <!-- 計算機 Modal -->
@@ -44,7 +66,7 @@
         </div>
         <div>
           <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">人民幣 CNY ¥</label>
-          <input type="number" id="tax-cny" placeholder="輸入商品金額" inputmode="numeric" pattern="[0-9]*" oninput="if(this.value.length>8)this.value=this.value.slice(0,8);calcTax()" class="shop-input text-lg font-bold text-[#26343b]">
+          <input type="number" id="tax-cny" placeholder="輸入商品金額" inputmode="decimal" step="any" oninput="if(this.value.length>10)this.value=this.value.slice(0,10);calcTax()" class="shop-input text-lg font-bold text-[#26343b]">
         </div>
         <div class="pt-2 border-t border-[#e8eae8] flex justify-between items-end">
           <label class="text-[11px] font-bold text-[#849098] tracking-wider mb-1">台幣 TWD $</label>
@@ -84,7 +106,8 @@
           <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">01 / ITINERARY</small>
           <h2 class="text-2xl font-medium text-[#26343b] mt-1">每日行程計畫</h2>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-map-provider" onclick="cycleMapProvider()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">🗺️ Apple 地圖</button>
           <button id="btn-filter-must" onclick="toggleMustGoFilter()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">⭐ 僅看必去</button>
           <button id="btn-toggle-backup" onclick="toggleAllBackups()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]"><span id="backup-btn-text">🛡️ 隱藏備案</span></button>
         </div>
@@ -92,10 +115,10 @@
       <!-- 天數切換 Sub Nav -->
       <div class="sticky-sub-nav flex overflow-x-auto gap-2.5 mb-6 pb-2 no-scrollbar sticky top-[62px] z-30 bg-[#f7f7f4]/95 backdrop-blur py-2">
         <button id="tab-day-1" class="day-tab-btn active flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(1)">
-          <div class="tab-date text-[10px] mb-0.5">12/25 (五)</div><div class="tab-title text-[13px] font-medium">外灘</div>
+          <div class="tab-date text-[10px] mb-0.5">12/25 (五)</div><div class="tab-title text-[13px] font-medium">法租界·豫園</div>
         </button>
         <button id="tab-day-2" class="day-tab-btn flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(2)">
-          <div class="tab-date text-[10px] mb-0.5">12/26 (六)</div><div class="tab-title text-[13px] font-medium">法租界</div>
+          <div class="tab-date text-[10px] mb-0.5">12/26 (六)</div><div class="tab-title text-[13px] font-medium">外灘·蘇州河</div>
         </button>
         <button id="tab-day-3" class="day-tab-btn flex-1 min-w-[75px] sm:min-w-[90px] py-2 px-1 rounded-xl text-center" onclick="selectDay(3)">
           <div class="tab-date text-[10px] mb-0.5">12/27 (日)</div><div class="tab-title text-[13px] font-medium">迪士尼</div>
@@ -120,17 +143,17 @@
       </div>
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div class="card flex flex-col items-center justify-center text-center !p-4 sm:!p-6">
-          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#849098]">TAIWAN (TPE)</small>
-          <div id="clock-tw-time" class="text-2xl sm:text-3xl font-medium text-[#26343b] tracking-widest">--:--:--</div>
-          <div id="clock-tw-date" class="text-[11px] sm:text-xs text-[#849098] mt-1">----/--/--</div>
-        </div>
-        <div class="card flex flex-col items-center justify-center text-center !p-4 sm:!p-6">
-          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#c5ad85]">SHANGHAI (CST)</small>
+          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#849098]">台北 / 上海 (UTC+8)</small>
           <div id="clock-sh-time" class="text-2xl sm:text-3xl font-medium text-[#26343b] tracking-widest">--:--:--</div>
           <div id="clock-sh-date" class="text-[11px] sm:text-xs text-[#849098] mt-1">----/--/--</div>
         </div>
+        <div class="card flex flex-col items-center justify-center text-center !p-4 sm:!p-6">
+          <small class="text-[10px] font-bold tracking-wider mb-2 text-[#c5ad85]">TRIP STATUS</small>
+          <div id="trip-countdown-main" class="text-xl sm:text-2xl font-medium text-[#26343b]">--</div>
+          <div id="trip-countdown-sub" class="text-[11px] sm:text-xs text-[#849098] mt-1">12/25 - 12/28</div>
+        </div>
       </div>
-      <div id="four-cities-weather-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      <div id="four-cities-weather-grid" class="grid grid-cols-1 gap-4"></div>
     </section>
 
     <!-- 分頁 3：航班交通 -->
@@ -164,7 +187,7 @@
           <div class="text-[13px] text-[#26343b] leading-relaxed">
             <b class="text-[#526d7c]">🚕 市區接駁：</b><br>出關後使用「滴滴出行」打車直達外灘沙美大樓。<br>
             <div class="flex gap-2 mt-2">
-              <a href="https://www.google.com/maps/search/?api=1&query=上海浦東國際機場" target="_blank" rel="noopener noreferrer" class="map-pill">📍 浦東機場</a>
+              <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B5%A6%E6%9D%B1%E5%9C%8B%E9%9A%9B%E6%A9%9F%E5%A0%B4" data-map-query="上海浦東國際機場" target="_blank" rel="noopener noreferrer" class="map-pill dynamic-map-link">📍 浦東機場</a>
             </div>
           </div>
         </div>
@@ -189,9 +212,9 @@
             </div>
           </div>
           <div class="text-[13px] text-[#26343b] leading-relaxed">
-            <b class="text-[#526d7c]">🚕 前往機場：</b><br>預計 16:30 從外灘飯店搭乘滴滴出行前往機場。<br>
+            <b class="text-[#526d7c]">🚕 前往機場：</b><br>預計 14:30 回飯店領取行李後，搭乘滴滴出行（約50分）或地鐵轉磁浮前往機場。<br>
             <div class="flex gap-2 mt-2">
-              <a href="https://www.google.com/maps/search/?api=1&query=上海浦東國際機場" target="_blank" rel="noopener noreferrer" class="map-pill">📍 浦東機場</a>
+              <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B5%A6%E6%9D%B1%E5%9C%8B%E9%9A%9B%E6%A9%9F%E5%A0%B4" data-map-query="上海浦東國際機場" target="_blank" rel="noopener noreferrer" class="map-pill dynamic-map-link">📍 浦東機場</a>
             </div>
           </div>
         </div>
@@ -211,13 +234,16 @@
           <div>
             <span class="pill mb-3 !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">DAY 1 - DAY 3 (連泊 3 晚)</span>
             <h3 class="text-[16px] font-medium text-[#26343b] leading-snug">上海沙美大樓 Zhotel</h3>
-            <p class="text-[12px] text-[#26343b] font-medium mt-1">外灘核心區 / 百年歷史建築</p>
+            <p class="text-[12px] text-[#26343b] font-medium mt-1">上海市黃浦區北京東路190號</p>
             <div class="text-[13px] text-[#26343b] space-y-1.5 pl-3 border-l-2 border-[#e8eae8] my-4">
-              <p>・擁有絕佳神仙機位與復古電影感，出門即可漫步外灘。</p>
-              <p>・露台可直接拍下與東方明珠同框的絕美合影。</p>
+              <p>・地鐵 2/10 號線「南京東路站」6 號出口出站，步行約 5–8 分鐘即可抵達。</p>
+              <p>・擁有絕佳神仙機位與復古電影感，露台可直接拍下與東方明珠同框的絕美合影。</p>
             </div>
           </div>
-          <a href="https://www.google.com/maps/search/?api=1&query=上海沙美大樓" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8]">📍 導航至飯店</a>
+          <div class="flex gap-2">
+            <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B2%99%E7%BE%8E%E5%A4%A7%E6%A8%93" data-map-query="上海沙美大樓" target="_blank" rel="noopener noreferrer" class="dynamic-map-link flex-1 text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8]">📍 導航至飯店</a>
+            <button onclick="openDriverModal('上海沙美大樓 Zhotel', '上海市黃浦區北京東路190號', '近地鐵2/10號線 南京東路站6號出口')" class="flex-1 text-center bg-[#fcf7f0] text-[#b39b74] border border-[#b39b74]/30 py-2 rounded-lg text-xs font-medium hover:bg-[#f5eedf]">🚕 司機大字卡</button>
+          </div>
         </div>
       </div>
 
@@ -230,13 +256,20 @@
           <small class="text-[#c5ad85] tracking-[2px] text-[11px] font-bold">05 / SHOPPING</small>
           <h2 class="text-2xl font-medium text-[#26343b] mt-1">購物與代買清單</h2>
         </div>
-        <button onclick="addShoppingGroup()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">
-          ➕ 新增群組
-        </button>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportBackup()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">💾 匯出備份</button>
+          <button onclick="triggerBackupImport()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">📂 匯入</button>
+          <button onclick="addShoppingGroup()" class="pill !bg-white !border !border-[#e8eae8] hover:!bg-[#f7f7f4]">
+            ➕ 新增群組
+          </button>
+        </div>
       </div>
       <div class="card flex justify-between items-center mb-6 !py-4">
-        <span class="font-medium text-[13px] text-[#849098]">💰 總預估花費</span>
-        <span class="text-xl font-bold text-[#526d7c]" id="shopping-total">¥0</span>
+        <span class="font-medium text-[13px] text-[#849098]">💰 待購預估花費</span>
+        <div class="text-right">
+          <span class="text-xl font-bold text-[#526d7c]" id="shopping-total">¥ 0</span>
+          <div class="text-[11px] text-[#849098] mt-0.5" id="shopping-total-twd">約 NT$ 0</div>
+        </div>
       </div>
       <div id="shopping-groups-container" class="space-y-4"></div>
     </section>
@@ -312,12 +345,101 @@
     }
 
     /* ================= 計算機邏輯 (含匯率記憶) ================= */
+    function getSavedRate() {
+      const rate = parseFloat(document.getElementById('tax-rate')?.value || localStorage.getItem('shanghai_cny_rate'));
+      return (!isNaN(rate) && rate > 0) ? rate : 4.5;
+    }
+
+    function syncModalScrollLock() {
+      const anyOpen = ['lightbox-modal', 'driver-modal', 'tax-modal']
+        .some(id => !document.getElementById(id)?.classList.contains('hidden'));
+      document.body.style.overflow = anyOpen ? 'hidden' : '';
+    }
+
     function toggleTaxModal() {
       const modal = document.getElementById('tax-modal');
       if (modal.classList.contains('hidden')) {
         modal.classList.remove('hidden');
-        setTimeout(() => document.getElementById('tax-cny').focus(), 50);
-      } else { modal.classList.add('hidden'); }
+        syncModalScrollLock();
+        calcTax();
+        document.getElementById('tax-cny').focus();
+      } else {
+        modal.classList.add('hidden');
+        syncModalScrollLock();
+      }
+    }
+
+    /* ================= 司機出示大字卡邏輯 ================= */
+    let currentDriverCopyText = '';
+    let driverCopyTimer = null;
+    function openDriverModal(name, addr = '', note = '') {
+      clearTimeout(driverCopyTimer);
+      document.getElementById('driver-sh-name').textContent = name;
+      const addrEl = document.getElementById('driver-sh-addr');
+      const noteEl = document.getElementById('driver-sh-note');
+      if (addr && addr !== name) {
+        addrEl.textContent = addr;
+        addrEl.classList.remove('hidden');
+      } else {
+        addrEl.classList.add('hidden');
+      }
+      if (note) {
+        noteEl.textContent = '📍 ' + note;
+        noteEl.classList.remove('hidden');
+      } else {
+        noteEl.classList.add('hidden');
+      }
+      currentDriverCopyText = (addr && addr !== name) ? `${name}\n${addr}` : name;
+      const copyBtn = document.getElementById('btn-copy-driver');
+      if (copyBtn) copyBtn.textContent = '📋 複製地址';
+      document.getElementById('driver-modal').classList.remove('hidden');
+      syncModalScrollLock();
+    }
+    function closeDriverModal() {
+      document.getElementById('driver-modal').classList.add('hidden');
+      syncModalScrollLock();
+    }
+    function openStopDriverModal(day, origIdx) {
+      const stop = ITINERARY_DATA[day] && ITINERARY_DATA[day].items && ITINERARY_DATA[day].items[origIdx];
+      if (!stop) return;
+      if (stop.driver) {
+        openDriverModal(stop.driver.name, stop.driver.addr, stop.driver.note);
+      } else if (stop.maps && stop.maps.length > 0) {
+        const target = stop.maps[0];
+        openDriverModal(target.name, target.query, stop.route);
+      }
+    }
+    function fallbackCopyText(text, onSuccess) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (ok) onSuccess();
+      else alert('無法自動複製，請直接出示上方畫面給司機查看。');
+    }
+    function copyDriverText() {
+      if (!currentDriverCopyText) return;
+      const copyBtn = document.getElementById('btn-copy-driver');
+      const markCopied = () => {
+        if (copyBtn) {
+          clearTimeout(driverCopyTimer);
+          copyBtn.textContent = '✅ 已複製';
+          driverCopyTimer = setTimeout(() => { copyBtn.textContent = '📋 複製地址'; }, 2000);
+        }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentDriverCopyText)
+          .then(markCopied)
+          .catch(() => fallbackCopyText(currentDriverCopyText, markCopied));
+      } else {
+        fallbackCopyText(currentDriverCopyText, markCopied);
+      }
     }
 
     function calcTax() {
@@ -338,6 +460,7 @@
         statusBox.className = "mt-2 bg-[#f7f7f4] rounded-lg p-2.5 text-center text-[11px] text-[#849098]";
         statusBox.textContent = "請輸入人民幣金額換算台幣";
       }
+      renderTotal();
     }
 
     /* ================= 圖片燈箱與上傳邏輯 ================= */
@@ -346,13 +469,26 @@
     let shoppingData = [];
 
     function openLightbox(base64Str) {
+      if (!base64Str) return;
       document.getElementById('lightbox-img').src = base64Str;
       document.getElementById('lightbox-modal').classList.remove('hidden');
+      syncModalScrollLock();
     }
     function closeLightbox() {
       document.getElementById('lightbox-modal').classList.add('hidden');
-      document.getElementById('lightbox-img').src = '';
+      document.getElementById('lightbox-img').removeAttribute('src');
+      syncModalScrollLock();
     }
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      closeLightbox();
+      closeDriverModal();
+      const tm = document.getElementById('tax-modal');
+      if (tm && !tm.classList.contains('hidden')) {
+        tm.classList.add('hidden');
+        syncModalScrollLock();
+      }
+    });
     function triggerImageUpload(gId, iId) {
       currentUploadTarget = { type: 'shopping', gId, iId, dayId: null, stopIdx: null };
       const fileInput = document.getElementById('hidden-img-upload');
@@ -382,40 +518,95 @@
       }
     }
 
+    function exportBackup() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        shoppingData,
+        itineraryPhotos
+      };
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shanghai-trip-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function triggerBackupImport() {
+      const input = document.getElementById('hidden-backup-import');
+      if (input) { input.value = ''; input.click(); }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const fileInput = document.getElementById('hidden-img-upload');
       if (fileInput) {
         fileInput.addEventListener('change', function(e) {
           const file = e.target.files[0];
           if (!file) return;
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-              const canvas = document.createElement('canvas');
-              const MAX_SIZE = 600;
-              let w = img.width, h = img.height;
-              if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
-              else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
-              canvas.width = w; canvas.height = h;
-              const ctx = canvas.getContext('2d');
-              ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
-              ctx.drawImage(img, 0, 0, w, h);
-              const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          const objUrl = URL.createObjectURL(file);
+          const img = new Image();
+          img.onload = function() {
+            URL.revokeObjectURL(objUrl);
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 1600;
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
+            else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+            w = Math.round(w); h = Math.round(h);
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            canvas.width = 0; canvas.height = 0;
 
-              if (currentUploadTarget.type === 'shopping' && currentUploadTarget.gId && currentUploadTarget.iId) {
-                updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', compressedBase64); 
-              } else if (currentUploadTarget.type === 'itinerary' && currentUploadTarget.dayId !== null && currentUploadTarget.stopIdx !== null) {
-                const key = `${currentUploadTarget.dayId}-${currentUploadTarget.stopIdx}`;
-                if (!itineraryPhotos[key]) itineraryPhotos[key] = [];
-                if (itineraryPhotos[key].length >= 3) { alert("每個景點最多只能上傳3張照片喔！"); return; }
-                itineraryPhotos[key].push(compressedBase64);
-                idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
-              }
-            };
-            img.src = event.target.result;
+            if (currentUploadTarget.type === 'shopping' && currentUploadTarget.gId && currentUploadTarget.iId) {
+              updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', compressedBase64); 
+            } else if (currentUploadTarget.type === 'itinerary' && currentUploadTarget.dayId !== null && currentUploadTarget.stopIdx !== null) {
+              const key = `${currentUploadTarget.dayId}-${currentUploadTarget.stopIdx}`;
+              if (!itineraryPhotos[key]) itineraryPhotos[key] = [];
+              if (itineraryPhotos[key].length >= 3) { alert("每個景點最多只能上傳3張照片喔！"); return; }
+              itineraryPhotos[key].push(compressedBase64);
+              idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
+            }
           };
-          reader.readAsDataURL(file);
+          img.onerror = function() {
+            URL.revokeObjectURL(objUrl);
+            alert('無法讀取此圖片格式，請改選 JPG 或 PNG 照片。');
+          };
+          img.src = objUrl;
+        });
+      }
+
+      const backupInput = document.getElementById('hidden-backup-import');
+      if (backupInput) {
+        backupInput.addEventListener('change', async function(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+            if (!parsed || !Array.isArray(parsed.shoppingData)) {
+              alert('備份檔格式不正確。');
+              return;
+            }
+            if (!confirm('匯入備份將會覆蓋目前的購物清單與行程照片，確定繼續嗎？')) return;
+            shoppingData = parsed.shoppingData;
+            itineraryPhotos = (parsed.itineraryPhotos && typeof parsed.itineraryPhotos === 'object') ? parsed.itineraryPhotos : {};
+            await idb.set('shoppingData', shoppingData);
+            await idb.set('itineraryPhotos', itineraryPhotos);
+            renderShopping();
+            renderDayTimeline();
+            alert('備份匯入完成！');
+          } catch (err) {
+            alert('讀取備份檔失敗，請確認檔案是否為有效的 JSON 備份。');
+          }
         });
       }
     });
@@ -430,7 +621,36 @@
       ]}
     ];
 
-    function saveShopping() { idb.set('shoppingData', shoppingData).then(() => renderShopping()); }
+    let shoppingSaveTimer = null;
+    function flushShoppingSave() {
+      if (shoppingSaveTimer) {
+        clearTimeout(shoppingSaveTimer);
+        shoppingSaveTimer = null;
+        idb.set('shoppingData', shoppingData).catch(err => console.error('flushShoppingSave failed:', err));
+      }
+    }
+    function scheduleShoppingSave() {
+      clearTimeout(shoppingSaveTimer);
+      shoppingSaveTimer = setTimeout(() => {
+        shoppingSaveTimer = null;
+        idb.set('shoppingData', shoppingData).catch(() => {
+          alert('儲存購物清單失敗，請確認瀏覽器儲存空間或非無痕模式。');
+        });
+      }, 250);
+    }
+    window.addEventListener('pagehide', flushShoppingSave);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushShoppingSave();
+    });
+
+    function saveShopping() {
+      clearTimeout(shoppingSaveTimer);
+      shoppingSaveTimer = null;
+      renderShopping();
+      idb.set('shoppingData', shoppingData).catch(() => {
+        alert('儲存購物清單失敗（可能為瀏覽器儲存空間不足或無痕模式限制）。');
+      });
+    }
     function addShoppingGroup() { const t = prompt('請輸入群組名稱'); if (t) { shoppingData.push({ id: 'g_' + Date.now(), title: t, isOpen: true, items: [] }); saveShopping(); } }
     function removeGroup(gId) { if(confirm('確定刪除此群組？')) { shoppingData = shoppingData.filter(g => g.id !== gId); saveShopping(); } }
     function toggleGroup(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.isOpen = !g.isOpen; saveShopping(); } }
@@ -447,7 +667,7 @@
           if (f === 'img') {
             saveShopping();
           } else {
-            idb.set('shoppingData', shoppingData);
+            scheduleShoppingSave();
             if (f === 'price') renderTotal();
           }
         }
@@ -457,7 +677,10 @@
     function toggleBought(gId, iId) { const g = shoppingData.find(x => x.id === gId); if (g) { const i = g.items.find(x => x.id === iId); if (i) { i.bought = !i.bought; saveShopping(); } } }
     function renderTotal() {
       let t = 0; shoppingData.forEach(g => g.items.forEach(i => { if(!i.bought) t += i.price; }));
-      document.getElementById('shopping-total').textContent = '¥ ' + t.toLocaleString();
+      const totalEl = document.getElementById('shopping-total');
+      const twdEl = document.getElementById('shopping-total-twd');
+      if (totalEl) totalEl.textContent = '¥ ' + t.toLocaleString();
+      if (twdEl) twdEl.textContent = '約 NT$ ' + Math.round(t * getSavedRate()).toLocaleString();
     }
     function renderShopping() {
       const container = document.getElementById('shopping-groups-container');
@@ -483,7 +706,7 @@
             let imgHtml = isImg ? `
               <div class="relative w-full h-full group">
                 <div class="inspiration-delete" title="移除相片" onclick="event.stopPropagation(); removeShoppingImage('${g.id}', '${i.id}')">✖</div>
-                <img src="${escapeHtml(i.img)}" class="w-full h-full object-cover cursor-zoom-in transition-transform duration-200 hover:scale-105" onclick="openLightbox('${escapeHtml(i.img)}')">
+                <img src="${escapeHtml(i.img)}" class="w-full h-full object-cover cursor-zoom-in transition-transform duration-200 hover:scale-105" onclick="openLightbox(this.src)">
               </div>
             ` : `
               <div class="w-full h-full flex items-center justify-center cursor-pointer hover:bg-[#e8eae8] transition-colors" onclick="triggerImageUpload('${g.id}', '${i.id}')">
@@ -503,7 +726,7 @@
                     <input type="text" value="${escapeHtml(i.memo)}" oninput="updateItem('${g.id}','${i.id}','memo',this.value)" placeholder="數量/顏色/備忘" class="shop-input !py-1 !px-2 text-[11px] text-[#8b3a3a]">
                     <div class="relative w-full">
                       <span class="absolute left-2 top-1 text-[11px] text-[#8a837e]">¥</span>
-                      <input type="number" value="${i.price || ''}" oninput="updateItem('${g.id}','${i.id}','price',this.value)" placeholder="金額" inputmode="numeric" pattern="[0-9]*" class="shop-input !py-1 !pl-6 !pr-2 text-[12px] font-medium">
+                      <input type="number" value="${i.price || ''}" oninput="updateItem('${g.id}','${i.id}','price',this.value)" placeholder="金額" inputmode="decimal" step="any" class="shop-input !py-1 !pl-6 !pr-2 text-[12px] font-medium">
                     </div>
                   </div>
                 </div>
@@ -540,7 +763,7 @@
 
     /* ================= 氣象與行程邏輯 ================= */
     const CITIES_WEATHER = {
-      shanghai: { id: "shanghai", name: "上海市 (Shanghai)", dayLabel: "DAY 1 - DAY 4", lat: 31.2304, lon: 121.4737, janAvg: "3°C ~ 11°C", snowProb: "晴時多雲為主", advice: "冬季體感濕冷，江邊風大。建議穿著防風大衣、發熱衣與圍巾保暖。", liveTemp: null, liveCode: null, liveDesc: "冬" }
+      shanghai: { id: "shanghai", name: "上海市 (Shanghai)", dayLabel: "DAY 1 - DAY 4", lat: 31.2304, lon: 121.4737, janAvg: "3°C ~ 11°C", snowProb: "晴時多雲為主", advice: "冬季體感濕冷，江邊風大。建議穿著防風大衣、發熱衣與圍巾保暖。", liveTemp: null, liveCode: null, liveDesc: "冬", dailyForecast: [] }
     };
 
     function getWeatherEmoji(code) {
@@ -560,16 +783,27 @@
       let html = "";
       Object.keys(CITIES_WEATHER).forEach(key => {
         const c = CITIES_WEATHER[key];
-        const liveStr = c.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">即時：${c.liveTemp}°C ${c.liveDesc}</span>` : `<span class="pill">${c.snowProb}</span>`;
+        const liveStr = c.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">即時：${getWeatherEmoji(c.liveCode ?? 2)} ${c.liveTemp}°C ${c.liveDesc}</span>` : `<span class="pill">${c.snowProb}</span>`;
+        let forecastHtml = "";
+        if (Array.isArray(c.dailyForecast) && c.dailyForecast.length > 0) {
+          forecastHtml = `<div class="grid grid-cols-4 gap-2 mb-4">${c.dailyForecast.map(d => `
+            <div class="bg-[#f7f7f4] border border-[#e8eae8] rounded-xl p-2 text-center">
+              <div class="text-[10px] text-[#849098] font-medium">${d.label}</div>
+              <div class="text-lg my-1 leading-none">${getWeatherEmoji(d.code)}</div>
+              <div class="text-[11px] font-bold text-[#26343b]">${d.min}° ~ ${d.max}°</div>
+            </div>
+          `).join("")}</div>`;
+        }
         html += `
           <div class="card flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-center mb-3">
                 <small class="text-[#849098] font-medium text-[10px] tracking-wide">${c.dayLabel}</small>
-                <span class="text-[#26343b] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">${c.janAvg}</span>
+                <span class="text-[#26343b] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">12月均溫 ${c.janAvg}</span>
               </div>
               <h4 class="text-[16px] font-medium text-[#26343b] mb-2">${c.name.split(" ")[0]}</h4>
               <div class="mb-4">${liveStr}</div>
+              ${forecastHtml}
             </div>
             <div class="text-[11px] text-[#526d7c] bg-[#f7f7f4] p-2.5 rounded-lg">
               <b class="text-[#26343b]">穿搭：</b>${c.advice}
@@ -580,7 +814,7 @@
       grid.innerHTML = html;
     }
 
-function loadCachedWeather() {
+    function loadCachedWeather() {
       try {
         const cached = localStorage.getItem('shanghai_weather_cache');
         if (cached) {
@@ -591,6 +825,7 @@ function loadCachedWeather() {
                 CITIES_WEATHER[k].liveTemp = parsed.data[k].liveTemp;
                 CITIES_WEATHER[k].liveCode = parsed.data[k].liveCode;
                 CITIES_WEATHER[k].liveDesc = parsed.data[k].liveDesc;
+                CITIES_WEATHER[k].dailyForecast = parsed.data[k].dailyForecast || [];
               }
             });
           }
@@ -613,7 +848,7 @@ function loadCachedWeather() {
         Object.values(CITIES_WEATHER).map(async (c) => {
           try {
             const ctl = new AbortController(); const id = setTimeout(() => ctl.abort(), 5000);
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&timezone=Asia%2FShanghai`, { signal: ctl.signal });
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&forecast_days=4&timezone=Asia%2FShanghai`, { signal: ctl.signal });
             clearTimeout(id);
             if (res.ok) {
               const data = await res.json();
@@ -622,6 +857,14 @@ function loadCachedWeather() {
                 c.liveCode = data.current_weather.weathercode;
                 c.liveDesc = getWeatherDescText(data.current_weather.weathercode);
                 updatedCount++;
+              }
+              if (data.daily && Array.isArray(data.daily.time)) {
+                c.dailyForecast = data.daily.time.map((dateStr, idx) => ({
+                  label: idx === 0 ? '今日' : dateStr.slice(5).replace('-', '/'),
+                  max: Math.round(data.daily.temperature_2m_max[idx]),
+                  min: Math.round(data.daily.temperature_2m_min[idx]),
+                  code: data.daily.weathercode[idx]
+                }));
               }
             }
           } catch (e) {}
@@ -636,7 +879,8 @@ function loadCachedWeather() {
           cacheObj.data[k] = {
             liveTemp: CITIES_WEATHER[k].liveTemp,
             liveCode: CITIES_WEATHER[k].liveCode,
-            liveDesc: CITIES_WEATHER[k].liveDesc
+            liveDesc: CITIES_WEATHER[k].liveDesc,
+            dailyForecast: CITIES_WEATHER[k].dailyForecast
           };
         });
         localStorage.setItem('shanghai_weather_cache', JSON.stringify(cacheObj));
@@ -657,42 +901,206 @@ function loadCachedWeather() {
     }
 
     const ITINERARY_DATA = {
-      1: { dayNum: 1, dateStr: "12/25 (五)", title: "外灘與蘇州河的魔幻開場", subtitle: "完美由北向南順行：大壺春 ➔ 蘇州河 ➔ 外灘日落 ➔ 十六鋪碼頭", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "黃昏時分江邊氣溫驟降", dayClothingTip: "遊船與外灘散步風大，請穿上防風大衣並帶上圍巾，兼顧電影感與保暖。",
+      1: { dayNum: 1, dateStr: "12/25 (五)", title: "圓夢蟹黃 ➔ 法租界 ➔ 豫園新天地", subtitle: "沙美大樓寄物 ➔ 李百蟹 ➔ RAC Bar / 武康大樓 ➔ 豫園 ➔ 新天地", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・黃浦/徐匯", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區 Citywalk 與夜間點燈", dayClothingTip: "午後法租界散步舒適，傍晚豫園與新天地氣溫下降，建議洋蔥式穿搭搭配防風大衣。",
         items: [
-          { time: "10:50", route: "抵達浦東機場 ➔ 飯店寄物", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: false, main: ["抵達浦東機場 (PVG)，使用「滴滴出行」打車前往沙美大樓 Zhotel 寄放行李。"], backup: "若遇塞車或打車不便，可搭乘磁浮列車轉地鐵。", maps: [{ name: "浦東機場", query: "上海浦東國際機場" }, { name: "沙美大樓", query: "上海沙美大樓" }] },
-          { time: "13:10", route: "飯店 ➔ 大壺春", transportText: "🚶 步行/打車", transportType: "walk", mustGo: true, main: ["前往「大壺春」吃經典鮮肉生煎。","⚠️ 全程無海鮮，米其林推薦。"], backup: "若排隊過長，可尋找周邊其他本幫麵館。", maps: [{ name: "大壺春", query: "大壺春 上海" }] },
-          { time: "14:30", route: "蘇州河畔散策", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["沿蘇州河畔散步（乍浦路橋、四川路橋一帶）。","捕捉午後唯美光影與歐風橋樑。"], backup: "若風大寒冷，可提早至咖啡廳休息。", maps: [{ name: "乍浦路橋", query: "乍浦路橋" }, { name: "四川路橋", query: "四川路橋" }] },
-          { time: "16:30", route: "外灘 Citywalk 絕美夕陽", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["(📍今日最佳卡位) 沿著外灘一路向南散步！","冬季約 16:50 日落，親眼見證東方明珠從夕陽餘暉過渡到華燈初上。"], backup: "N/A", maps: [{ name: "外灘萬國建築群", query: "上海外灘" }] },
-          { time: "18:30", route: "外灘 Citywalk ➔ 外灘家宴", transportText: "🚶 順路抵達", transportType: "walk", mustGo: true, main: ["預訂「外灘家宴」(本幫菜)，在正對東方明珠的絕美景觀中享用聖誕大餐。","⚠️ 必點：松鼠桂魚、紅燒肉（嚴格避開海鮮）。"], backup: "確保已提前訂位，若有突發狀況改吃周邊高檔無海鮮景觀餐廳。", maps: [{ name: "外灘家宴", query: "外灘家宴" }] },
-          { time: "20:30", route: "餐廳 ➔ 十六鋪碼頭", transportText: "🚶 順路散步", transportType: "walk", mustGo: true, main: ["吃飽後順勢走到最南端的十六鋪碼頭，搭乘「豪華觀光遊船」(45分鐘)。","浪漫飽覽大氣江景與聖誕夜燈光。"], backup: "若遊船票售罄，改在外灘景觀酒吧小酌。", maps: [{ name: "十六鋪碼頭", query: "十六鋪碼頭" }] }
+          { time: "10:50", route: "抵達與飯店交通：Zhotel 沙美大樓", transportText: "🚇 地鐵2/10號線", transportType: "subway", mustGo: false,
+            transitNote: ["🚇 地鐵 2/10 號線「南京東路站」6 號出口出站，步行約 5–8 分鐘（黃浦區北京東路190號）"],
+            main: ["先寄放行李，輕裝出發！", "🚽 飯店內洗手間"], backup: "N/A",
+            maps: [{ name: "浦東機場", query: "上海浦東國際機場" }, { name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
+          },
+          { time: "13:00", route: "午餐 (圓夢蟹黃)：1️⃣ 🏆 李百蟹·蟹黃麵(外灘店)", transportText: "🚕 打車8–10分", transportType: "taxi", mustGo: true,
+            transitNote: ["📍 上海市黃浦區中山東二路22號3樓（外灘22號，從飯店打車約 8–10 分鐘）"],
+            main: ["📌 必點：蟹黃麵(你) / 炸豬排(馳)", "🚽 餐廳內洗手間"],
+            backup: "2️⃣ 【蟹三寶 (人民廣場店)】黃浦區天津路513號（打車約 6 分｜必點：蟹黃金撈 / 蔥油拌麵）<br>3️⃣ 【鮮得來排骨年糕】黃浦區雲南南路46號（打車 8–10 分｜必點：招牌排骨年糕、雙檔湯）",
+            maps: [{ name: "李百蟹(外灘店)", query: "李百蟹 上海市黃浦區中山東二路22號" }, { name: "蟹三寶", query: "蟹三寶 上海市黃浦區天津路513號" }, { name: "鮮得來", query: "上海市黃浦區雲南南路46號" }]
+          },
+          { time: "14:30", route: "法租界漫步 (北往南順走)：☕ RAC Bar ➔ ☕ Luneurs ➔ 武康大樓", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 搭地鐵 10 號線至「上海圖書館站」（或 2 號線轉 7 號線至「常熟路站」），向西散步至安福路起點", "📍 RAC Bar（安福路322號）➔ Luneurs（武康路286號）➔ 武康大樓（淮海中路1850號），直達「交通大學站」"],
+            main: ["💡 餘裕 2.5 小時：先拍 RAC Bar 復古綠框法式拱門，一路往南順走不繞路！", "☕ Luneurs：梧桐樹下法式復古窗景（焦糖海鹽冰淇淋），終點拍武康大樓經典街角！", "🚽 周邊商場 / 咖啡廳"],
+            backup: "N/A",
+            maps: [{ name: "RAC Bar", query: "RAC Bar 上海市徐匯區安福路322號" }, { name: "Luneurs", query: "Luneurs 上海市徐匯區武康路286號" }, { name: "武康大樓", query: "上海市徐匯區淮海中路1850號 武康大樓" }]
+          },
+          { time: "17:00", route: "城隍廟 / 豫園點燈：🥟 寧波湯糰店 ➔ 🥤 涵春茶肆 / 霸王茶姬", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 從「交通大學站」搭地鐵 10 號線直達「豫園站」1 號出口（豫園老街105號），老城廂點燈極美！"],
+            main: ["🥟 寧波湯糰店：📌 必吃「雙拼湯圓」（傳統鮮肉＋黑洋酥）。", "🥤 涵春茶肆 / 霸王茶姬：園區內邊走邊逛拍九曲橋夜景。", "💡 提醒：16:30 可先打開微信小程式預點下一站新天地【阿嬤手作】免排隊！", "🚽 豫園商城內洗手間"],
+            backup: "N/A",
+            maps: [{ name: "豫園商城", query: "上海豫園商城" }]
+          },
+          { time: "19:00", route: "晚餐與手搖 (新天地商圈)：🥤 阿嬤手作 ➔ 1️⃣ 圓苑(新天地東台里店)", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 從豫園站搭 10 號線至「一大會址·新天地站」(僅 1 站)，6 號口出站即達新天地時尚II B1（馬當路245號）", "📍 圓苑（新天地東台里店）：西藏南路328號 新天地東台里商業中心B棟（步行約 6–8 分鐘）"],
+            main: ["🥤 阿嬤手作：📌 必喝「打·米麻薯」、「老椰清補涼」（提前線上點單，出地鐵直接取餐！）。", "🍽️ 圓苑：📌 必點招牌紅燒肉(馳) / 蔥油鰣魚(你) / 桂花糖藕（建議大眾點評先取號）。", "🚽 商場內洗手間"],
+            backup: "2️⃣ 【GREEN & SAFE / Shake Shack】太倉路181弄 新天地北里（石庫門街區散步 5 分｜必點：香烤半雞、松露義大利麵 / 招牌牛肉堡、炸雞塊）",
+            maps: [{ name: "阿嬤手作 新天地", query: "上海市黃浦區馬當路245號 新天地時尚" }, { name: "圓苑 東台里", query: "上海市黃浦區西藏南路328號 新天地東台里" }, { name: "太倉路181弄", query: "上海市黃浦區太倉路181弄" }]
+          },
+          { time: "21:30", route: "返回飯店與宵夜：🏨 沙美大樓 ➔ 🛵 很久以前羊肉串", transportText: "🚇 地鐵 / 📱 外送", transportType: "subway", mustGo: false,
+            transitNote: ["🚇 從「一大會址·新天地站」搭 10 號線至「南京東路站」(3 站)，步行 5–8 分回飯店（北京東路190號）", "📱 支付寶搜尋「餓了麼/美團」叫外賣送到飯店櫃檯"],
+            main: ["回房間泡澡休息、吃熱騰騰宵夜！", "🛵 宵夜：很久以前羊肉串 — 📌 必點：呼倫貝爾羊肉串、烤生蠔、烤雞翅。"],
+            backup: "N/A",
+            maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
+          }
         ]
       },
-      2: { dayNum: 2, dateStr: "12/26 (六)", title: "法租界晨光 ➔ 豫園夜景", subtitle: "西向東完美推進：法租界 ➔ 新天地 ➔ 豫園極致夜景", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・徐匯/黃浦", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "適合 Citywalk 的乾爽冬日", dayClothingTip: "法租界漫步非常適合著復古大衣與貝雷帽拍照，展現質感光影。",
+      2: { dayNum: 2, dateStr: "12/26 (六)", title: "外灘單向北行 ➔ 蘇州河日落 ➔ 夜景", subtitle: "沙美頂樓 ➔ 海關大樓 ➔ 和平飯店 ➔ 洛克外灘源 ➔ 郵政博物館 ➔ 乍浦路橋", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘/虹口", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "江邊與河畔風大", dayClothingTip: "外灘與蘇州河畔全天徒步吹風時間長，建議穿上保暖防風大衣與圍巾。",
         items: [
-          { time: "09:30", route: "飯店 ➔ 外送伴手禮", transportText: "📱 外送", transportType: "taxi", mustGo: true, main: ["(📍避開排隊地獄) 早上直接用「美團/餓了麼」把國際飯店蝴蝶酥與凱司令栗子蛋糕叫到飯店。"], backup: "若外送滿單，直接放棄國際飯店，改買其他免排隊伴手禮。", maps: [] },
-          { time: "10:30", route: "飯店 ➔ 法租界", transportText: "🚕 打車", transportType: "taxi", mustGo: true, main: ["打車前往最西邊的法租界 (武康路、安福路)。","趁週末人潮未湧現前，在梧桐樹下享受早晨寧靜光影。"], backup: "若氣候極凍，進買手店或咖啡館取暖。", maps: [{ name: "武康路", query: "武康路" }, { name: "安福路", query: "安福路" }] },
-          { time: "14:00", route: "法租界 ➔ 新天地", transportText: "🚇 地鐵往東", transportType: "subway", mustGo: true, main: ["往東移動前往新天地逛聖誕市集。","感受石庫門的異國酒吧氛圍與節慶燈飾。"], backup: "N/A", maps: [{ name: "上海新天地", query: "上海新天地" }] },
-          { time: "17:00", route: "新天地 ➔ 鮮得來", transportText: "🚕 打車往東", transportType: "taxi", mustGo: true, main: ["繼續往東移動，享用老字號「鮮得來」排骨年糕。","⚠️ 安全無海鮮。"], backup: "N/A", maps: [{ name: "鮮得來排骨年糕", query: "鮮得來 上海" }] },
-          { time: "18:30", route: "餐廳 ➔ 城隍廟/豫園", transportText: "🚕 打車往東", transportType: "taxi", mustGo: true, main: ["(📍今日最佳卡位) 抵達最東邊的城隍廟與豫園商圈！","江南古典建築在夜晚打燈後最為震撼，此時逛街拍照最漂亮。","⚠️ 餐飲備註：僅逛街拍照，全程避開蟹黃、蝦仁等過敏原小吃。"], backup: "若豫園人潮過多，僅在外圍街區感受傳統年味即可。", maps: [{ name: "城隍廟", query: "上海城隍廟" }, { name: "豫園", query: "豫園" }] }
+          { time: "09:00", route: "頂樓露台晨拍：☕ 沙美大樓頂樓露台 (Zhotel)", transportText: "🚶 飯店電梯直達", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市黃浦區北京東路190號 7樓頂樓"],
+            main: ["📸 巴洛克穹頂與東方明珠無敵晨景。", "⚠️ 若限制 10 點開放，09:50 先於電梯口等候。"],
+            backup: "N/A",
+            maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
+          },
+          { time: "10:00", route: "外灘中南段起點：📍 海關大樓 (外灘鐘樓)", transportText: "🚕 打車起點", transportType: "taxi", mustGo: true,
+            transitNote: ["🚕 從飯店打車起步價至海關大樓（中山東一路13號，近漢口路口），或往南走 8 分鐘"],
+            main: ["📸 拍海關大樓大鐘與萬國建築群視角，絕不走回頭路一路往北順走！", "🚽 往北走至外灘中央廣場洗手間"],
+            backup: "N/A",
+            maps: [{ name: "海關大樓", query: "上海市黃浦區中山東一路13號 海關大樓" }]
+          },
+          { time: "10:45", route: "外灘經典街拍：📍 九江路口 ➔ 和平飯店", transportText: "🚶 純步行往北", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市黃浦區中山東一路20號（沿中山東一路純步行往北約 350 公尺）"],
+            main: ["📸 拍九江路深邃街谷＋東方明珠同框、和平飯店復古綠銅頂。", "🚽 外灘中央廣場商場洗手間"],
+            backup: "N/A",
+            maps: [{ name: "和平飯店", query: "上海市黃浦區中山東一路20號 和平飯店" }]
+          },
+          { time: "12:30", route: "午餐 (外灘周邊)：1️⃣ 🏆 滬公館·上海菜", transportText: "🚶 步行3–5分", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市黃浦區九江路80號 2樓202室（從和平飯店過馬路步行約 3–5 分鐘即達）"],
+            main: ["📌 必點：響油鱔絲(你) / 招牌紅燒肉(馳)", "🚽 餐廳 / 大樓內洗手間"],
+            backup: "2️⃣ 【姥姥家常菜】黃浦區福州路70號（步行約 8 分｜必點：蒜茸蒸蝦(你) / 姥姥紅燒肉(馳)）<br>3️⃣ 【德興館(廣東路總店)】黃浦區廣東路471號（步行約 12 分或打車 5 分｜必點：爆魚麵(你) / 燜肉麵(馳)、鮮肉小籠）",
+            maps: [{ name: "滬公館", query: "滬公館 上海市黃浦區九江路80號" }, { name: "姥姥家常菜", query: "上海市黃浦區福州路70號" }, { name: "德興館", query: "上海市黃浦區廣東路471號" }]
+          },
+          { time: "14:30", route: "洛克外灘源巡禮：🥤 Manner Coffee ➔ ☕ % Arabica", transportText: "🚶 繼續往北步行", transportType: "walk", mustGo: true,
+            transitNote: ["📍 Manner（圓明園路209號）➔ % Arabica（圓明園路169號 協進大樓1樓），距離沙美大樓僅 1 個街區"],
+            main: ["🥤 Manner Coffee(外灘源店)：📌 點杯熱拿鐵拿在手上，紅磚老建築街拍神道具！", "☕ % Arabica(洛克外灘源店)：洛克外灘源絕美純白工業風庭院。", "🚽 洛克外灘源商區高質感洗手間"],
+            backup: "N/A",
+            maps: [{ name: "Manner外灘源", query: "上海市黃浦區圓明園路209號" }, { name: "% Arabica", query: "上海市黃浦區圓明園路169號" }]
+          },
+          { time: "15:30", route: "郵政博物館：📍 上海郵政博物館", transportText: "🚶 過四川路橋即達", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市虹口區北蘇州路250號（從圓明園路往北過四川路橋步行約 5 分鐘）"],
+            main: ["📸 四川路橋轉角正門外框包覆東方明珠！", "⚠️ 週六開放，16:00 停止入館，時間完美！", "🚽 館內洗手間"],
+            backup: "N/A",
+            maps: [{ name: "上海郵政博物館", query: "上海市虹口區北蘇州路250號" }]
+          },
+          { time: "16:15", route: "蘇州河畔日落：📍 乍浦路橋 (法師橋機位)", transportText: "🚶 就在博物館東側", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市虹口區乍浦路橋（郵政博物館東側約 150 公尺處）"],
+            main: ["📸 蘇州河畔看金色日落與陸家嘴三件套同框。這段北向 Citywalk 完美收官！", "🚽 周邊咖啡館"],
+            backup: "N/A",
+            maps: [{ name: "乍浦路橋", query: "上海市虹口區乍浦路橋" }]
+          },
+          { time: "18:30", route: "晚餐 (外灘夜景)：1️⃣ 🏆 外灘家宴(南外灘店)", transportText: "🚕 打車往南8–10分", transportType: "taxi", mustGo: true,
+            transitNote: ["🚕 此時腿已微痠，從乍浦路橋打車往南約 8–10 分鐘（黃浦區中山東二路22號 2樓）"],
+            main: ["📌 必點：松鼠桂魚(你) / 糖醋排骨(馳)", "🚽 餐廳內洗手間"],
+            backup: "2️⃣ 【Canton Table 三號黃浦會】中山東一路3號 外灘三號5樓（打車 6–8 分｜必點：精緻粵菜點心 / 叉燒拼盤 / 脆皮雞）<br>3️⃣ 【The Captain 船長5號露台餐廳】福州路37號 6樓（打車 5 分｜必點：戰斧牛排 / 美式烤雞，6樓露台直賞夜景）",
+            maps: [{ name: "外灘家宴", query: "上海市黃浦區中山東二路22號" }, { name: "三號黃浦會", query: "上海市黃浦區中山東一路3號 外灘三號" }, { name: "The Captain", query: "上海市黃浦區福州路37號" }]
+          },
+          { time: "20:30", route: "外灘漫步與夜景：📍 外灘萬國建築觀景台", transportText: "🚶 親水平台散步", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海市黃浦區中山東一路（陳毅廣場親水平台）"],
+            main: ["📸 吃完晚餐沿外灘親水平台一路往北順向散步（完全不走回頭路），拍金色外灘與陸家嘴璀璨夜景大片！", "🚽 外灘沿線公共洗手間"],
+            backup: "N/A",
+            maps: [{ name: "外灘觀景台", query: "陳毅廣場 上海外灘" }]
+          },
+          { time: "21:30", route: "返回飯店與宵夜：🏨 沙美大樓 ➔ 🛵 德克士 Dicos", transportText: "🚶 步行8–10分", transportType: "walk", mustGo: false,
+            transitNote: ["🚶 從陳毅廣場往北走到北京東路左轉約 8–10 分鐘即回飯店（北京東路190號）", "📱 支付寶叫跑腿外賣送到飯店櫃檯"],
+            main: ["提早回房休息儲備隔天迪士尼體力！", "🛵 宵夜：德克士 Dicos — 📌 必點：脆皮手槍腿、脆皮炸雞。"],
+            backup: "N/A",
+            maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
+          }
         ]
       },
-      3: { dayNum: 3, dateStr: "12/27 (日)", title: "重返童話的迪士尼", subtitle: "提早入園避開人潮 ➔ 夢幻煙火秀", weatherCityKey: "shanghai", dayWeatherTitle: "上海迪士尼度假區", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "空曠園區風大", dayClothingTip: "迪士尼園區空曠且需久站，請穿著舒適好走的鞋子與極致防寒的外套。",
+      3: { dayNum: 3, dateStr: "12/27 (日)", title: "重返童話的迪士尼", subtitle: "提早入園與尊享卡 ➔ 動物城 ➔ 17:30提早出園回市區大餐", weatherCityKey: "shanghai", dayWeatherTitle: "上海迪士尼度假區", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "空曠園區風大", dayClothingTip: "園區空曠且需久站步行，請穿好走的鞋與極致防寒外套。",
         items: [
-          { time: "07:45", route: "飯店 ➔ 上海迪士尼", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: true, main: ["提早1小時出發，避開最可怕的週日 09:00 安檢排隊人潮。"], backup: "若路況壅塞，可搭乘地鐵11號線直達迪士尼站。", maps: [{ name: "上海迪士尼", query: "上海迪士尼度假區" }] },
-          { time: "全天", route: "迪士尼沉浸式體驗", transportText: "🚶 園區漫步", transportType: "walk", mustGo: true, main: ["毫無壓力地享受各項遊樂設施與異國童話氛圍。","觀賞聖誕特別版花車遊行。","⚠️ 園區內用餐請仔細確認無海鮮成分，多選擇美式或烤肉類。"], backup: "N/A", maps: [] },
-          { time: "20:00", route: "浪漫煙火秀", transportText: "🎇 觀賞", transportType: "walk", mustGo: true, main: ["在城堡前找個好位子，享受浪漫煙火秀與燈光投影。"], backup: "提早 40 分鐘卡位以獲得最佳視野。", maps: [] },
-          { time: "21:00", route: "迪士尼 ➔ 返回飯店", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: false, main: ["散場後打車返回沙美大樓 Zhotel 休息。"], backup: "散場打車需排隊，可至迪士尼小鎮稍作休息避開人潮高峰。", maps: [{ name: "沙美大樓", query: "上海沙美大樓" }] }
+          { time: "07:00", route: "出發赴迪士尼：🚗 飯店 ➔ 上海迪士尼度假區", transportText: "🚕 打車45–50分", transportType: "taxi", mustGo: true,
+            transitNote: ["🚕 強烈建議直接打車前往（約 45–50 分鐘，建議 06:45 出發以搶頭批入園），早晨不塞車且免地鐵轉乘耗時"],
+            main: ["☕ 前一晚備好超商早餐與咖啡在車上吃。", "⚠️ 嚴禁攜帶自拍棒、腳架與摺疊椅！"],
+            backup: "N/A",
+            maps: [{ name: "上海迪士尼", query: "上海迪士尼度假區" }]
+          },
+          { time: "08:00", route: "VIP 大片與神級設施：📍 提早入園卡 ＋ 尊享卡攻略", transportText: "🚶 專屬通道安檢", transportType: "walk", mustGo: true,
+            main: ["💡 【瘋狂動物城】先拍空景大片，再用尊享卡刷「熱力追蹤」。", "接著主刷【加勒比海盜：沉落寶藏之戰】與【創極速光輪】！"],
+            backup: "N/A",
+            maps: []
+          },
+          { time: "13:00", route: "午餐與必買打卡零食：1️⃣ 巴波薩燒烤 ➔ 🐾 網紅小點", transportText: "🚶 園區內順路吃", transportType: "walk", mustGo: true,
+            transitNote: ["📍 上海迪士尼樂園 - 寶藏灣主題園區（玩完加勒比海盜出來順路直接吃）"],
+            main: ["🍖 巴波薩燒烤：📌 必點巨無霸烤豬肋排 / 烤雞套餐（高蛋白補充體力，室內有海盜船造景）。", "🐾 必買網紅小點（各處餐車）：📌 動物城山楂味「爪爪冰棒」、米奇造型雪糕、火雞腿。", "🚽 餐廳 / 園區內洗手間"],
+            backup: "2️⃣ 【皮諾丘鄉村廚房】夢幻世界主題園區（城堡後方步行即達｜必點：海鮮披薩(你) / 烤鴨披薩(馳)）",
+            maps: []
+          },
+          { time: "17:30", route: "提早出園直奔市區：🚕 避開散場人潮，返程吃大餐", transportText: "🚕 打車45–50分", transportType: "taxi", mustGo: false,
+            transitNote: ["🚕 17:30 提早出園步行至「西公交樞紐 / 網約車上客點」打車回市區（約 45–50 分鐘），完美避開 21:00 散場塞車潮！"],
+            main: ["💡 取消迪士尼小鎮用餐，沿返程主幹道直接進市區吃 TOP 級美食！", "⚠️ 國際飯店【蝴蝶酥】請於 16:00 前用支付寶跑腿送至飯店前台，以免打烊。"],
+            backup: "N/A",
+            maps: [{ name: "BFC外灘金融中心", query: "上海市黃浦區中山東二路600號 BFC外灘金融中心" }]
+          },
+          { time: "18:30", route: "返程順路 TOP 美食 (零繞路大餐)：1️⃣ 🏆 遇外灘(BFC外灘金融中心店)", transportText: "🚕 回飯店必經之路", transportType: "taxi", mustGo: true,
+            transitNote: ["🚕 迪士尼過南浦大橋沿中山東二路回飯店的「正必經之路」（中山東二路600號 BFC南區3樓S301，距沙美大樓僅 5 分鐘車程！）"],
+            main: ["📌 必點：紅蟳蒸米糕(你) / 廈門沙茶海鮮鍋(馳) / 荔枝肉（米其林一星＆黑珍珠頂級福建菜，建議提前訂位）", "🚽 BFC 商場洗手間"],
+            backup: "2️⃣ 【左庭右院鮮牛肉火鍋(新世界城店)】南京西路2-68號 新世界城9樓（延安東路高架「西藏中路出口」下即達｜必點：現切吊龍、匙柄、手打鮮牛肉丸、牛骨清湯鍋，大眾點評可線上取號）<br>3️⃣ 【老正興菜館(福州路總店)】黃浦區福州路556號（距沙美大樓僅約 1 公里｜必點：草頭圈子(你) / 正興醬方紅燒肉(馳) / 油爆河蝦，米其林一星本幫菜鼻祖）",
+            maps: [{ name: "遇外灘(BFC)", query: "上海市黃浦區中山東二路600號 BFC外灘金融中心" }, { name: "左庭右院(新世界城)", query: "上海市黃浦區南京西路2-68號 新世界城" }, { name: "老正興菜館", query: "上海市黃浦區福州路556號" }]
+          },
+          { time: "20:30", route: "返回飯店與宵夜：🏨 沙美大樓 ➔ 🛵 絕味鴨脖 / 周黑鴨", transportText: "🚕 打車4–5分 / 🚶散步", transportType: "taxi", mustGo: false,
+            transitNote: ["🚕 從餐廳打車起步價 4–5 分鐘直達飯店門口（或散步回北京東路190號）", "📱 支付寶叫外賣直送飯店"],
+            main: ["回房泡澡放鬆雙腿，領取下午跑腿代買的【國際飯店蝴蝶酥】！", "🛵 宵夜：絕味鴨脖 / 周黑鴨 — 📌 必點：微辣鴨鎖骨、滷鴨脖、滷毛豆。"],
+            backup: "N/A",
+            maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }]
+          }
         ]
       },
-      4: { dayNum: 4, dateStr: "12/28 (一)", title: "優雅收尾與返台", subtitle: "廣式甜品 ➔ Manner Coffee ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "舒適的早晨", dayClothingTip: "準備搭機，可將多餘的禦寒衣物打包，穿著輕鬆輕便的服裝。",
+      4: { dayNum: 4, dateStr: "12/28 (一)", title: "星巴克工坊 ➔ 南京東路 ➔ 返台", subtitle: "吳江路早點/蛋餅 ➔ 星巴克烘焙工坊 ➔ 萊萊小籠/滿記甜品 ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・靜安/黃浦 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區早午餐與機場返程", dayClothingTip: "準備搭機，可將多餘禦寒衣物整理好，穿著輕便保暖。",
         items: [
-          { time: "10:00", route: "飯店 ➔ 悠閒早午餐", transportText: "🚶 步行", transportType: "walk", mustGo: false, main: ["睡到自然醒，享受飯店復古氛圍。","外出品嚐「雙喜老鋪」廣式甜品 (雙皮奶等) 或道地街邊雞蛋餅。"], backup: "N/A", maps: [{ name: "雙喜老鋪", query: "雙喜老鋪 上海" }] },
-          { time: "13:00", route: "外灘最後巡禮", transportText: "🚶 漫步", transportType: "walk", mustGo: true, main: ["買杯 Manner Coffee 悠閒漫步。","採買最後的紀念品或在沙美大樓附近補拍底片。"], backup: "N/A", maps: [{ name: "Manner Coffee", query: "Manner Coffee 外灘" }] },
-          { time: "16:30", route: "飯店 ➔ 浦東機場", transportText: "🚕 打車 50分", transportType: "taxi", mustGo: true, main: ["領取行李，從外灘飯店打車前往浦東機場 (PVG)。"], backup: "務必預留塞車時間，最遲 17:00 需出發。", maps: [{ name: "浦東機場", query: "上海浦東國際機場" }] },
-          { time: "19:50", route: "搭機 ➔ 返回台北 (TPE)", transportText: "✈️ 航班 2h", transportType: "flight", mustGo: false, main: ["搭乘中華航空晚班機 (19:50起飛)。","帶著滿滿的 Citywalk 與聖誕回憶，預計 21:55 返回台灣。"], backup: "N/A", maps: [{ name: "桃園機場", query: "桃園國際機場" }] }
+          { time: "09:30", route: "道地早餐與星巴克朝聖 (不繞路順暢版)：🍳 定興路蛋餅 / 吳江路 ➔ ☕ 星巴克烘焙工坊", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 飯店吃完早餐後，從「南京東路站」搭地鐵 2 號線直達「南京西路站」(僅 2 站約 5 分鐘)", "📍 星巴克臻選上海烘焙工坊：靜安區南京西路789號 興業太古匯（3 號出口步行 2 分鐘即達）"],
+            main: ["🍳 早餐方案A：09:00 支付寶跑腿叫「定興路蛋餅」（雞蛋餅加里脊肉，約 10 點收攤，叫跑腿免繞路 2.3 公里）；方案B：南京西路站「吳江路休閒街」順路吃生煎/蛋餅（若想喝【雙喜老鋪】水牛奶，亦建議於南京西路／吳江路一帶購買）。", "☕ 星巴克臻選上海烘焙工坊：💡 餘裕 2 小時，慢慢喝巴レル熟成特調、拍巨型銅罐工廠大片！", "🚽 烘焙工坊內 / 興業太古匯"],
+            backup: "N/A",
+            maps: [{ name: "吳江路休閒街", query: "上海市靜安區吳江路" }, { name: "星巴克臻選工坊", query: "上海市靜安區南京西路789號" }]
+          },
+          { time: "12:00", route: "午餐與甜點 (南京東路步行街)：1️⃣ 🏆 萊萊小籠 ➔ 🍨 滿記甜品 / 港式糖水", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 從「南京西路站」搭地鐵 2 號線 1 站至「人民廣場站」19 號口步行約 5 分鐘（天津路506號）"],
+            main: ["🥟 萊萊小籠(天津路總店)：📌 必點喬艾萊萊蟹粉小籠、極品蟹黃鮮肉小籠、炸豬排（米其林必比登推介，上海蟹粉小籠天花板！）。", "🍨 滿記甜品 / 港式糖水鋪（宏伊廣場 / 置地廣場商場內）：📌 必吃楊枝甘露、芒果班戟 / 雙皮奶（原「雙喜老鋪」南京東路無門市，改於商場內吃免吹冷風）。", "🚽 餐廳內 / 宏伊國際廣場洗手間"],
+            backup: "2️⃣ 【小楊生煎(宏伊廣場店)】南京東路299號 宏伊國際廣場B1（地鐵2號線「南京東路站」2/3號口即達｜必點：大蝦生煎(你) / 招牌鮮肉生煎(馳)、牛肉酸辣粉）<br>3️⃣ 【渝信川菜(華盛大廈店)】九江路399號 華盛大廈5F（南京東路站4號口步行 3 分｜必點：精品水煮魚(你) / 乾煸辣子雞(馳)）",
+            maps: [{ name: "萊萊小籠", query: "上海市黃浦區天津路506號 萊萊小籠" }, { name: "宏伊國際廣場", query: "上海市黃浦區南京東路299號 宏伊國際廣場" }, { name: "渝信川菜", query: "上海市黃浦區九江路399號" }]
+          },
+          { time: "14:30", route: "收心與赴浦東機場：🏨 散步回飯店拿行李 ➔ ✈️ 浦東國際機場與晚餐", transportText: "🚶 步行5–6分 / 🚕 打車", transportType: "flight", mustGo: false,
+            transitNote: ["🚶 從南京東路步行街（宏伊廣場一帶）轉四川中路/江西中路，步行僅 5–6 分鐘即回沙美大樓（北京東路190號，免再搭地鐵！）", "🚕 拿行李直接打車出發（約 50–60 分鐘），或 🚇 搭 2 號線至「龍陽路站」轉磁浮列車（8 分鐘極速抵機場）"],
+            main: ["向櫃檯領取寄放行李，確認台胞證、護照與伴手禮齊全。", "🍽️ 機場晚餐：翠華餐廳 / 和府撈麵 / 漢堡王，平安返台！"],
+            backup: "N/A",
+            maps: [{ name: "Zhotel 沙美大樓", query: "上海市黃浦區北京東路190號" }, { name: "浦東機場", query: "上海浦東國際機場" }]
+          }
         ]
       }
     };
+
+    const MAP_PROVIDERS = {
+      apple: { label: '🗺️ Apple 地圖', build: q => `https://maps.apple.com/?q=${encodeURIComponent(q)}` },
+      amap: { label: '🗺️ 高德地圖', build: q => `https://uri.amap.com/search?keyword=${encodeURIComponent(q)}` },
+      google: { label: '🗺️ Google 地圖', build: q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` }
+    };
+    const MAP_ORDER = ['apple', 'amap', 'google'];
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let mapProvider = localStorage.getItem('shanghai_map_provider') || (isIOSDevice ? 'apple' : 'google');
+    if (!MAP_PROVIDERS[mapProvider]) mapProvider = 'apple';
+
+    function getMapUrl(query) {
+      return (MAP_PROVIDERS[mapProvider] || MAP_PROVIDERS.apple).build(query);
+    }
+
+    function updateMapProviderUI() {
+      const btn = document.getElementById('btn-map-provider');
+      if (btn) btn.textContent = MAP_PROVIDERS[mapProvider].label;
+    }
+
+    function updateStaticMapLinks() {
+      document.querySelectorAll('.dynamic-map-link').forEach(el => {
+        const q = el.getAttribute('data-map-query');
+        if (q) el.href = getMapUrl(q);
+      });
+    }
+
+    function cycleMapProvider() {
+      const idx = MAP_ORDER.indexOf(mapProvider);
+      mapProvider = MAP_ORDER[(idx + 1) % MAP_ORDER.length];
+      localStorage.setItem('shanghai_map_provider', mapProvider);
+      updateMapProviderUI();
+      updateStaticMapLinks();
+      renderDayTimeline();
+    }
 
     let currentDay = 1; let onlyMustGo = false; let showBackups = true;
     function getTransportEmoji(type) { switch (type) { case "walk": return "🚶"; case "bus": return "🚌"; case "taxi": return "🚕"; case "train": return "🚄"; case "subway": return "🚇"; case "flight": return "✈️"; default: return "📍"; } }
@@ -746,7 +1154,9 @@ function loadCachedWeather() {
           : "";
 
         let backupBoxHTML = showBackups && item.backup && item.backup !== "N/A" ? `<div class="text-[12px] text-[#8a837e] border-l-2 border-[#e8eae8] pl-2.5 mb-2 leading-relaxed"><b class="text-[#8b3a3a]">🛡️ 備案：</b>${item.backup}</div>` : "";
-        let mapsButtonsHTML = item.maps && item.maps.length > 0 ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${item.maps.map(m => `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.query)}" target="_blank" rel="noopener noreferrer" class="map-pill">📍 ${m.name}</a>`).join("")}</div>` : "";
+        const hasDriverBtn = Boolean(item.driver || (item.maps && item.maps.length > 0));
+        const driverBtnHTML = hasDriverBtn ? `<button onclick="openStopDriverModal(${currentDay}, ${origIdx})" class="map-pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 hover:!bg-[#f5eedf]">🚕 司機卡</button>` : "";
+        let mapsButtonsHTML = (hasDriverBtn || (item.maps && item.maps.length > 0)) ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${(item.maps || []).map(m => `<a href="${getMapUrl(m.query)}" target="_blank" rel="noopener noreferrer" class="map-pill">📍 ${m.name}</a>`).join("")}${driverBtnHTML}</div>` : "";
         
         const photoKey = `${currentDay}-${origIdx}`;
         const photos = itineraryPhotos[photoKey] || [];
@@ -754,7 +1164,7 @@ function loadCachedWeather() {
         
         let photosHTML = "";
         photos.forEach((base64Str, pIdx) => {
-           photosHTML += `<div class="inspiration-item" onclick="openLightbox('${base64Str}')" title="點擊放大"><div class="inspiration-delete" title="移除圖片" onclick="event.stopPropagation(); removeItineraryPhoto(${currentDay}, ${origIdx}, ${pIdx})">✖</div><img src="${base64Str}" alt="靈感照"></div>`; 
+           photosHTML += `<div class="inspiration-item" onclick="openLightbox(this.querySelector('img').src)" title="點擊放大"><div class="inspiration-delete" title="移除圖片" onclick="event.stopPropagation(); removeItineraryPhoto(${currentDay}, ${origIdx}, ${pIdx})">✖</div><img src="${base64Str}" alt="靈感照"></div>`; 
         });
         const inspirationGalleryHTML = photos.length > 0 ? `<div class="inspiration-grid mt-2">${photosHTML}</div>` : "";
 
@@ -816,26 +1226,56 @@ function loadCachedWeather() {
       renderDayTimeline();
     }
 
+    function getShanghaiDateParts(now = new Date()) {
+      const sh = new Date(now.getTime() + 8 * 3600 * 1000);
+      return {
+        year: sh.getUTCFullYear(),
+        month: sh.getUTCMonth() + 1,
+        day: sh.getUTCDate(),
+        hours: sh.getUTCHours(),
+        minutes: sh.getUTCMinutes()
+      };
+    }
+
     function updateDualClocks() {
       const now = new Date();
       const format = (tz, isDate) => new Intl.DateTimeFormat("zh-TW", { timeZone: tz, hour12: false, ...isDate ? {year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"} : {hour:"2-digit", minute:"2-digit", second:"2-digit"} }).format(now);
-      const els = ["clock-tw-time", "clock-tw-date", "clock-sh-time", "clock-sh-date"];
-      [format("Asia/Taipei"), format("Asia/Taipei", 1), format("Asia/Shanghai"), format("Asia/Shanghai", 1)].forEach((v, i) => { if(document.getElementById(els[i])) document.getElementById(els[i]).textContent = v; });
+      const timeEl = document.getElementById("clock-sh-time");
+      const dateEl = document.getElementById("clock-sh-date");
+      if (timeEl) timeEl.textContent = format("Asia/Shanghai");
+      if (dateEl) dateEl.textContent = format("Asia/Shanghai", 1);
+
+      const mainCd = document.getElementById("trip-countdown-main");
+      const subCd = document.getElementById("trip-countdown-sub");
+      if (mainCd && subCd) {
+        const sh = getShanghaiDateParts(now);
+        const todayUtc = Date.UTC(sh.year, sh.month - 1, sh.day);
+        const startUtc = Date.UTC(2026, 11, 25);
+        const diffDays = Math.round((startUtc - todayUtc) / 86400000);
+        if (diffDays > 0) {
+          mainCd.textContent = `倒數 ${diffDays} 天`;
+          subCd.textContent = "12/25 - 12/28 上海之旅";
+        } else if (diffDays >= -3) {
+          mainCd.textContent = `DAY ${1 - diffDays}`;
+          subCd.textContent = "旅途進行中 🎄";
+        } else {
+          mainCd.textContent = "旅途結束";
+          subCd.textContent = "2026 聖誕充電回憶";
+        }
+      }
     }
 
     function autoFocusItinerary() {
-      const shDateString = new Date().toLocaleString("en-US", {timeZone: "Asia/Shanghai"});
-      const shTime = new Date(shDateString);
+      const sh = getShanghaiDateParts();
       
       let targetDay = 1;
-      const y = shTime.getFullYear(), m = shTime.getMonth() + 1, d = shTime.getDate();
-      const isDuringTrip = (y === 2026 && m === 12 && d >= 25 && d <= 28);
-      if (isDuringTrip) targetDay = d - 24;
+      const isDuringTrip = (sh.year === 2026 && sh.month === 12 && sh.day >= 25 && sh.day <= 28);
+      if (isDuringTrip) targetDay = sh.day - 24;
       
       selectDay(targetDay, false);
       if (!isDuringTrip) return;
 
-      const currentTimeNum = shTime.getHours() * 60 + shTime.getMinutes();
+      const currentTimeNum = sh.hours * 60 + sh.minutes;
       const dayData = ITINERARY_DATA[targetDay];
       const mappedItems = dayData.items.map((item, origIdx) => ({ ...item, origIdx }));
       const filteredItems = onlyMustGo ? mappedItems.filter(item => item.mustGo) : mappedItems;
@@ -895,6 +1335,12 @@ function loadCachedWeather() {
         shoppingData = defaultShopping; itineraryPhotos = {};
       }
 
+      if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().catch(() => {});
+      }
+
+      updateMapProviderUI();
+      updateStaticMapLinks();
       updateDualClocks(); 
       setInterval(updateDualClocks, 1000);
       loadCachedWeather();
