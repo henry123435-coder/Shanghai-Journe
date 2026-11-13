@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shanghai-trip-v15';
+const CACHE_NAME = 'shanghai-trip-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -9,43 +9,57 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      Promise.allSettled(ASSETS.map(url => cache.add(url)))
-    )
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.allSettled(ASSETS.map(url => cache.add(url))))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    ))
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  const reqUrl = new URL(e.request.url);
+  let reqUrl;
+  try {
+    reqUrl = new URL(e.request.url);
+  } catch (err) {
+    return;
+  }
   if (reqUrl.origin !== self.location.origin) return;
 
   if (e.request.mode === 'navigate') {
     e.respondWith((async () => {
       const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 2000);
+      const timer = setTimeout(() => ctl.abort(), 4500);
       try {
         const res = await fetch(e.request, { signal: ctl.signal });
         clearTimeout(timer);
         if (res && res.ok) {
           const cache = await caches.open(CACHE_NAME);
-          cache.put('./index.html', res.clone());
+          const c1 = res.clone();
+          const c2 = res.clone();
+          await Promise.all([
+            cache.put('./index.html', c1),
+            cache.put('./', c2)
+          ]);
         }
         return res;
       } catch (err) {
         clearTimeout(timer);
-        return (await caches.match(e.request, { ignoreSearch: true }))
-          || (await caches.match('./index.html'))
+        return (await caches.match('./index.html'))
+          || (await caches.match(e.request, { ignoreSearch: true }))
           || Response.error();
       }
     })());
@@ -53,10 +67,11 @@ self.addEventListener('fetch', e => {
   }
 
   const networkFetch = fetch(e.request)
-    .then(res => {
+    .then(async res => {
       if (res && res.ok) {
         const resClone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(e.request, resClone);
       }
       return res;
     })

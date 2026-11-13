@@ -23,22 +23,32 @@
 </head>
 
 <body>
-  <!-- 隱藏的圖片上傳元件 -->
-  <input type="file" id="hidden-img-upload" accept="image/*" class="hidden">
-  <input type="file" id="hidden-backup-import" accept="application/json,.json" class="hidden">
+  <!-- 隱藏的圖片上傳元件 (sr-only-file 以確保 iOS Safari/PWA 穩定觸發) -->
+  <input type="file" id="hidden-img-upload" accept="image/*" class="sr-only-file" tabindex="-1" aria-hidden="true">
+  <input type="file" id="hidden-backup-import" accept="application/json,text/json,text/plain,.json" class="sr-only-file" tabindex="-1" aria-hidden="true">
+
+  <!-- PWA 更新提示條 -->
+  <div id="sw-update-banner" class="hidden sw-update-banner card !p-4 shadow-md flex items-center justify-between gap-3 bg-white" role="status" aria-live="polite">
+    <div class="text-xs text-[#26343b] font-medium">✨ 發現新版行程與介面，可立即套用</div>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button type="button" onclick="applyAppUpdate()" class="shrink-0 bg-[#526d7c] text-white font-medium px-3 py-2 rounded-lg text-xs hover:bg-[#3e5663] transition-colors">立即更新</button>
+      <button type="button" aria-label="關閉更新提示" onclick="dismissSwUpdateBanner()" class="shrink-0 text-[#849098] hover:text-[#26343b] px-2 py-1 text-base leading-none">&times;</button>
+    </div>
+  </div>
 
   <!-- 燈箱 Modal -->
-  <div id="lightbox-modal" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4" onclick="closeLightbox()">
-    <button class="absolute right-4 z-10 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" style="top:calc(16px + env(safe-area-inset-top))" onclick="closeLightbox()">&times;</button>
+  <div id="lightbox-modal" role="dialog" aria-modal="true" aria-label="圖片放大檢視" class="hidden fixed inset-0 z-[70] bg-black/90 flex items-center justify-center p-4" onclick="closeLightbox()">
+    <button type="button" aria-label="關閉圖片檢視" class="absolute right-4 z-10 text-white/70 hover:text-white text-4xl leading-none px-4 py-2" style="top:calc(16px + env(safe-area-inset-top));right:calc(16px + env(safe-area-inset-right))" onclick="closeLightbox()">&times;</button>
     <img id="lightbox-img" alt="放大檢視" class="max-w-full max-h-full object-contain rounded-md" onclick="event.stopPropagation()">
   </div>
 
   <!-- 司機出示大字卡 Modal -->
-  <div id="driver-modal" onclick="if(event.target===this) closeDriverModal()" class="hidden fixed inset-0 z-[65] bg-[#26343b]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div id="driver-modal" role="dialog" aria-modal="true" aria-labelledby="driver-modal-title" onclick="if(event.target===this) closeDriverModal()" class="hidden fixed inset-0 z-[65] bg-[#26343b]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="card w-full max-w-md modal-enter relative !p-6 bg-white">
-      <button onclick="closeDriverModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-2xl leading-none px-2">&times;</button>
-      <div class="text-[11px] font-bold text-[#c5ad85] tracking-[2px] mb-1">🚕 TAXI DRIVER CARD</div>
+      <button type="button" aria-label="關閉司機大字卡" onclick="closeDriverModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-2xl leading-none px-2">&times;</button>
+      <div id="driver-modal-title" class="text-[11px] font-bold text-[#c5ad85] tracking-[2px] mb-1">🚕 TAXI DRIVER CARD</div>
       <div class="text-xs text-[#849098] mb-3">請直接將手機畫面出示給計程車師傅，或複製貼到滴滴出行</div>
+      <div id="driver-stop-tabs" class="flex flex-wrap gap-1.5 mb-3 hidden"></div>
       <div class="bg-[#f7f7f4] border border-[#e8eae8] rounded-2xl p-5 mb-4">
         <div class="text-xs font-bold text-[#526d7c] mb-2">師傅，請到這裡：</div>
         <div id="driver-sh-name" class="text-2xl sm:text-3xl font-bold text-[#26343b] leading-snug break-words"></div>
@@ -46,26 +56,26 @@
         <div id="driver-sh-note" class="mt-3 pt-3 border-t border-[#e8eae8] text-xs text-[#8a837e] hidden"></div>
       </div>
       <div class="flex gap-2">
-        <button onclick="copyDriverText()" id="btn-copy-driver" class="flex-1 bg-[#526d7c] text-white font-medium py-2.5 rounded-xl text-sm hover:bg-[#3e5663] transition-colors">📋 複製地址</button>
-        <button onclick="closeDriverModal()" class="px-5 bg-[#f7f7f4] text-[#26343b] font-medium py-2.5 rounded-xl text-sm border border-[#e8eae8]">關閉</button>
+        <button type="button" onclick="copyDriverText()" id="btn-copy-driver" class="flex-1 bg-[#526d7c] text-white font-medium py-2.5 rounded-xl text-sm hover:bg-[#3e5663] transition-colors">📋 複製地址</button>
+        <button type="button" onclick="closeDriverModal()" class="px-5 bg-[#f7f7f4] text-[#26343b] font-medium py-2.5 rounded-xl text-sm border border-[#e8eae8]">關閉</button>
       </div>
     </div>
   </div>
 
   <!-- 計算機 Modal -->
-  <div id="tax-modal" onclick="if(event.target===this) toggleTaxModal()" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="tax-modal" role="dialog" aria-modal="true" aria-labelledby="tax-modal-title" onclick="if(event.target===this) toggleTaxModal()" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="card w-full max-w-xs modal-enter relative !p-6">
-      <button onclick="toggleTaxModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-xl leading-none">&times;</button>
-      <h3 class="text-lg font-medium mb-5 text-[#26343b] flex items-center gap-2">
+      <button type="button" aria-label="關閉匯率計算機" onclick="toggleTaxModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-xl leading-none">&times;</button>
+      <h3 id="tax-modal-title" class="text-lg font-medium mb-5 text-[#26343b] flex items-center gap-2">
         <span class="text-xl">🧮</span> 匯率計算機
       </h3>
       <div class="space-y-4">
         <div>
-          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">匯率 RATE</label>
+          <label for="tax-rate" class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">匯率 RATE</label>
           <input type="text" id="tax-rate" value="4.5" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" oninput="calcTax()" class="shop-input font-medium text-[#26343b]">
         </div>
         <div>
-          <label class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">人民幣 CNY ¥</label>
+          <label for="tax-cny" class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">人民幣 CNY ¥</label>
           <input type="number" id="tax-cny" placeholder="輸入商品金額" inputmode="decimal" step="any" oninput="if(this.value.length>10)this.value=this.value.slice(0,10);calcTax()" class="shop-input text-lg font-bold text-[#26343b]">
         </div>
         <div class="pt-2 border-t border-[#e8eae8] flex justify-between items-end">
@@ -77,6 +87,22 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- 購物群組名稱 Modal (取代 iOS 獨立 PWA 易異常的 window.prompt) -->
+  <div id="group-modal" role="dialog" aria-modal="true" aria-labelledby="group-modal-title" onclick="if(event.target===this) closeGroupModal()" class="hidden fixed inset-0 z-[60] bg-[#26343b]/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <form class="card w-full max-w-xs modal-enter relative !p-6 bg-white" onsubmit="submitGroupModal(event)">
+      <button type="button" aria-label="關閉視窗" onclick="closeGroupModal()" class="absolute top-4 right-4 text-[#849098] hover:text-[#26343b] text-xl leading-none">&times;</button>
+      <h3 id="group-modal-title" class="text-lg font-medium mb-4 text-[#26343b]">➕ 新增購物群組</h3>
+      <div class="mb-4">
+        <label for="group-name-input" class="text-[11px] font-bold text-[#849098] mb-1.5 block tracking-wider">群組名稱</label>
+        <input type="text" id="group-name-input" maxlength="40" placeholder="例如：迪士尼伴手禮 / 藥妝" class="shop-input font-medium text-[#26343b]" required>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeGroupModal()" class="px-4 bg-[#f7f7f4] text-[#26343b] font-medium py-2.5 rounded-xl text-sm border border-[#e8eae8]">取消</button>
+        <button type="submit" class="flex-1 bg-[#526d7c] text-white font-medium py-2.5 rounded-xl text-sm hover:bg-[#3e5663] transition-colors">確認</button>
+      </div>
+    </form>
   </div>
 
   <!-- 頂部導覽列 -->
@@ -212,7 +238,7 @@
             </div>
           </div>
           <div class="text-[13px] text-[#26343b] leading-relaxed">
-            <b class="text-[#526d7c]">🚕 前往機場：</b><br>預計 14:30 回飯店領取行李後，搭乘滴滴出行（約50分）或地鐵轉磁浮前往機場。<br>
+            <b class="text-[#526d7c]">🚕 前往機場：</b><br>預計 13:15–13:45 回飯店領取寄放行李（或辦延遲退房），建議於班機起飛前 4 小時（約 15:50 前）從飯店搭滴滴專車直達浦東機場（車程約 50–70 分），起飛前 3 小時抵達最從容。<br>
             <div class="flex gap-2 mt-2">
               <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B5%A6%E6%9D%B1%E5%9C%8B%E9%9A%9B%E6%A9%9F%E5%A0%B4" data-map-query="上海浦東國際機場" target="_blank" rel="noopener noreferrer" class="map-pill dynamic-map-link">📍 浦東機場</a>
             </div>
@@ -236,13 +262,13 @@
             <h3 class="text-[16px] font-medium text-[#26343b] leading-snug">上海沙美大樓 Zhotel</h3>
             <p class="text-[12px] text-[#26343b] font-medium mt-1">上海市黃浦區北京東路190號</p>
             <div class="text-[13px] text-[#26343b] space-y-1.5 pl-3 border-l-2 border-[#e8eae8] my-4">
-              <p>・地鐵 2/10 號線「南京東路站」6 號出口出站，步行約 5–8 分鐘即可抵達。</p>
+              <p>・地鐵 2/10 號線「南京東路站」<b>6 號出口最近</b>（步行約 3–5 分），亦可由 <b>7 號出口</b>步行約 5–8 分鐘抵達。</p>
               <p>・擁有絕佳神仙機位與復古電影感，露台可直接拍下與東方明珠同框的絕美合影。</p>
             </div>
           </div>
           <div class="flex gap-2">
-            <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B2%99%E7%BE%8E%E5%A4%A7%E6%A8%93" data-map-query="上海沙美大樓" target="_blank" rel="noopener noreferrer" class="dynamic-map-link flex-1 text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8]">📍 導航至飯店</a>
-            <button onclick="openDriverModal('上海沙美大樓 Zhotel', '上海市黃浦區北京東路190號', '近地鐵2/10號線 南京東路站6號出口')" class="flex-1 text-center bg-[#fcf7f0] text-[#b39b74] border border-[#b39b74]/30 py-2 rounded-lg text-xs font-medium hover:bg-[#f5eedf]">🚕 司機大字卡</button>
+            <a href="https://maps.apple.com/?q=%E4%B8%8A%E6%B5%B7%E6%B2%99%E7%BE%8E%E5%A4%A7%E6%A8%93" data-map-query="上海 沙美大樓 Zhotel" target="_blank" rel="noopener noreferrer" class="dynamic-map-link flex-1 text-center bg-[#f7f7f4] text-[#526d7c] py-2 rounded-lg text-xs font-medium hover:bg-[#e8eae8]">📍 導航至飯店</a>
+            <button type="button" onclick="openDriverModal(HOTEL_INFO.name, HOTEL_INFO.addr, HOTEL_INFO.note)" class="flex-1 text-center bg-[#fcf7f0] text-[#b39b74] border border-[#b39b74]/30 py-2 rounded-lg text-xs font-medium hover:bg-[#f5eedf]">🚕 司機大字卡</button>
           </div>
         </div>
       </div>
@@ -296,41 +322,132 @@
   </nav>
 
   <script>
-    // PWA Service Worker (檢查 http/https 協議，避免本地開啟或 Blob 報錯)
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    function storageGet(key, fallback = null) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+    function storageSet(key, val) {
+      try {
+        localStorage.setItem(key, val);
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
 
-    /* ================= IndexedDB 本機資料庫引擎 ================= */
+    const HOTEL_INFO = {
+      name: '上海沙美大樓 Zhotel',
+      addr: '上海市黃浦區北京東路190號',
+      note: '近地鐵2/10號線 南京東路站 6號口最近（7號口亦可）'
+    };
+
+    // PWA Service Worker (含背景切回前景自動檢查與無縫更新提示)
+    let waitingSW = null;
+    let userRequestedUpdate = false;
+    let lastSwCheckAt = 0;
+    let swBannerDismissed = false;
+    function showSwUpdateBanner() {
+      if (swBannerDismissed) return;
+      const banner = document.getElementById('sw-update-banner');
+      if (banner) banner.classList.remove('hidden');
+    }
+    function dismissSwUpdateBanner() {
+      swBannerDismissed = true;
+      const banner = document.getElementById('sw-update-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+    function applyAppUpdate() {
+      userRequestedUpdate = true;
+      if (waitingSW) {
+        waitingSW.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        location.reload();
+      }
+    }
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+      const hadController = Boolean(navigator.serviceWorker.controller);
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (userRequestedUpdate) {
+          location.reload();
+        } else if (hadController) {
+          showSwUpdateBanner();
+        }
+      });
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => {
+        if (reg.waiting && hadController) {
+          waitingSW = reg.waiting;
+          showSwUpdateBanner();
+        }
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              waitingSW = nw;
+              showSwUpdateBanner();
+            }
+          });
+        });
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && Date.now() - lastSwCheckAt > 60000) {
+            lastSwCheckAt = Date.now();
+            reg.update().catch(() => {});
+          }
+        });
+      }).catch(() => {});
+    }
+
+    /* ================= IndexedDB 本機資料庫引擎 (含不可用防護) ================= */
     const idb = {
       db: null,
+      isReady: function() { return Boolean(this.db); },
       init: function() {
         return new Promise((resolve, reject) => {
+          if (typeof indexedDB === 'undefined') {
+            reject(new Error('IndexedDB unavailable'));
+            return;
+          }
           const req = indexedDB.open('ShanghaiTripDB', 1);
           req.onupgradeneeded = e => {
             const db = e.target.result;
-            if(!db.objectStoreNames.contains('TripStore')) {
+            if (!db.objectStoreNames.contains('TripStore')) {
               db.createObjectStore('TripStore');
             }
           };
           req.onsuccess = e => { this.db = e.target.result; resolve(); };
-          req.onerror = e => reject(e.target.error);
+          req.onerror = e => reject(e.target.error || new Error('IndexedDB open error'));
         });
       },
       get: function(key) {
+        if (!this.db) return Promise.reject(new Error('IndexedDB not initialized'));
         return new Promise((resolve, reject) => {
-          const tx = this.db.transaction('TripStore', 'readonly');
-          const req = tx.objectStore('TripStore').get(key);
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
+          try {
+            const tx = this.db.transaction('TripStore', 'readonly');
+            const req = tx.objectStore('TripStore').get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          } catch (err) {
+            reject(err);
+          }
         });
       },
       set: function(key, val) {
+        if (!this.db) return Promise.reject(new Error('IndexedDB not initialized'));
         return new Promise((resolve, reject) => {
-          const tx = this.db.transaction('TripStore', 'readwrite');
-          const req = tx.objectStore('TripStore').put(val, key);
-          req.onsuccess = () => resolve();
-          req.onerror = () => reject(req.error);
+          try {
+            const tx = this.db.transaction('TripStore', 'readwrite');
+            const req = tx.objectStore('TripStore').put(val, key);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+          } catch (err) {
+            reject(err);
+          }
         });
       }
     };
@@ -344,16 +461,51 @@
         .replace(/'/g, '&#39;');
     }
 
-    /* ================= 計算機邏輯 (含匯率記憶) ================= */
-    function getSavedRate() {
-      const rate = parseFloat(document.getElementById('tax-rate')?.value || localStorage.getItem('shanghai_cny_rate'));
-      return (!isNaN(rate) && rate > 0) ? rate : 4.5;
+    let idSeq = 0;
+    function generateId(prefix) {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
+      }
+      idSeq += 1;
+      return `${prefix}_${Date.now()}_${idSeq}`;
     }
 
+    /* ================= 計算機邏輯 (含匯率正數驗證與記憶) ================= */
+    function getSavedRate() {
+      const inputVal = document.getElementById('tax-rate')?.value;
+      const fromInput = parseFloat(inputVal);
+      if (!isNaN(fromInput) && fromInput > 0) return fromInput;
+      const fromStore = parseFloat(storageGet('shanghai_cny_rate', ''));
+      return (!isNaN(fromStore) && fromStore > 0) ? fromStore : 4.5;
+    }
+
+    let lockedScrollY = null;
     function syncModalScrollLock() {
-      const anyOpen = ['lightbox-modal', 'driver-modal', 'tax-modal']
+      const anyOpen = ['lightbox-modal', 'driver-modal', 'tax-modal', 'group-modal']
         .some(id => !document.getElementById(id)?.classList.contains('hidden'));
-      document.body.style.overflow = anyOpen ? 'hidden' : '';
+      if (anyOpen) {
+        if (lockedScrollY === null) {
+          lockedScrollY = window.scrollY || window.pageYOffset || 0;
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${lockedScrollY}px`;
+          document.body.style.left = '0';
+          document.body.style.right = '0';
+          document.body.style.width = '100%';
+        }
+      } else if (lockedScrollY !== null) {
+        const restoreY = lockedScrollY;
+        lockedScrollY = null;
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        window.scrollTo(0, restoreY);
+      }
     }
 
     function toggleTaxModal() {
@@ -369,46 +521,88 @@
       }
     }
 
-    /* ================= 司機出示大字卡邏輯 ================= */
+    /* ================= 司機出示大字卡邏輯 (支援多地點／備案快速切換) ================= */
     let currentDriverCopyText = '';
     let driverCopyTimer = null;
-    function openDriverModal(name, addr = '', note = '') {
+    let currentDriverTargets = [];
+    let currentDriverNote = '';
+
+    function renderDriverTarget(targetIdx = 0) {
+      const target = currentDriverTargets[targetIdx];
+      if (!target) return;
       clearTimeout(driverCopyTimer);
-      document.getElementById('driver-sh-name').textContent = name;
+      document.getElementById('driver-sh-name').textContent = target.name || '';
       const addrEl = document.getElementById('driver-sh-addr');
       const noteEl = document.getElementById('driver-sh-note');
-      if (addr && addr !== name) {
-        addrEl.textContent = addr;
+      const addrText = target.addr || target.query || '';
+      if (addrText && addrText !== target.name) {
+        addrEl.textContent = addrText;
         addrEl.classList.remove('hidden');
       } else {
+        addrEl.textContent = '';
         addrEl.classList.add('hidden');
       }
-      if (note) {
-        noteEl.textContent = '📍 ' + note;
+      if (currentDriverNote) {
+        noteEl.textContent = '📍 ' + currentDriverNote;
         noteEl.classList.remove('hidden');
       } else {
+        noteEl.textContent = '';
         noteEl.classList.add('hidden');
       }
-      currentDriverCopyText = (addr && addr !== name) ? `${name}\n${addr}` : name;
+      currentDriverCopyText = (addrText && addrText !== target.name) ? `${target.name}\n${addrText}` : (target.name || '');
       const copyBtn = document.getElementById('btn-copy-driver');
       if (copyBtn) copyBtn.textContent = '📋 複製地址';
+
+      const tabsEl = document.getElementById('driver-stop-tabs');
+      if (tabsEl) {
+        tabsEl.querySelectorAll('.driver-tab-btn').forEach((btn, idx) => {
+          btn.classList.toggle('active', idx === targetIdx);
+        });
+      }
+    }
+
+    function openDriverModal(name, addr = '', note = '') {
+      currentDriverTargets = [{ name, addr }];
+      currentDriverNote = note || '';
+      const tabsEl = document.getElementById('driver-stop-tabs');
+      if (tabsEl) {
+        tabsEl.innerHTML = '';
+        tabsEl.classList.add('hidden');
+      }
+      renderDriverTarget(0);
       document.getElementById('driver-modal').classList.remove('hidden');
       syncModalScrollLock();
     }
+
     function closeDriverModal() {
       document.getElementById('driver-modal').classList.add('hidden');
       syncModalScrollLock();
     }
+
     function openStopDriverModal(day, origIdx) {
-      const stop = ITINERARY_DATA[day] && ITINERARY_DATA[day].items && ITINERARY_DATA[day].items[origIdx];
+      const stop = ITINERARY_DATA[day]?.items?.[origIdx];
       if (!stop) return;
-      if (stop.driver) {
-        openDriverModal(stop.driver.name, stop.driver.addr, stop.driver.note);
-      } else if (stop.maps && stop.maps.length > 0) {
-        const target = stop.maps[0];
-        openDriverModal(target.name, target.addr || target.query, stop.route);
+      const targets = stop.driver ? [stop.driver] : (Array.isArray(stop.maps) ? stop.maps : []);
+      if (targets.length === 0) return;
+      currentDriverTargets = targets;
+      currentDriverNote = stop.route || '';
+      const tabsEl = document.getElementById('driver-stop-tabs');
+      if (tabsEl) {
+        if (targets.length > 1) {
+          tabsEl.innerHTML = targets.map((m, idx) =>
+            `<button type="button" class="driver-tab-btn${idx === 0 ? ' active' : ''}" data-driver-idx="${idx}">${escapeHtml(m.name)}</button>`
+          ).join('');
+          tabsEl.classList.remove('hidden');
+        } else {
+          tabsEl.innerHTML = '';
+          tabsEl.classList.add('hidden');
+        }
       }
+      renderDriverTarget(0);
+      document.getElementById('driver-modal').classList.remove('hidden');
+      syncModalScrollLock();
     }
+
     function fallbackCopyText(text, onSuccess) {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -423,6 +617,7 @@
       if (ok) onSuccess();
       else alert('無法自動複製，請直接出示上方畫面給司機查看。');
     }
+
     function copyDriverText() {
       if (!currentDriverCopyText) return;
       const copyBtn = document.getElementById('btn-copy-driver');
@@ -443,15 +638,18 @@
     }
 
     function calcTax() {
-      const rateInput = document.getElementById('tax-rate').value;
-      const rate = parseFloat(rateInput) || 4.5;
-      if (rateInput && !isNaN(parseFloat(rateInput))) {
-        localStorage.setItem('shanghai_cny_rate', rateInput);
+      const rateInput = document.getElementById('tax-rate')?.value ?? '';
+      const parsedRate = parseFloat(rateInput);
+      const isValidRate = !isNaN(parsedRate) && parsedRate > 0;
+      if (isValidRate) {
+        storageSet('shanghai_cny_rate', String(parsedRate));
       }
+      const rate = isValidRate ? parsedRate : getSavedRate();
 
-      const cny = parseFloat(document.getElementById('tax-cny').value) || 0;
+      const cnyVal = parseFloat(document.getElementById('tax-cny')?.value);
+      const cny = (!isNaN(cnyVal) && cnyVal > 0) ? cnyVal : 0;
       document.getElementById('tax-twd').textContent = Math.round(cny * rate).toLocaleString();
-      
+
       const statusBox = document.getElementById('tax-status');
       if (cny > 0) {
         statusBox.className = "mt-2 bg-[#f4f7f4] border border-[#dce5dc] rounded-lg p-2.5 text-center text-[11px] text-[#527c5a] font-medium";
@@ -463,10 +661,74 @@
       renderTotal();
     }
 
-    /* ================= 圖片燈箱與上傳邏輯 ================= */
-    let currentUploadTarget = { type: null, gId: null, iId: null, dayId: null, stopIdx: null };
+    /* ================= 圖片燈箱、上傳與備份匯出入 ================= */
+    const LEGACY_PHOTO_KEY_MAP = {
+      '1-0': 'd1-pvg', '1-1': 'd1-hotel', '1-2': 'd1-lunch', '1-3': 'd1-french', '1-4': 'd1-yuyuan', '1-5': 'd1-dinner', '1-6': 'd1-return',
+      '2-0': 'd2-roof', '2-1': 'd2-bund-walk', '2-2': 'd2-lunch', '2-3': 'd2-rockbund', '2-4': 'd2-postal', '2-5': 'd2-bridge', '2-6': 'd2-rest', '2-7': 'd2-dinner', '2-8': 'd2-night',
+      '3-0': 'd3-wake', '3-1': 'd3-to-disney', '3-2': 'd3-morning', '3-3': 'd3-lunch', '3-4': 'd3-afternoon', '3-5': 'd3-leave', '3-6': 'd3-dinner', '3-7': 'd3-return',
+      '4-0': 'd4-breakfast', '4-1': 'd4-starbucks', '4-2': 'd4-lunch', '4-3': 'd4-dessert', '4-4': 'd4-checkout', '4-5': 'd4-airport'
+    };
+
+    let currentUploadTarget = { type: null, gId: null, iId: null, photoKey: null };
     let itineraryPhotos = {};
     let shoppingData = [];
+
+    function sanitizeImageSource(src, allowHttp = true) {
+      if (typeof src !== 'string') return '';
+      const trimmed = src.trim();
+      if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(trimmed)) return trimmed;
+      if (allowHttp && /^https?:\/\//i.test(trimmed)) return trimmed;
+      return '';
+    }
+
+    function sanitizeShoppingData(raw) {
+      if (!Array.isArray(raw)) return cloneDefaultShopping();
+      return raw
+        .filter(g => g && typeof g === 'object')
+        .map(g => {
+          const gid = (typeof g.id === 'string' && g.id.trim()) ? g.id.trim() : generateId('g');
+          const title = (typeof g.title === 'string' && g.title.trim()) ? g.title.trim().slice(0, 60) : '未命名群組';
+          const items = Array.isArray(g.items) ? g.items.filter(i => i && typeof i === 'object').map(i => {
+            const iid = (typeof i.id === 'string' && i.id.trim()) ? i.id.trim() : generateId('i');
+            let name = typeof i.name === 'string' ? i.name : '';
+            const legacySpec = typeof i.spec === 'string' ? i.spec.trim() : '';
+            if (legacySpec && !name.includes(legacySpec)) {
+              name = name ? `${name}（${legacySpec}）` : legacySpec;
+            }
+            const memo = typeof i.memo === 'string' ? i.memo : '';
+            const numPrice = Number(i.price);
+            const price = (Number.isFinite(numPrice) && numPrice >= 0) ? numPrice : 0;
+            const bought = Boolean(i.bought);
+            const safeImgUrl = sanitizeImageSource(i.img, true);
+            const trimmedImg = typeof i.img === 'string' ? i.img.trim() : '';
+            const img = safeImgUrl || (trimmedImg && !trimmedImg.includes(':') && !trimmedImg.includes('/') && trimmedImg.length <= 8 ? trimmedImg : '🛍️');
+            return { id: iid, name, memo, price, bought, img };
+          }) : [];
+          return { id: gid, title, isOpen: g.isOpen !== false, items };
+        });
+    }
+
+    function sanitizePhotosMap(raw) {
+      const result = {};
+      let migrated = false;
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+        return { map: result, migrated: false };
+      }
+      Object.entries(raw).forEach(([origKey, list]) => {
+        if (!Array.isArray(list)) return;
+        const targetKey = LEGACY_PHOTO_KEY_MAP[origKey] || origKey;
+        if (targetKey !== origKey) migrated = true;
+        if (!result[targetKey]) result[targetKey] = [];
+        list.forEach(src => {
+          const safeSrc = sanitizeImageSource(src, false);
+          if (safeSrc && result[targetKey].length < 3 && !result[targetKey].includes(safeSrc)) {
+            result[targetKey].push(safeSrc);
+          }
+        });
+        if (result[targetKey].length === 0) delete result[targetKey];
+      });
+      return { map: result, migrated };
+    }
 
     function openLightbox(base64Str) {
       if (!base64Str) return;
@@ -479,37 +741,39 @@
       document.getElementById('lightbox-img').removeAttribute('src');
       syncModalScrollLock();
     }
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape') return;
-      closeLightbox();
-      closeDriverModal();
-      const tm = document.getElementById('tax-modal');
-      if (tm && !tm.classList.contains('hidden')) {
-        tm.classList.add('hidden');
-        syncModalScrollLock();
-      }
-    });
+
     function triggerImageUpload(gId, iId) {
-      currentUploadTarget = { type: 'shopping', gId, iId, dayId: null, stopIdx: null };
+      currentUploadTarget = { type: 'shopping', gId, iId, photoKey: null };
       const fileInput = document.getElementById('hidden-img-upload');
-      fileInput.value = ''; fileInput.click();
+      if (fileInput) { fileInput.value = ''; fileInput.click(); }
     }
-    function triggerItineraryUpload(dayId, stopIdx) {
-      currentUploadTarget = { type: 'itinerary', gId: null, iId: null, dayId, stopIdx };
+    function triggerItineraryUpload(photoKey) {
+      if (!photoKey) return;
+      const existing = itineraryPhotos[photoKey] || [];
+      if (existing.length >= 3) {
+        alert('每個景點最多只能上傳 3 張照片喔！');
+        return;
+      }
+      currentUploadTarget = { type: 'itinerary', gId: null, iId: null, photoKey };
       const fileInput = document.getElementById('hidden-img-upload');
-      fileInput.value = ''; fileInput.click();
+      if (fileInput) { fileInput.value = ''; fileInput.click(); }
     }
-    function removeItineraryPhoto(dayId, stopIdx, photoIdx) {
-      if(confirm('確定移除這張靈感照片嗎？')) {
-        const key = `${dayId}-${stopIdx}`;
-        if (itineraryPhotos[key]) {
-          itineraryPhotos[key].splice(photoIdx, 1);
-          idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
-        }
+    async function removeItineraryPhoto(photoKey, photoIdx) {
+      if (!photoKey || !confirm('確定移除這張靈感照片嗎？')) return;
+      const list = itineraryPhotos[photoKey];
+      if (!Array.isArray(list) || photoIdx < 0 || photoIdx >= list.length) return;
+      const nextPhotos = { ...itineraryPhotos, [photoKey]: list.filter((_, idx) => idx !== photoIdx) };
+      if (nextPhotos[photoKey].length === 0) delete nextPhotos[photoKey];
+      try {
+        await idb.set('itineraryPhotos', nextPhotos);
+        itineraryPhotos = nextPhotos;
+        renderDayTimeline();
+      } catch (err) {
+        alert('刪除照片失敗，無法寫入本機資料庫。');
       }
     }
     function removeShoppingImage(gId, iId) {
-      if(confirm('確定移除這張商品相片嗎？')) {
+      if (confirm('確定移除這張商品相片嗎？')) {
         const g = shoppingData.find(x => x.id === gId);
         if (g) {
           const i = g.items.find(x => x.id === iId);
@@ -518,22 +782,36 @@
       }
     }
 
-    function exportBackup() {
-      const payload = {
-        version: 1,
+    async function exportBackup() {
+      const jsonStr = JSON.stringify({
+        version: 2,
         exportedAt: new Date().toISOString(),
         shoppingData,
         itineraryPhotos
-      };
-      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      });
+      const filename = `shanghai-trip-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+
+      if (isIOSDevice && typeof navigator.share === 'function' && typeof File === 'function') {
+        try {
+          const file = new File([blob], filename, { type: 'application/json' });
+          if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: '上海旅誌備份' });
+            return;
+          }
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `shanghai-trip-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTimeout(() => URL.revokeObjectURL(url), 15000);
     }
 
     function triggerBackupImport() {
@@ -545,35 +823,55 @@
       const fileInput = document.getElementById('hidden-img-upload');
       if (fileInput) {
         fileInput.addEventListener('change', function(e) {
-          const file = e.target.files[0];
+          const file = e.target.files?.[0];
+          e.target.value = '';
           if (!file) return;
           const objUrl = URL.createObjectURL(file);
           const img = new Image();
-          img.onload = function() {
+          img.onload = async function() {
             URL.revokeObjectURL(objUrl);
+            let compressedBase64 = '';
             const canvas = document.createElement('canvas');
-            const MAX_SIZE = 1600;
-            let w = img.width, h = img.height;
-            if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
-            else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
-            w = Math.round(w); h = Math.round(h);
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-            canvas.width = 0; canvas.height = 0;
+            try {
+              const MAX_SIZE = 1280;
+              let w = img.width, h = img.height;
+              if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+              else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+              w = Math.max(1, Math.round(w));
+              h = Math.max(1, Math.round(h));
+              canvas.width = w; canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error('Canvas 2D unavailable');
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
+              ctx.fillStyle = '#fff';
+              ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(img, 0, 0, w, h);
+              compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+            } catch (err) {
+              alert('圖片處理失敗（可能是相片過大導致記憶體不足），請改選較小張的照片。');
+              return;
+            } finally {
+              canvas.width = 0; canvas.height = 0;
+            }
 
             if (currentUploadTarget.type === 'shopping' && currentUploadTarget.gId && currentUploadTarget.iId) {
-              updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', compressedBase64); 
-            } else if (currentUploadTarget.type === 'itinerary' && currentUploadTarget.dayId !== null && currentUploadTarget.stopIdx !== null) {
-              const key = `${currentUploadTarget.dayId}-${currentUploadTarget.stopIdx}`;
-              if (!itineraryPhotos[key]) itineraryPhotos[key] = [];
-              if (itineraryPhotos[key].length >= 3) { alert("每個景點最多只能上傳3張照片喔！"); return; }
-              itineraryPhotos[key].push(compressedBase64);
-              idb.set('itineraryPhotos', itineraryPhotos).then(() => renderDayTimeline());
+              updateItem(currentUploadTarget.gId, currentUploadTarget.iId, 'img', compressedBase64);
+            } else if (currentUploadTarget.type === 'itinerary' && currentUploadTarget.photoKey) {
+              const key = currentUploadTarget.photoKey;
+              const existing = itineraryPhotos[key] || [];
+              if (existing.length >= 3) {
+                alert('每個景點最多只能上傳 3 張照片喔！');
+                return;
+              }
+              const nextPhotos = { ...itineraryPhotos, [key]: [...existing, compressedBase64] };
+              try {
+                await idb.set('itineraryPhotos', nextPhotos);
+                itineraryPhotos = nextPhotos;
+                renderDayTimeline();
+              } catch (err) {
+                alert('儲存照片失敗，請確認瀏覽器儲存空間或非私密瀏覽模式。');
+              }
             }
           };
           img.onerror = function() {
@@ -587,7 +885,8 @@
       const backupInput = document.getElementById('hidden-backup-import');
       if (backupInput) {
         backupInput.addEventListener('change', async function(e) {
-          const file = e.target.files[0];
+          const file = e.target.files?.[0];
+          e.target.value = '';
           if (!file) return;
           try {
             const text = await file.text();
@@ -597,73 +896,145 @@
               return;
             }
             if (!confirm('匯入備份將會覆蓋目前的購物清單與行程照片，確定繼續嗎？')) return;
-            shoppingData = parsed.shoppingData;
-            itineraryPhotos = (parsed.itineraryPhotos && typeof parsed.itineraryPhotos === 'object') ? parsed.itineraryPhotos : {};
-            await idb.set('shoppingData', shoppingData);
-            await idb.set('itineraryPhotos', itineraryPhotos);
+            const nextShopping = sanitizeShoppingData(parsed.shoppingData);
+            const { map: nextPhotos } = sanitizePhotosMap(parsed.itineraryPhotos);
+            await idb.set('shoppingData', nextShopping);
+            await idb.set('itineraryPhotos', nextPhotos);
+            shoppingData = nextShopping;
+            itineraryPhotos = nextPhotos;
             renderShopping();
             renderDayTimeline();
             alert('備份匯入完成！');
           } catch (err) {
-            alert('讀取備份檔失敗，請確認檔案是否為有效的 JSON 備份。');
+            alert('匯入備份失敗：請確認檔案為有效 JSON 備份，且瀏覽器允許儲存資料。');
           }
         });
       }
     });
 
-    /* ================= 購物清單邏輯 (防失焦優化) ================= */
+    /* ================= 購物清單與群組 Modal 邏輯 ================= */
     const defaultShopping = [
       { id: 'g1', title: '🎁 老字號伴手禮', isOpen: true, items: [
-        { id: 'i1', name: '國際飯店 蝴蝶酥', spec: '大盒', memo: '請叫外賣代送', price: 60, bought: false, img: '🦋' }
+        { id: 'i1', name: '國際飯店 蝴蝶酥（大盒）', memo: '請叫外賣代送', price: 60, bought: false, img: '🦋' }
       ]},
       { id: 'g2', title: '👗 法租界質感買手店', isOpen: true, items: [
-        { id: 'i3', name: '質感服飾/香氛', spec: '武康路/安福路', memo: '看中即買', price: 0, bought: false, img: '🛍️' }
+        { id: 'i3', name: '質感服飾/香氛（武康路/安福路）', memo: '看中即買', price: 0, bought: false, img: '🛍️' }
       ]}
     ];
+    function cloneDefaultShopping() {
+      return JSON.parse(JSON.stringify(defaultShopping));
+    }
+
+    let groupModalState = { mode: 'add', gId: null };
+    function openGroupModal(mode = 'add', gId = null) {
+      groupModalState = { mode, gId };
+      const titleEl = document.getElementById('group-modal-title');
+      const inputEl = document.getElementById('group-name-input');
+      const modal = document.getElementById('group-modal');
+      if (!modal || !inputEl) return;
+      if (mode === 'rename') {
+        const g = shoppingData.find(x => x.id === gId);
+        if (!g) return;
+        if (titleEl) titleEl.textContent = '✏️ 重新命名群組';
+        inputEl.value = g.title;
+      } else {
+        if (titleEl) titleEl.textContent = '➕ 新增購物群組';
+        inputEl.value = '';
+      }
+      modal.classList.remove('hidden');
+      syncModalScrollLock();
+      inputEl.focus();
+      try {
+        inputEl.setSelectionRange(0, inputEl.value.length);
+      } catch (e) {}
+    }
+    function closeGroupModal() {
+      const modal = document.getElementById('group-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+        syncModalScrollLock();
+      }
+    }
+    function submitGroupModal(e) {
+      if (e) e.preventDefault();
+      const inputEl = document.getElementById('group-name-input');
+      const title = inputEl?.value.trim();
+      if (!title) return;
+      if (groupModalState.mode === 'rename' && groupModalState.gId) {
+        const g = shoppingData.find(x => x.id === groupModalState.gId);
+        if (g) g.title = title.slice(0, 60);
+      } else {
+        shoppingData.push({ id: generateId('g'), title: title.slice(0, 60), isOpen: true, items: [] });
+      }
+      closeGroupModal();
+      saveShopping();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      closeLightbox();
+      closeDriverModal();
+      closeGroupModal();
+      const tm = document.getElementById('tax-modal');
+      if (tm && !tm.classList.contains('hidden')) {
+        tm.classList.add('hidden');
+        syncModalScrollLock();
+      }
+    });
 
     let shoppingSaveTimer = null;
     function flushShoppingSave() {
       if (shoppingSaveTimer) {
         clearTimeout(shoppingSaveTimer);
         shoppingSaveTimer = null;
-        idb.set('shoppingData', shoppingData).catch(err => console.error('flushShoppingSave failed:', err));
+        if (idb.isReady()) {
+          idb.set('shoppingData', shoppingData).catch(err => console.error('flushShoppingSave failed:', err));
+        }
       }
     }
     function scheduleShoppingSave() {
       clearTimeout(shoppingSaveTimer);
       shoppingSaveTimer = setTimeout(() => {
         shoppingSaveTimer = null;
+        if (!idb.isReady()) return;
         idb.set('shoppingData', shoppingData).catch(() => {
           alert('儲存購物清單失敗，請確認瀏覽器儲存空間或非無痕模式。');
         });
       }, 250);
     }
     window.addEventListener('pagehide', flushShoppingSave);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') flushShoppingSave();
-    });
 
     function saveShopping() {
       clearTimeout(shoppingSaveTimer);
       shoppingSaveTimer = null;
       renderShopping();
       idb.set('shoppingData', shoppingData).catch(() => {
-        alert('儲存購物清單失敗（可能為瀏覽器儲存空間不足或無痕模式限制）。');
+        alert('儲存購物清單失敗（可能為瀏覽器儲存空間不足或私密瀏覽模式限制）。');
       });
     }
-    function addShoppingGroup() { const t = prompt('請輸入群組名稱'); if (t) { shoppingData.push({ id: 'g_' + Date.now(), title: t, isOpen: true, items: [] }); saveShopping(); } }
-    function removeGroup(gId) { if(confirm('確定刪除此群組？')) { shoppingData = shoppingData.filter(g => g.id !== gId); saveShopping(); } }
+    function addShoppingGroup() { openGroupModal('add'); }
+    function resetDefaultShopping() {
+      if (confirm('確定要恢復預設購物清單嗎？（僅在目前沒有清單或想重置時使用）')) {
+        shoppingData = cloneDefaultShopping();
+        saveShopping();
+      }
+    }
+    function removeGroup(gId) { if (confirm('確定刪除此群組？')) { shoppingData = shoppingData.filter(g => g.id !== gId); saveShopping(); } }
     function toggleGroup(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.isOpen = !g.isOpen; saveShopping(); } }
-    function addItem(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.items.push({ id: 'i_' + Date.now(), name: '', spec: '', memo: '', price: 0, bought: false, img: '🛍️' }); g.isOpen = true; saveShopping(); } }
+    function addItem(gId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.items.push({ id: generateId('i'), name: '', memo: '', price: 0, bought: false, img: '🛍️' }); g.isOpen = true; saveShopping(); } }
     function removeItem(gId, iId) { const g = shoppingData.find(x => x.id === gId); if (g) { g.items = g.items.filter(i => i.id !== iId); saveShopping(); } }
-    
-    // 優化：修改文字或金額時僅在背景存檔與更新總計，不重繪整個 DOM 避免輸入框失焦
+
     function updateItem(gId, iId, f, v) {
       const g = shoppingData.find(x => x.id === gId);
       if (g) {
         const i = g.items.find(x => x.id === iId);
         if (i) {
-          i[f] = f === 'price' ? (parseFloat(v) || 0) : v;
+          if (f === 'price') {
+            const num = parseFloat(v);
+            i[f] = (Number.isFinite(num) && num >= 0) ? num : 0;
+          } else {
+            i[f] = v;
+          }
           if (f === 'img') {
             saveShopping();
           } else {
@@ -676,7 +1047,7 @@
 
     function toggleBought(gId, iId) { const g = shoppingData.find(x => x.id === gId); if (g) { const i = g.items.find(x => x.id === iId); if (i) { i.bought = !i.bought; saveShopping(); } } }
     function renderTotal() {
-      let t = 0; shoppingData.forEach(g => g.items.forEach(i => { if(!i.bought) t += i.price; }));
+      let t = 0; shoppingData.forEach(g => (g.items || []).forEach(i => { if (!i.bought) t += (Number(i.price) || 0); }));
       const totalEl = document.getElementById('shopping-total');
       const twdEl = document.getElementById('shopping-total-twd');
       if (totalEl) totalEl.textContent = '¥ ' + t.toLocaleString();
@@ -684,49 +1055,70 @@
     }
     function renderShopping() {
       const container = document.getElementById('shopping-groups-container');
+      if (!container) return;
+      if (shoppingData.length === 0) {
+        container.innerHTML = `
+          <div class="card text-center py-12">
+            <div class="text-3xl mb-2">🛍️</div>
+            <div class="text-sm font-medium text-[#26343b] mb-1">目前沒有任何購物群組</div>
+            <div class="text-xs text-[#849098] mb-4">可新增群組開始記錄想買的伴手禮，或載入預設清單</div>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button type="button" data-shop-action="add-group" class="pill pill-primary">➕ 新增群組</button>
+              <button type="button" data-shop-action="reset-default" class="pill !bg-white !border !border-[#e8eae8]">🔄 恢復預設清單</button>
+            </div>
+          </div>
+        `;
+        renderTotal();
+        return;
+      }
+
       let html = '';
       shoppingData.forEach(g => {
+        const gidAttr = escapeHtml(g.id);
         html += `
           <div class="card !p-4 sm:!p-5">
-            <div class="flex justify-between items-center mb-3 ${g.isOpen ? 'border-b border-[#e8eae8] pb-3' : ''}">
-              <div class="flex items-center gap-2 cursor-pointer text-[#2b2523]" onclick="toggleGroup('${g.id}')">
-                <span class="text-xs text-[#8a837e] w-4 text-center">${g.isOpen ? '▼' : '▶'}</span>
-                <h4 class="font-medium text-[15px]">${escapeHtml(g.title)}</h4>
+            <div class="flex justify-between items-center gap-2 mb-3 ${g.isOpen ? 'border-b border-[#e8eae8] pb-3' : ''}">
+              <div class="flex items-center gap-2 cursor-pointer text-[#2b2523] min-w-0" data-shop-action="toggle-group" data-gid="${gidAttr}">
+                <span class="text-xs text-[#8a837e] w-4 text-center shrink-0">${g.isOpen ? '▼' : '▶'}</span>
+                <h4 class="font-medium text-[15px] truncate">${escapeHtml(g.title)}</h4>
               </div>
-              <div class="flex gap-2">
-                <button onclick="addItem('${g.id}')" class="text-[11px] text-[#8b3a3a] bg-[#f7f7f4] px-2.5 py-1 rounded-md hover:bg-[#e8eae8]">＋ 商品</button>
-                <button onclick="removeGroup('${g.id}')" class="text-[11px] text-[#a35e5e] bg-[#fcf5f5] px-2 py-1 rounded-md">刪除</button>
+              <div class="flex flex-wrap gap-1.5 shrink-0">
+                <button type="button" data-shop-action="rename-group" data-gid="${gidAttr}" class="text-[11px] text-[#526d7c] bg-[#f7f7f4] px-2 py-1 rounded-md hover:bg-[#e8eae8]">改名</button>
+                <button type="button" data-shop-action="add-item" data-gid="${gidAttr}" class="text-[11px] text-[#8b3a3a] bg-[#f7f7f4] px-2.5 py-1 rounded-md hover:bg-[#e8eae8]">＋ 商品</button>
+                <button type="button" data-shop-action="remove-group" data-gid="${gidAttr}" class="text-[11px] text-[#a35e5e] bg-[#fcf5f5] px-2 py-1 rounded-md">刪除</button>
               </div>
             </div>
         `;
         if (g.isOpen) {
           html += `<div class="space-y-4 pt-1">`;
-          g.items.forEach(i => {
-            const isImg = i.img.startsWith('http') || i.img.startsWith('data:');
-            let imgHtml = isImg ? `
+          (g.items || []).forEach(i => {
+            const iidAttr = escapeHtml(i.id);
+            const imgStr = typeof i.img === 'string' ? i.img : '🛍️';
+            const safeImgUrl = sanitizeImageSource(imgStr, true);
+            let imgHtml = safeImgUrl ? `
               <div class="relative w-full h-full group">
-                <div class="inspiration-delete" title="移除相片" onclick="event.stopPropagation(); removeShoppingImage('${g.id}', '${i.id}')">✖</div>
-                <img src="${escapeHtml(i.img)}" class="w-full h-full object-cover cursor-zoom-in transition-transform duration-200 hover:scale-105" onclick="openLightbox(this.src)">
+                <button type="button" aria-label="移除商品相片" class="inspiration-delete" title="移除相片" data-shop-action="remove-img" data-gid="${gidAttr}" data-iid="${iidAttr}">✖</button>
+                <img src="${escapeHtml(safeImgUrl)}" alt="${escapeHtml(i.name || '商品相片')}" class="w-full h-full object-cover cursor-zoom-in transition-transform duration-200 hover:scale-105" data-shop-action="lightbox-img">
               </div>
             ` : `
-              <div class="w-full h-full flex items-center justify-center cursor-pointer hover:bg-[#e8eae8] transition-colors" onclick="triggerImageUpload('${g.id}', '${i.id}')">
-                <span class="text-4xl">${escapeHtml(i.img)}</span>
+              <div class="w-full h-full flex items-center justify-center cursor-pointer hover:bg-[#e8eae8] transition-colors" data-shop-action="upload-img" data-gid="${gidAttr}" data-iid="${iidAttr}">
+                <span class="text-4xl">${escapeHtml(imgStr)}</span>
               </div>
             `;
             html += `
               <div class="flex gap-3 relative ${i.bought ? 'opacity-60' : ''} transition-opacity">
-                <button onclick="removeItem('${g.id}','${i.id}')" class="absolute -top-1.5 -left-1.5 bg-white border border-[#e8eae8] text-[#8a837e] rounded-full w-5 h-5 text-[10px] flex items-center justify-center shadow-sm z-10 hover:text-[#2b2523]">&times;</button>
+                <button type="button" aria-label="刪除此商品" data-shop-action="remove-item" data-gid="${gidAttr}" data-iid="${iidAttr}" class="absolute -top-1.5 -left-1.5 bg-white border border-[#e8eae8] text-[#8a837e] rounded-full w-5 h-5 text-[10px] flex items-center justify-center shadow-sm z-10 hover:text-[#2b2523]">&times;</button>
                 <div class="w-28 h-28 shrink-0 bg-[#f7f7f4] border border-[#e8eae8] rounded-xl flex items-center justify-center overflow-hidden">${imgHtml}</div>
                 <div class="flex-1 flex flex-col justify-center gap-2.5 min-w-0">
                   <div class="flex items-center gap-2">
-                    <button onclick="toggleBought('${g.id}','${i.id}')" class="checkbox-btn text-xl shrink-0">${i.bought ? '✅' : '⭕'}</button>
-                    <input type="text" value="${escapeHtml(i.name)}" oninput="updateItem('${g.id}','${i.id}','name',this.value)" placeholder="品名與規格..." class="shop-input !py-1.5 !px-2 text-[13px] font-medium ${i.bought ? 'line-through-custom' : ''}">
+                    <button type="button" aria-label="切換已購狀態" data-shop-action="toggle-bought" data-gid="${gidAttr}" data-iid="${iidAttr}" class="checkbox-btn text-xl shrink-0">${i.bought ? '✅' : '⭕'}</button>
+                    <input type="text" value="${escapeHtml(i.name)}" data-shop-field="name" data-gid="${gidAttr}" data-iid="${iidAttr}" placeholder="品名與規格..." class="shop-input !py-1.5 !px-2 text-[13px] font-medium ${i.bought ? 'line-through-custom' : ''}">
                   </div>
                   <div class="flex flex-col gap-2 pl-8">
-                    <input type="text" value="${escapeHtml(i.memo)}" oninput="updateItem('${g.id}','${i.id}','memo',this.value)" placeholder="數量/顏色/備忘" class="shop-input !py-1 !px-2 text-[11px] text-[#8b3a3a]">
+                    <input type="text" value="${escapeHtml(i.memo)}" data-shop-field="memo" data-gid="${gidAttr}" data-iid="${iidAttr}" placeholder="數量/顏色/備忘" class="shop-input !py-1 !px-2 text-[11px] text-[#8b3a3a]">
                     <div class="relative w-full">
                       <span class="absolute left-2 top-1 text-[11px] text-[#8a837e]">¥</span>
-                      <input type="number" value="${i.price || ''}" oninput="updateItem('${g.id}','${i.id}','price',this.value)" placeholder="金額" inputmode="decimal" step="any" class="shop-input !py-1 !pl-6 !pr-2 text-[12px] font-medium">
+                      <input type="number" value="${i.price || ''}" data-shop-field="price" data-gid="${gidAttr}" data-iid="${iidAttr}" placeholder="金額" inputmode="decimal" step="any" class="shop-input !py-1 !pl-6 !pr-2 text-[12px] font-medium">
                     </div>
                   </div>
                 </div>
@@ -743,7 +1135,7 @@
 
     /* ================= 導航與分頁切換邏輯 ================= */
     const TABS = ['itinerary', 'weather', 'flights', 'hotels', 'shopping'];
-    function switchMainTab(tabId) {
+    function switchMainTab(tabId, shouldScroll = true) {
       TABS.forEach(t => {
         const el = document.getElementById('tab-' + t);
         if (el) {
@@ -758,7 +1150,9 @@
         const mobBtn = document.getElementById('nav-mob-' + t);
         if (mobBtn) mobBtn.className = (t === tabId) ? 'active' : '';
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (shouldScroll) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     /* ================= 氣象與行程邏輯 ================= */
@@ -777,20 +1171,54 @@
       if (code <= 77) return "瑞雪紛飛"; return "大雪紛飛";
     }
 
+    function renderDayWeatherCardInnerHTML(dayData) {
+      const cityObj = CITIES_WEATHER[dayData.weatherCityKey];
+      const liveWeatherTag = cityObj && cityObj.liveTemp !== null
+        ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30 ml-2">即時：${escapeHtml(cityObj.liveTemp)}°C ${escapeHtml(cityObj.liveDesc)}</span>`
+        : ``;
+      const weatherEmoji = getWeatherEmoji(cityObj && cityObj.liveCode !== null ? cityObj.liveCode : 2);
+      return `
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="text-[32px] leading-none">${weatherEmoji}</div>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <h4 class="font-medium text-[15px] text-[#26343b]">${escapeHtml(dayData.dayWeatherTitle)}</h4>${liveWeatherTag}
+            </div>
+            <div class="flex flex-wrap gap-2 mt-1 text-[12px] text-[#849098]">
+              <span>🌡️ ${escapeHtml(dayData.dayTempRange)}</span><span>·</span><span>${escapeHtml(dayData.dayWeatherDesc)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-[#e8eae8] text-[12.5px] text-[#526d7c] leading-relaxed">
+          <b class="text-[#26343b]">🧣 穿搭提醒：</b>${escapeHtml(dayData.dayClothingTip)}
+        </div>
+      `;
+    }
+
+    function updateDayWeatherBanner() {
+      const card = document.getElementById('day-weather-card');
+      const dayData = ITINERARY_DATA[currentDay];
+      if (card && dayData) {
+        card.innerHTML = renderDayWeatherCardInnerHTML(dayData);
+      }
+    }
+
     function renderFourCitiesWeather() {
       const grid = document.getElementById("four-cities-weather-grid");
       if (!grid) return;
       let html = "";
       Object.keys(CITIES_WEATHER).forEach(key => {
         const c = CITIES_WEATHER[key];
-        const liveStr = c.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">即時：${getWeatherEmoji(c.liveCode ?? 2)} ${c.liveTemp}°C ${c.liveDesc}</span>` : `<span class="pill">${c.snowProb}</span>`;
+        const liveStr = c.liveTemp !== null
+          ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30">即時：${getWeatherEmoji(c.liveCode ?? 2)} ${escapeHtml(c.liveTemp)}°C ${escapeHtml(c.liveDesc)}</span>`
+          : `<span class="pill">${escapeHtml(c.snowProb)}</span>`;
         let forecastHtml = "";
         if (Array.isArray(c.dailyForecast) && c.dailyForecast.length > 0) {
           forecastHtml = `<div class="grid grid-cols-4 gap-2 mb-4">${c.dailyForecast.map(d => `
             <div class="bg-[#f7f7f4] border border-[#e8eae8] rounded-xl p-2 text-center">
-              <div class="text-[10px] text-[#849098] font-medium">${d.label}</div>
+              <div class="text-[10px] text-[#849098] font-medium">${escapeHtml(d.label)}</div>
               <div class="text-lg my-1 leading-none">${getWeatherEmoji(d.code)}</div>
-              <div class="text-[11px] font-bold text-[#26343b]">${d.min}° ~ ${d.max}°</div>
+              <div class="text-[11px] font-bold text-[#26343b]">${escapeHtml(d.min)}° ~ ${escapeHtml(d.max)}°</div>
             </div>
           `).join("")}</div>`;
         }
@@ -798,15 +1226,15 @@
           <div class="card flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-center mb-3">
-                <small class="text-[#849098] font-medium text-[10px] tracking-wide">${c.dayLabel}</small>
-                <span class="text-[#26343b] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">12月均溫 ${c.janAvg}</span>
+                <small class="text-[#849098] font-medium text-[10px] tracking-wide">${escapeHtml(c.dayLabel)}</small>
+                <span class="text-[#26343b] text-xs font-bold bg-[#f7f7f4] px-2 py-0.5 rounded-full border border-[#e8eae8]">12月均溫 ${escapeHtml(c.janAvg)}</span>
               </div>
-              <h4 class="text-[16px] font-medium text-[#26343b] mb-2">${c.name.split(" ")[0]}</h4>
+              <h4 class="text-[16px] font-medium text-[#26343b] mb-2">${escapeHtml(c.name.split(" ")[0])}</h4>
               <div class="mb-4">${liveStr}</div>
               ${forecastHtml}
             </div>
             <div class="text-[11px] text-[#526d7c] bg-[#f7f7f4] p-2.5 rounded-lg">
-              <b class="text-[#26343b]">穿搭：</b>${c.advice}
+              <b class="text-[#26343b]">穿搭：</b>${escapeHtml(c.advice)}
             </div>
           </div>
         `;
@@ -814,131 +1242,156 @@
       grid.innerHTML = html;
     }
 
+    function formatWeatherCacheStamp(cacheObj) {
+      if (!cacheObj || typeof cacheObj !== 'object') return '';
+      const stamp = [cacheObj.date, cacheObj.time].filter(Boolean).join(' ');
+      return stamp ? ` (${stamp})` : '';
+    }
+
     function loadCachedWeather() {
       try {
-        const cached = localStorage.getItem('shanghai_weather_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed.data) {
-            Object.keys(parsed.data).forEach(k => {
-              if (CITIES_WEATHER[k]) {
-                CITIES_WEATHER[k].liveTemp = parsed.data[k].liveTemp;
-                CITIES_WEATHER[k].liveCode = parsed.data[k].liveCode;
-                CITIES_WEATHER[k].liveDesc = parsed.data[k].liveDesc;
-                CITIES_WEATHER[k].dailyForecast = parsed.data[k].dailyForecast || [];
-              }
-            });
-          }
-          if (parsed.time) {
-            const btn = document.getElementById("weather-refresh-text");
-            if (btn) btn.textContent = `🔄 更新氣溫 (${parsed.time})`;
-          }
+        const cached = storageGet('shanghai_weather_cache');
+        if (!cached) return;
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.data) {
+          Object.keys(parsed.data).forEach(k => {
+            if (CITIES_WEATHER[k] && parsed.data[k]) {
+              CITIES_WEATHER[k].liveTemp = parsed.data[k].liveTemp;
+              CITIES_WEATHER[k].liveCode = parsed.data[k].liveCode;
+              CITIES_WEATHER[k].liveDesc = parsed.data[k].liveDesc;
+              CITIES_WEATHER[k].dailyForecast = parsed.data[k].dailyForecast || [];
+            }
+          });
+        }
+        const stamp = formatWeatherCacheStamp(parsed);
+        if (stamp) {
+          const btn = document.getElementById("weather-refresh-text");
+          if (btn) btn.textContent = `🔄 更新氣溫${stamp}`;
         }
       } catch (e) {}
     }
 
+    let weatherResetTimer = null;
     async function fetchAllWeather() {
       const btn = document.getElementById("weather-refresh-text");
       const refreshBtn = document.getElementById("btn-weather-refresh");
+      if (weatherResetTimer) {
+        clearTimeout(weatherResetTimer);
+        weatherResetTimer = null;
+      }
       if (btn) btn.textContent = "⏳ 更新中...";
       if (refreshBtn) refreshBtn.disabled = true;
 
       let updatedCount = 0;
-      await Promise.allSettled(
-        Object.values(CITIES_WEATHER).map(async (c) => {
-          try {
-            const ctl = new AbortController(); const id = setTimeout(() => ctl.abort(), 5000);
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&forecast_days=4&timezone=Asia%2FShanghai`, { signal: ctl.signal });
-            clearTimeout(id);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.current_weather) {
-                c.liveTemp = Math.round(data.current_weather.temperature);
-                c.liveCode = data.current_weather.weathercode;
-                c.liveDesc = getWeatherDescText(data.current_weather.weathercode);
-                updatedCount++;
+      try {
+        await Promise.allSettled(
+          Object.values(CITIES_WEATHER).map(async (c) => {
+            const ctl = new AbortController();
+            const id = setTimeout(() => ctl.abort(), 5000);
+            try {
+              const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&forecast_days=4&timezone=Asia%2FShanghai`, { signal: ctl.signal });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.current_weather) {
+                  c.liveTemp = Math.round(data.current_weather.temperature);
+                  c.liveCode = data.current_weather.weathercode;
+                  c.liveDesc = getWeatherDescText(data.current_weather.weathercode);
+                  updatedCount++;
+                }
+                if (data.daily && Array.isArray(data.daily.time)) {
+                  c.dailyForecast = data.daily.time.map((dateStr, idx) => ({
+                    label: idx === 0 ? '今日' : dateStr.slice(5).replace('-', '/'),
+                    max: Math.round(data.daily.temperature_2m_max[idx]),
+                    min: Math.round(data.daily.temperature_2m_min[idx]),
+                    code: data.daily.weathercode[idx]
+                  }));
+                }
               }
-              if (data.daily && Array.isArray(data.daily.time)) {
-                c.dailyForecast = data.daily.time.map((dateStr, idx) => ({
-                  label: idx === 0 ? '今日' : dateStr.slice(5).replace('-', '/'),
-                  max: Math.round(data.daily.temperature_2m_max[idx]),
-                  min: Math.round(data.daily.temperature_2m_min[idx]),
-                  code: data.daily.weathercode[idx]
-                }));
-              }
+            } catch (e) {}
+            finally {
+              clearTimeout(id);
             }
-          } catch (e) {}
-        })
-      );
+          })
+        );
 
-      if (updatedCount > 0) {
-        const now = new Date();
-        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const cacheObj = { time: timeStr, data: {} };
-        Object.keys(CITIES_WEATHER).forEach(k => {
-          cacheObj.data[k] = {
-            liveTemp: CITIES_WEATHER[k].liveTemp,
-            liveCode: CITIES_WEATHER[k].liveCode,
-            liveDesc: CITIES_WEATHER[k].liveDesc,
-            dailyForecast: CITIES_WEATHER[k].dailyForecast
-          };
-        });
-        localStorage.setItem('shanghai_weather_cache', JSON.stringify(cacheObj));
-      }
+        if (updatedCount > 0) {
+          const sh = getShanghaiDateParts(new Date());
+          const dateStr = `${String(sh.month).padStart(2, '0')}/${String(sh.day).padStart(2, '0')}`;
+          const timeStr = `${String(sh.hours).padStart(2, '0')}:${String(sh.minutes).padStart(2, '0')}`;
+          const cacheObj = { date: dateStr, time: timeStr, data: {} };
+          Object.keys(CITIES_WEATHER).forEach(k => {
+            cacheObj.data[k] = {
+              liveTemp: CITIES_WEATHER[k].liveTemp,
+              liveCode: CITIES_WEATHER[k].liveCode,
+              liveDesc: CITIES_WEATHER[k].liveDesc,
+              dailyForecast: CITIES_WEATHER[k].dailyForecast
+            };
+          });
+          storageSet('shanghai_weather_cache', JSON.stringify(cacheObj));
+        }
 
-      renderFourCitiesWeather(); 
-      renderDayTimeline();
-
-      const savedCache = JSON.parse(localStorage.getItem('shanghai_weather_cache') || '{}');
-      const timeLabel = savedCache.time ? ` (${savedCache.time})` : '';
-      if (btn) { 
-        btn.textContent = updatedCount > 0 ? "✅ 已更新" : "⚠️ 離線快取"; 
-        setTimeout(() => { 
-          btn.textContent = `🔄 更新氣溫${timeLabel}`; 
-          if (refreshBtn) refreshBtn.disabled = false; 
-        }, 2500); 
+        renderFourCitiesWeather();
+        updateDayWeatherBanner();
+      } finally {
+        let savedCache = {};
+        try {
+          savedCache = JSON.parse(storageGet('shanghai_weather_cache', '{}')) || {};
+        } catch (e) {
+          savedCache = {};
+        }
+        const timeLabel = formatWeatherCacheStamp(savedCache);
+        if (btn) {
+          btn.textContent = updatedCount > 0 ? "✅ 已更新" : "⚠️ 離線快取";
+          weatherResetTimer = setTimeout(() => {
+            btn.textContent = `🔄 更新氣溫${timeLabel}`;
+            if (refreshBtn) refreshBtn.disabled = false;
+            weatherResetTimer = null;
+          }, 2500);
+        } else if (refreshBtn) {
+          refreshBtn.disabled = false;
+        }
       }
     }
 
     const ITINERARY_DATA = {
       1: { dayNum: 1, dateStr: "12/25 (五)", title: "圓夢蟹黃 ➔ 法租界 ➔ 豫園新天地", subtitle: "浦東機場 ➔ 沙美大樓 ➔ 李百蟹 ➔ 法租界(方案A) ➔ 豫園 ➔ 新天地", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・黃浦/徐匯", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區 Citywalk 與夜間點燈", dayClothingTip: "午後散步舒適，傍晚氣溫下降，建議洋蔥式穿搭搭防風大衣。",
         items: [
-          { time: "10:50-12:00", route: "抵達上海：浦東國際機場 PVG (T2/T1)", transportText: "✈️ 出關60–70分", transportType: "flight", mustGo: false,
+          { id: "d1-pvg", time: "10:50-12:00", route: "抵達上海：浦東國際機場 PVG (T2/T1)", transportText: "✈️ 出關60–70分", transportType: "flight", mustGo: false,
             transitNote: ["🛂 10:50 為落地時間，入境、領行李及出關預留 60–70 分"],
             main: ["📱 確認台胞證、eSIM 網路、支付寶及微信支付", "🚽 機場航廈公共洗手間"], backup: "N/A",
             maps: [{ name: "浦東機場", query: "上海浦東國際機場", addr: "上海市浦東新區迎賓大道6000號" }]
           },
-          { time: "12:00-13:15", route: "前往飯店：Zhotel 沙美大樓", transportText: "🚕 滴滴55–70分", transportType: "taxi", mustGo: false,
+          { id: "d1-hotel", time: "12:00-13:15", route: "前往飯店：Zhotel 沙美大樓", transportText: "🚕 滴滴55–70分", transportType: "taxi", mustGo: false,
             transitNote: ["🚕 機場搭滴滴或計程車直達（約 55–70 分，第一天帶行李直接搭車最省力）"],
             main: ["抵達後先辦理入住或寄放行李", "💡 13:00 在車上先用微信「美味不用等」或大眾點評查看【李百蟹】線上取號，爭取靠窗江景位", "🚽 飯店洗手間"], backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
           },
-          { time: "13:30-14:40", route: "午餐：🏆 李百蟹·蟹黃麵 (外灘店)", transportText: "🚕 滴滴10–12分", transportType: "taxi", mustGo: true,
+          { id: "d1-lunch", time: "13:30-14:40", route: "午餐：🏆 李百蟹·蟹黃麵 (外灘店)", transportText: "🚕 滴滴10–12分", transportType: "taxi", mustGo: true,
             transitNote: ["🚕 從飯店搭滴滴約 10–12 分直達（外灘22號 3樓）"],
             main: ["📌 必點：蟹黃麵(你) / 炸豬排(馳)（不接受電話訂小桌，靠車上提前線上取號省時）", "🚽 餐廳內洗手間"],
-            backup: "【蟹三寶 (人民廣場店)】天津路513號（步行 8–10 分或搭車｜蟹黃金撈(你) / 蔥油拌麵(馳)）<br>【鮮得來排骨年糕】雲南南路46號（搭車約 10 分｜招牌排骨年糕、雙檔湯）",
-            maps: [{ name: "李百蟹(外灘店)", query: "上海 李百蟹 外灘店", addr: "上海市黃浦區中山東二路22號 3樓" }, { name: "蟹三寶", query: "上海 蟹三寶 天津路", addr: "上海市黃浦區天津路513號" }, { name: "鮮得來", query: "上海 鮮得來 雲南南路", addr: "上海市黃浦區雲南南路46號" }]
+            backup: "【蟹三寶 (人民廣場店)】天津路513號（步行 8–10 分或搭車｜蟹黃金撈(你) / 蔥油拌麵(馳)）<br>【鮮得來排骨年糕 (寧海東路店)】寧海東路290-292號（雲南南路46號原址已動遷改址至此，地鐵8號線大世界站1號口對面｜搭車約 10 分｜招牌排骨年糕、雙檔湯）",
+            maps: [{ name: "李百蟹(外灘店)", query: "上海 李百蟹 外灘店", addr: "上海市黃浦區中山東二路22號 3樓" }, { name: "蟹三寶", query: "上海 蟹三寶 天津路513號", addr: "上海市黃浦區天津路513號" }, { name: "鮮得來(寧海東路)", query: "上海 鮮得來排骨年糕 寧海東路290號", addr: "上海市黃浦區寧海東路290-292號" }]
           },
-          { time: "14:40-17:00", route: "法租界順走(方案A)：RAC Bar ➔ 武康大樓 ➔ Luneurs", transportText: "🚕 滴滴20–25分", transportType: "taxi", mustGo: true,
+          { id: "d1-french", time: "14:40-17:00", route: "法租界順走(方案A)：RAC Bar ➔ 武康大樓 ➔ Luneurs", transportText: "🚕 滴滴20–25分", transportType: "taxi", mustGo: true,
             transitNote: ["🚕 14:40 餐後搭滴滴至安福路（約 20–25 分），由北往南順向漫步不走回頭路"],
             main: ["☕ 15:05–15:45 RAC Bar ＆ 安福路街拍：法式可麗餅、咖啡、復古綠框拱門拍照（聖誕節人潮多可外帶邊走邊拍老洋房）", "📸 15:45–16:15 武康大樓：沿武康路往南步行到底（約 10–12 分），拍經典斜角街景（注意路口車流安全）", "🍦 16:15–17:00 Luneurs (衡復藝術中心店)：從武康大樓搭滴滴約 5 分（或沿高郵路／湖南路漫步 12–15 分），在西班牙式歷史洋房花園享用焦糖海鹽冰淇淋、可頌", "🚽 咖啡廳 / 沿線商場 / 衡復藝術中心內洗手間"],
             backup: "N/A",
-            maps: [{ name: "RAC Bar", query: "上海 RAC Bar 安福路", addr: "上海市徐匯區安福路322號" }, { name: "武康大樓", query: "上海 武康大樓", addr: "上海市徐匯區淮海中路1850號" }, { name: "Luneurs(衡復)", query: "上海 Luneurs 衡復藝術中心", addr: "上海市徐匯區烏魯木齊南路178號101、201室" }]
+            maps: [{ name: "RAC Bar", query: "上海 RAC Bar 安福路322號", addr: "上海市徐匯區安福路322號6幢1樓" }, { name: "武康大樓", query: "上海 武康大樓", addr: "上海市徐匯區淮海中路1850號" }, { name: "Luneurs(衡復)", query: "上海 Luneurs 衡復藝術中心 烏魯木齊南路178號", addr: "上海市徐匯區烏魯木齊南路178號101、201室" }]
           },
-          { time: "17:00-18:45", route: "豫園點燈：九曲橋 ➔ 寧波湯糰 ➔ 霸王茶姬", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
+          { id: "d1-yuyuan", time: "17:00-18:45", route: "豫園點燈：九曲橋 ➔ 寧波湯糰 ➔ 霸王茶姬", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
             transitNote: ["🚇 17:00 從 Luneurs 往北步行 6 分進 10 號線「上海圖書館站」3號口直達「豫園站」1號口（或滴滴約 20–25 分直達豫園）"],
             main: ["🏮 17:30 後亮燈最美！邊逛九曲橋夜景邊吃湯糰與買茶飲", "🥟 寧波湯糰店：雙拼（鮮肉＋黑洋酥）兩人分食留胃給晚餐", "💡 18:30 前用微信小程序預點新天地【阿嬤手作】", "🚽 豫園商城公共洗手間"],
             backup: "N/A",
-            maps: [{ name: "豫園商城", query: "上海 豫園商城", addr: "上海市黃浦區福佑路168號" }]
+            maps: [{ name: "豫園商城", query: "上海 豫園商城 福佑路168號", addr: "上海市黃浦區福佑路168號" }]
           },
-          { time: "18:45-20:50", route: "晚餐：🥤 阿嬤手作 ➔ 圓苑 (新天地)", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 10號線「豫園站」➔「新天地站」（約 2 站含步行 15–20 分；或滴滴 15 分），6號口直達時尚II B1"],
-            main: ["🥤 19:10 阿嬤手作（時尚II B112）：打·米麻薯、老椰清補涼（已預點直接取餐不耽誤晚餐）", "🍽️ 19:30 圓苑：招牌紅燒肉(馳) / 蔥油鰣魚(你) / 桂花糖藕", "⚠️ 【關鍵提醒】訂位時務必電話／備註預留「半條蔥油鰣魚（現蒸需 30 分鐘）」與「紅燒肉」，19:30 入座即起鍋免乾等", "🚽 商場及餐廳洗手間"],
-            backup: "【GREEN & SAFE / Shake Shack】太倉路181弄 新天地北里（步行 5 分｜香烤半雞、松露義大利麵 / 招牌牛肉堡，營業較晚氣氛佳）",
-            maps: [{ name: "圓苑(新天地)", query: "上海 圓苑 新天地東台里", addr: "上海市黃浦區西藏南路328號 新天地東台里商業中心B棟" }, { name: "阿嬤手作(新天地)", query: "上海 阿嬤手作 新天地時尚", addr: "上海市黃浦區馬當路245號 新天地時尚II B1樓B112" }, { name: "太倉路181弄", query: "上海 新天地北里 太倉路181弄", addr: "上海市黃浦區太倉路181弄" }]
+          { id: "d1-dinner", time: "18:45-20:50", route: "晚餐：🥤 阿嬤手作 ➔ 圓苑 (新天地)", transportText: "🚇 地鐵10號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 10號線「豫園站」➔「新天地站」（約 2 站含步行 15–20 分；或滴滴 15 分），6號口出站步行約 5–7 分至興業路123弄新天地南里"],
+            main: ["🥤 19:10 阿嬤手作（新天地南里｜興業路123弄6號1樓01-02單元）：打·米麻薯、老椰清補涼（已預點直接取餐不耽誤晚餐）", "🍽️ 19:30 圓苑（新天地東台里B棟L402a）：招牌紅燒肉(馳) / 蔥油鰣魚(你) / 桂花糖藕", "⚠️ 【關鍵提醒】訂位時務必電話／備註預留「半條蔥油鰣魚（現蒸需 30 分鐘）」與「紅燒肉」，19:30 入座即起鍋免乾等", "🚽 商場及餐廳洗手間"],
+            backup: "【GREEN & SAFE / Shake Shack】新天地北里 太倉路181弄22號 / 10-12號（步行 5 分｜香烤半雞、松露義大利麵 / 招牌牛肉堡，營業較晚氣氛佳）",
+            maps: [{ name: "圓苑(新天地)", query: "上海 圓苑 新天地東台里 西藏南路328號", addr: "上海市黃浦區西藏南路328號 新天地東台里商業中心B棟L402a" }, { name: "阿嬤手作(新天地)", query: "上海 阿嬤手作 興業路123弄", addr: "上海市黃浦區興業路123弄6號1樓01-02單元" }, { name: "新天地北里", query: "上海 新天地北里 太倉路181弄22號", addr: "上海市黃浦區太倉路181弄22號 / 10-12號" }]
           },
-          { time: "20:50-21:15", route: "回飯店 ➔ 宵夜備選：很久以前羊肉串", transportText: "🚇 地鐵 / 🚕 滴滴", transportType: "subway", mustGo: false,
-            transitNote: ["🚇 10號線「新天地站」➔「南京東路站」7號口步行 5 分（或滴滴約 12 分）"],
+          { id: "d1-return", time: "20:50-21:15", route: "回飯店 ➔ 宵夜備選：很久以前羊肉串", transportText: "🚇 地鐵 / 🚕 滴滴", transportType: "subway", mustGo: false,
+            transitNote: ["🚇 10號線「新天地站」➔「南京東路站」6號口最近步行 3–5 分（或 7號口步行 5–8 分／滴滴約 12 分）"],
             main: ["回飯店泡澡休息、整理隔日穿搭", "🍢 宵夜備選（21:30 後）：很久以前羊肉串 — 呼倫貝爾羊肉串、烤生蠔、烤雞翅（外賣填房號，不勉強吃）"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
@@ -947,55 +1400,66 @@
       },
       2: { dayNum: 2, dateStr: "12/26 (六)", title: "外灘北往南漫步 ➔ 洛克外灘源 ➔ 夜景", subtitle: "沙美頂樓 ➔ 和平飯店 ➔ 海關大樓 ➔ 洛克外灘源 ➔ 郵政博物館 ➔ 乍浦路橋", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・外灘/虹口", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "江邊與河畔風大", dayClothingTip: "江邊徒步吹風時間長，建議穿保暖防風大衣與圍巾。",
         items: [
-          { time: "09:15-09:50", route: "頂樓晨拍：沙美大樓頂樓露台", transportText: "🚶 飯店電梯直達", transportType: "walk", mustGo: true,
+          { id: "d2-roof", time: "09:15-09:50", route: "頂樓晨拍：沙美大樓頂樓露台", transportText: "🚶 飯店電梯直達", transportType: "walk", mustGo: true,
             transitNote: ["🛗 飯店內搭電梯直達頂樓（09:00 後開放）"],
             main: ["📸 拍巴洛克穹頂、東方明珠同框晨景；拍完回房拿外套直接出門，不留空窗", "🚽 飯店洗手間"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
           },
-          { time: "09:50-11:45", route: "外灘漫步：北京東路外灘 ➔ 和平飯店 ➔ 海關大樓", transportText: "🚶 步行5分起", transportType: "walk", mustGo: true,
+          { id: "d2-bund-walk", time: "09:50-11:45", route: "外灘漫步：北京東路外灘 ➔ 和平飯店 ➔ 海關大樓", transportText: "🚶 步行5分起", transportType: "walk", mustGo: true,
             transitNote: ["🚶 下樓沿北京東路往東走 5 分拍外灘街谷 ➔ 往南至南京東路口，由「和平飯店南京東路側門（近 Victor's 咖啡廳）」進入 ➔ 逛完由外灘正門旋轉門走出再往南 300 公尺至海關大樓"],
             main: ["💡 【專家避坑】外灘正門禮賓常攔截非住客，從南京東路側門自然走入參觀一樓八角彩色玻璃穹頂大廳最順暢", "📸 10:40 九江路街谷＋東方明珠 ➔ 海關大樓整點鐘聲與萬國建築群（冬天江風冷，拍完可進周邊大廳取暖）", "🚽 和平飯店 / 外灘沿線公共洗手間"],
             backup: "N/A",
             maps: [{ name: "和平飯店", query: "上海 和平飯店", addr: "上海市黃浦區中山東一路20號" }, { name: "海關大樓", query: "上海 海關大樓", addr: "上海市黃浦區中山東一路13號" }]
           },
-          { time: "11:50-13:15", route: "午餐：🏆 滬公館·上海菜 (外灘店)", transportText: "🚶 步行4分", transportType: "walk", mustGo: true,
+          { id: "d2-lunch", time: "11:50-13:15", route: "午餐：🏆 滬公館·上海菜 (外灘店)", transportText: "🚶 步行4分", transportType: "walk", mustGo: true,
             transitNote: ["🚶 由外灘沿九江路往西步行約 4 分即達（2樓202室）"],
             main: ["📌 必點：響油鱔絲(你) / 招牌紅燒肉(馳)（11:50 提早入座免排隊）", "🚽 餐廳或大樓洗手間"],
             backup: "【第一優先備案｜姥姥家常菜】福州路70號（海關大樓步行 6–8 分｜蒜茸蒸蝦(你) / 姥姥紅燒肉(馳)｜座位寬敞、全天營業無午休截單壓力）<br>【第二備案｜德興館(廣東路總店)】廣東路471號（步行 10–12 分或滴滴 5 分｜爆魚麵(你) / 燜肉麵(馳)、鮮肉小籠｜⚠️ 二樓炒菜部 13:30 午休截單，12:00-13:00 一樓併桌極擁擠，僅建議單純吃湯麵時選用）",
-            maps: [{ name: "滬公館", query: "上海 滬公館 九江路", addr: "上海市黃浦區九江路80號 2樓202室" }, { name: "姥姥家常菜", query: "上海 姥姥家常菜 福州路", addr: "上海市黃浦區福州路70號" }, { name: "德興館", query: "上海 德興館 廣東路總店", addr: "上海市黃浦區廣東路471號" }]
+            maps: [{ name: "滬公館", query: "上海 滬公館 九江路80號", addr: "上海市黃浦區九江路80號 2樓202室" }, { name: "姥姥家常菜", query: "上海 姥姥家常菜 福州路70號", addr: "上海市黃浦區福州路70號" }, { name: "德興館", query: "上海 德興館 廣東路471號", addr: "上海市黃浦區廣東路471號" }]
           },
-          { time: "13:15-14:55", route: "洛克外灘源：% Arabica (169號) ➔ Manner (209號)", transportText: "🚶 步行8分順走", transportType: "walk", mustGo: true,
+          { id: "d2-rockbund", time: "13:15-14:55", route: "洛克外灘源：% Arabica (169號) ➔ 方案A 真光大樓(209號) / 方案B Manner", transportText: "🚶 步行8分順走", transportType: "walk", mustGo: true,
             transitNote: ["🚶 午餐後往北步行經沙美大樓旁進入圓明園路（約 8 分），由南往北順走不折返"],
-            main: ["☕ 13:30 % Arabica（169號協進大樓1樓）：先逛南側純白工業風庭院與咖啡", "📸 14:15 Manner（209號）：熱拿鐵外帶拍照，欣賞安培洋行、真光大樓紅磚老建築，走到底即接蘇州河", "🚽 洛克外灘源商區洗手間"],
-            backup: "N/A",
-            maps: [{ name: "% Arabica", query: "上海 % Arabica 洛克外灘源", addr: "上海市黃浦區圓明園路169號 協進大樓1樓" }, { name: "Manner外灘源", query: "上海 Manner Coffee 外灘源", addr: "上海市黃浦區圓明園路209號" }]
+            main: [
+              "☕ 13:30 % Arabica（169號協進大樓1樓）：先逛南側純白工業風庭院與咖啡",
+              "🅰️ 方案A｜留在洛克外灘源街拍：圓明園路209號實際是歷史建築「真光大樓」（街區內目前無 Manner 門市）；可順拍安培洋行、真光大樓紅磚老建築，並到 133號女青年會大樓1樓「Luneurs 外灘源店」喝咖啡吃可頌，一路北行接蘇州河",
+              "🅱️ 方案B｜改喝真正 Manner 門市：若想買 Manner 拿鐵，可去九江路午餐旁順路的「Manner（漢口路126號）」，或搭車前赴「Manner（北外灘國客濱江店）」",
+              "🚽 洛克外灘源商區洗手間"
+            ],
+            backup: "【方案A 街區順遊】真光大樓紅磚外牆（圓明園路209號）＆ Luneurs 外灘源店（圓明園路133號 女青年會大樓1樓）<br>【方案B 鄰近 Manner】Manner Coffee 漢口路126號 ／ Manner Coffee 北外灘國客濱江店（虹口區太平路 國際港務大廈南60米）",
+            maps: [
+              { name: "% Arabica", query: "上海 % Arabica 圓明園路169號", addr: "上海市黃浦區圓明園路169號 協進大樓1樓" },
+              { name: "方案A:真光大樓(209號)", query: "上海 真光大樓 圓明園路209號", addr: "上海市黃浦區圓明園路209號" },
+              { name: "方案A:Luneurs(133號)", query: "上海 Luneurs 圓明園路133號", addr: "上海市黃浦區圓明園路133號 女青年會大樓1樓" },
+              { name: "方案B:Manner(漢口路)", query: "上海 Manner Coffee 漢口路126號", addr: "上海市黃浦區漢口路126號" },
+              { name: "方案B:Manner(北外灘)", query: "上海 Manner Coffee 北外灘國客濱江店", addr: "上海市虹口區太平路 國際港務大廈南60米(北外灘國客濱江店)" }
+            ]
           },
-          { time: "15:00-15:55", route: "歷史建築：上海郵政博物館", transportText: "🚶 過四川路橋5分", transportType: "walk", mustGo: true,
+          { id: "d2-postal", time: "15:00-15:55", route: "歷史建築：上海郵政博物館", transportText: "🚶 過四川路橋5分", transportType: "walk", mustGo: true,
             transitNote: ["🚶 從圓明園路北口過「四川路橋」步行僅 5 分即達「北蘇州路250號正門」"],
             main: ["📸 週六開放（免預約刷台胞證安檢，16:00 停止入館）；重點拍攝一樓復古旋轉樓梯、二樓郵政營業大廳與展廳窗景", "⚠️ 頂樓花園露台與一樓中庭近年常管制不開放，不強求找頂樓入口", "🚽 館內洗手間"],
             backup: "N/A",
-            maps: [{ name: "上海郵政博物館", query: "上海郵政博物館", addr: "上海市虹口區北蘇州路250號" }]
+            maps: [{ name: "上海郵政博物館", query: "上海郵政博物館 北蘇州路250號", addr: "上海市虹口區北蘇州路250號" }]
           },
-          { time: "16:00-17:05", route: "蘇州河日落藍調：乍浦路橋 (法師橋機位)", transportText: "🚶 沿河步行5分", transportType: "walk", mustGo: true,
+          { id: "d2-bridge", time: "16:00-17:05", route: "蘇州河日落藍調：乍浦路橋 (法師橋機位)", transportText: "🚶 沿河步行5分", transportType: "walk", mustGo: true,
             transitNote: ["🚶 從郵政博物館沿蘇州河往東步行約 5 分上橋"],
             main: ["📸 12 月底約 16:50 日落，剛好拍完夕陽餘暉與陸家嘴三件套亮燈藍調時刻", "🚽 周邊商場洗手間"],
             backup: "N/A",
             maps: [{ name: "乍浦路橋", query: "上海 乍浦路橋", addr: "上海市虹口區乍浦路橋" }]
           },
-          { time: "17:05-17:40", route: "回飯店小憩保暖：Zhotel 沙美大樓", transportText: "🚶 往南步行6–8分", transportType: "walk", mustGo: false,
+          { id: "d2-rest", time: "17:05-17:40", route: "回飯店小憩保暖：Zhotel 沙美大樓", transportText: "🚶 往南步行6–8分", transportType: "walk", mustGo: false,
             transitNote: ["🚶 從乍浦路橋往南步行僅 6–8 分即回沙美大樓"],
             main: ["☕ 順路回房放相機腳架、上洗手間、喝熱水暖身，17:40 再叫車去晚餐，避開在江邊吹冷風乾等", "🚽 飯店房間洗手間"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
           },
-          { time: "17:40-19:30", route: "晚餐：🏆 外灘家宴·上海菜 (外灘店)", transportText: "🚕 滴滴10–15分", transportType: "taxi", mustGo: true,
-            transitNote: ["🚕 17:40 從飯店搭滴滴前往南外灘（約 10–15 分，金陵東路外灘大樓 2樓）"],
+          { id: "d2-dinner", time: "17:40-19:30", route: "晚餐：🏆 外灘家宴·上海菜 (外灘店)", transportText: "🚕 滴滴10–15分", transportType: "taxi", mustGo: true,
+            transitNote: ["🚕 17:40 從飯店搭滴滴前往南外灘（約 10–15 分，外灘22號 2樓）"],
             main: ["📌 必點：松鼠桂魚(你) / 糖醋排骨(馳)（建議提前訂位）", "🚽 餐廳內洗手間"],
             backup: "【Canton Table 三號黃浦會】中山東一路3號 外灘三號5樓（步行 10 分或滴滴 5 分｜精緻粵菜點心 / 叉燒拼盤 / 脆皮雞）<br>【The Captain 船長5號】福州路37號 6樓（步行約 8 分｜戰斧牛排 / 美式烤雞，露台賞外灘鐘樓夜景）",
-            maps: [{ name: "外灘家宴", query: "上海 外灘家宴 外灘22號", addr: "上海市黃浦區中山東二路22號 2樓" }, { name: "三號黃浦會", query: "上海 Canton Table 三號黃浦會", addr: "上海市黃浦區中山東一路3號 外灘三號5樓" }, { name: "The Captain", query: "上海 The Captain 船長酒吧 福州路", addr: "上海市黃浦區福州路37號 6樓" }]
+            maps: [{ name: "外灘家宴", query: "上海 外灘家宴 中山東二路22號", addr: "上海市黃浦區中山東二路22號 2樓" }, { name: "三號黃浦會", query: "上海 Canton Table 三號黃浦會", addr: "上海市黃浦區中山東一路3號 外灘三號5樓" }, { name: "The Captain", query: "上海 The Captain 福州路37號", addr: "上海市黃浦區福州路37號 6樓" }]
           },
-          { time: "19:30-20:45", route: "外灘夜景 ➔ 步行回飯店 ➔ 宵夜備選", transportText: "🚶 往北散步回飯店", transportType: "walk", mustGo: true,
+          { id: "d2-night", time: "19:30-20:45", route: "外灘夜景 ➔ 步行回飯店 ➔ 宵夜備選", transportText: "🚶 往北散步回飯店", transportType: "walk", mustGo: true,
             transitNote: ["🚶 晚餐後上外灘親水平台一路往北散步至北京東路口，左轉步行 3 分即回飯店"],
             main: ["📸 19:30–20:30 邊看萬國建築群金色燈光與陸家嘴夜景，順路往北不折返", "🍗 宵夜備選（21:00 後）：德克士 Dicos — 脆皮手槍腿、脆皮炸雞（外賣送飯店）", "🚽 外灘沿線公共 / 飯店洗手間"],
             backup: "N/A",
@@ -1005,49 +1469,49 @@
       },
       3: { dayNum: 3, dateStr: "12/27 (日)", title: "重返童話的迪士尼", subtitle: "早起出發 ➔ 動物城 / 加勒比 / 光輪 ➔ 16:30離園 ➔ 18:45市區大餐", weatherCityKey: "shanghai", dayWeatherTitle: "上海迪士尼度假區", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "空曠園區風大", dayClothingTip: "園區空曠久站，請穿好走的鞋與極致防寒外套。",
         items: [
-          { time: "06:30-07:00", route: "起床與早餐：飯店房間／周邊全家超商", transportText: "🏠 房內用餐", transportType: "walk", mustGo: false,
+          { id: "d3-wake", time: "06:30-07:00", route: "起床與早餐：飯店房間／周邊全家超商", transportText: "🏠 房內用餐", transportType: "walk", mustGo: false,
             transitNote: ["🎒 前一晚先買好早餐或叫外賣，房內快速用餐"],
             main: ["⏰ 【雙軌時間提示】預設「一般門票＋單項尊享卡 DPA」（06:30 起床、07:00 出發）；若買「早享卡（07:30 入園）」務必提早至 05:45 起床、06:15 出發！", "⚠️ 備妥台胞證正本（入園必刷）、行動電源、保暖配件", "🚽 飯店房間洗手間"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
           },
-          { time: "07:00-08:10", route: "前往迪士尼：上海迪士尼度假區", transportText: "🚕 滴滴45–55分", transportType: "taxi", mustGo: true,
+          { id: "d3-to-disney", time: "07:00-08:10", route: "前往迪士尼：上海迪士尼度假區", transportText: "🚕 滴滴45–55分", transportType: "taxi", mustGo: true,
             transitNote: ["🚕 搭滴滴直達「西公交樞紐 / 出租車下客點」（約 45–55 分），下車步行 8 分至安檢口"],
             main: ["⚠️ 【雙軌出發】買早享卡請 06:15 搭車出發、07:00 抵達安檢口，否則浪費早享黃金 1 小時；一般票維持 07:00 出發、08:00 排安檢", "⚠️ 嚴禁攜帶自拍棒、腳架與摺疊椅", "🚽 園區入口洗手間"],
             backup: "N/A",
             maps: [{ name: "上海迪士尼", query: "上海迪士尼度假區", addr: "上海市浦東新區川沙新鎮黃趙路310號" }]
           },
-          { time: "08:30-11:30", route: "第一＆二優先：瘋狂動物城 ➔ 加勒比海盜", transportText: "🚶 園區內順走", transportType: "walk", mustGo: true,
+          { id: "d3-morning", time: "08:30-11:30", route: "第一＆二優先：瘋狂動物城 ➔ 加勒比海盜", transportText: "🚶 園區內順走", transportType: "walk", mustGo: true,
             transitNote: ["🚶 刷台胞證正本入園直衝瘋狂動物城 ➔ 10:00 往南步行約 6 分至寶藏灣"],
             main: ["🐾 08:30–10:00【瘋狂動物城】：熱力追蹤、拍街景與警局櫥窗、買爪爪冰棒（或入園後立即在 App 購買單項尊享卡 DPA）", "🏴‍☠️ 10:00–11:30【加勒比海盜：沉落寶藏之戰】：裸眼 3D 沉浸感極強，排隊消化速度快必玩", "🚽 動物城 / 寶藏灣洗手間"],
             backup: "N/A",
             maps: []
           },
-          { time: "11:30-12:40", route: "午餐：巴波薩燒烤 (寶藏灣)", transportText: "🚶 加勒比海盜旁", transportType: "walk", mustGo: true,
+          { id: "d3-lunch", time: "11:30-12:40", route: "午餐：巴波薩燒烤 (寶藏灣)", transportText: "🚶 加勒比海盜旁", transportType: "walk", mustGo: true,
             transitNote: ["🚶 玩完加勒比海盜出門即達，11:30 提前入座避開 12 點尖峰"],
             main: ["📌 必點：巨無霸烤豬肋排套餐、烤雞套餐（室內有海盜船夜光造景）", "🚽 餐廳內及寶藏灣洗手間"],
             backup: "【皮諾丘鄉村廚房】夢幻世界（城堡後方步行約 5 分｜海鮮披薩(你) / 北京烤鴨披薩(馳)）",
             maps: []
           },
-          { time: "12:40-16:30", route: "午後設施與商店：創極速光輪 ➔ 夢幻世界 ➔ 米奇大街", transportText: "🚶 園區內步行", transportType: "walk", mustGo: true,
+          { id: "d3-afternoon", time: "12:40-16:30", route: "午後設施與商店：創極速光輪 ➔ 夢幻世界 ➔ 米奇大街", transportText: "🚶 園區內步行", transportType: "walk", mustGo: true,
             transitNote: ["🚶 餐後穿越城堡前往明日世界 ➔ 下午逛奇想花園與米奇大街邊走邊買"],
             main: ["🏍️ 12:40–14:30【創極速光輪 TRON】：依 App 排隊或尊享卡遊玩，寄放物品留意眼鏡與手機收納", "🏰 14:30–15:45【夢幻世界＆花車遊行】：依 App 補玩七個小矮人礦山車，下午光線拍城堡正面最順光", "🛍️ 15:45–16:30【主題餐車＆世界商店】：吉拿棒、米奇雪糕、火雞腿，離園前在米奇大街採買", "🚽 明日世界 / 米奇大街洗手間"],
             backup: "N/A",
             maps: []
           },
-          { time: "16:30-18:15", route: "離園返回市區：迪士尼 ➔ 黃浦區 (BFC)", transportText: "🚕 滴滴50–65分", transportType: "taxi", mustGo: false,
+          { id: "d3-leave", time: "16:30-18:15", route: "離園返回市區：迪士尼 ➔ 黃浦區 (BFC)", transportText: "🚕 滴滴50–65分", transportType: "taxi", mustGo: false,
             transitNote: ["🚶 16:30 出口步行 12–15 分至官方網約車上客點", "🚕 17:00 搭滴滴回市區約 50–65 分（若 18:00 前到可先回飯店放戰利品再轉往 BFC）"],
             main: ["💡 若不看晚間煙火，16:30 離園可完全避開散場癱瘓車潮；建議將晚餐訂在 18:45 或 19:00 最從容", "🚽 出口通道 / 商場洗手間"],
             backup: "N/A",
             maps: [{ name: "BFC外灘金融中心", query: "上海 BFC外灘金融中心", addr: "上海市黃浦區中山東二路600號" }]
           },
-          { time: "18:45-20:15", route: "晚餐：🏆 遇外灘 (BFC外灘金融中心店)", transportText: "🚕 直達BFC南區", transportType: "taxi", mustGo: true,
+          { id: "d3-dinner", time: "18:45-20:15", route: "晚餐：🏆 遇外灘 (BFC外灘金融中心店)", transportText: "🚕 直達BFC南區", transportType: "taxi", mustGo: true,
             transitNote: ["📍 直接搭車至 BFC 南區上 3樓 S301"],
             main: ["📌 必點：紅蟳蒸米糕(你) / 廈門沙茶海鮮鍋(馳) / 荔枝肉（米其林福建菜，務必提前預約）", "🚽 BFC 商場及餐廳洗手間"],
-            backup: "【左庭右院(新世界城店)】南京西路2-68號 9樓（營業至 22:00 週日晚間最保險｜吊龍、匙柄、手打鮮牛肉丸、牛骨清湯鍋）<br>【BFC 館內本幫菜／粵菜餐廳】中山東二路600號（同商場免二次搭車最省時｜蟹粉撈飯、紅燒肉）",
-            maps: [{ name: "遇外灘(BFC)", query: "上海 遇外灘 BFC", addr: "上海市黃浦區中山東二路600號 BFC外灘金融中心南區3樓S301" }, { name: "左庭右院(新世界城)", query: "上海 左庭右院 新世界城店", addr: "上海市黃浦區南京西路2-68號 新世界城9樓" }]
+            backup: "【左庭右院(新世界城店)】南京西路2-68號 9樓9F-02（營業至 22:00 週日晚間最保險｜吊龍、匙柄、手打鮮牛肉丸、牛骨清湯鍋）<br>【BFC 館內本幫菜／粵菜餐廳】中山東二路600號（同商場免二次搭車最省時｜蟹粉撈飯、紅燒肉）",
+            maps: [{ name: "遇外灘(BFC)", query: "上海 遇外灘 BFC", addr: "上海市黃浦區中山東二路600號 BFC外灘金融中心南區3樓S301" }, { name: "左庭右院(新世界城)", query: "上海 左庭右院 新世界城店", addr: "上海市黃浦區南京西路2-68號 新世界城9樓9F-02" }]
           },
-          { time: "20:15-20:40", route: "回飯店 ➔ 宵夜備選：絕味鴨脖 / 周黑鴨", transportText: "🚕 滴滴10分", transportType: "taxi", mustGo: false,
+          { id: "d3-return", time: "20:15-20:40", route: "回飯店 ➔ 宵夜備選：絕味鴨脖 / 周黑鴨", transportText: "🚕 滴滴10分", transportType: "taxi", mustGo: false,
             transitNote: ["🚕 由 BFC 搭滴滴回飯店約 10 分"],
             main: ["連住第三晚，戰利品直接帶回房整理並預先打包大件行李", "🦆 宵夜備選（21:00 後）：絕味鴨脖 / 周黑鴨 — 微辣鴨鎖骨、滷鴨脖、滷毛豆（外賣送飯店）"],
             backup: "N/A",
@@ -1055,39 +1519,47 @@
           }
         ]
       },
-      4: { dayNum: 4, dateStr: "12/28 (一)", title: "星巴克工坊 ➔ 南京東路 ➔ 返台", subtitle: "退房確認 ➔ 星巴克烘焙工坊 ➔ 萊萊小籠 ➔ 來福士滿記 ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・靜安/黃浦 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區早午餐與返程", dayClothingTip: "準備搭機，整理多餘禦寒衣物，穿著輕便保暖。",
+      4: { dayNum: 4, dateStr: "12/28 (一)", title: "星巴克工坊 ➔ 南京東路 ➔ 返台", subtitle: "退房確認 ➔ 星巴克烘焙工坊 ➔ 萊萊小籠 ➔ 方案A 滿記(第一百貨) / 方案B 來福士 ➔ 浦東機場", weatherCityKey: "shanghai", dayWeatherTitle: "上海市・靜安/黃浦 ➔ 浦東", dayTempRange: "3°C ~ 11°C", dayWeatherDesc: "市區早午餐與返程", dayClothingTip: "準備搭機，整理多餘禦寒衣物，穿著輕便保暖。",
         items: [
-          { time: "08:30-09:15", route: "道地早餐與退房確認：寧波路早餐街／定興路蛋餅", transportText: "🚶 步行5分", transportType: "walk", mustGo: false,
-            transitNote: ["🚶 寧波路距離沙美大樓步行僅 5 分"],
-            main: ["🔑 【09:10 出門前退房防呆】先問飯店櫃檯能否「免費延遲退房至 13:30–14:00」（可則行李留房內）；若規定 12:00 退房，請於 09:10 出門前直接辦理退房並將行李寄放一樓禮賓部，避免吃小籠包時逾時！", "🍳 早餐推薦：老上海蔥油餅、四大金剛或雞蛋餅", "🚽 飯店洗手間"],
+          { id: "d4-breakfast", time: "08:30-09:15", route: "道地早餐與退房確認：寧波路早餐街／定興路蛋餅", transportText: "🚶 步行5分", transportType: "walk", mustGo: false,
+            transitNote: ["🚶 寧波路距離沙美大樓步行僅 5 分；若吃定興路蛋餅（定興路6號，近人民廣場／西藏中路）可順搭地鐵前往"],
+            main: ["🔑 【09:10 出門前退房防呆】先問飯店櫃檯能否「免費延遲退房至 13:30–14:00」（可則行李留房內）；若規定 12:00 退房，請於 09:10 出門前直接辦理退房並將行李寄放一樓禮賓部，避免吃小籠包時逾時！", "🍳 早餐推薦：寧波路201號周邊老上海蔥油餅、四大金剛，或定興路6號雞蛋餅", "🚽 飯店洗手間"],
             backup: "N/A",
-            maps: [{ name: "寧波路早餐街", query: "上海 寧波路200號", addr: "上海市黃浦區寧波路200號周邊" }, { name: "定興路蛋餅", query: "上海 定興路", addr: "上海市黃浦區西藏南路定興路口" }]
+            maps: [{ name: "寧波路早餐街", query: "上海 寧波路201號", addr: "上海市黃浦區寧波路201號周邊" }, { name: "定興路蛋餅", query: "上海 定興路6號", addr: "上海市黃浦區定興路6號" }]
           },
-          { time: "09:15-10:55", route: "咖啡朝聖：星巴克臻選上海烘焙工坊", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
-            transitNote: ["🚇 09:15 步行 5 分至「南京東路站」，搭 2 號線（僅 2 站）至「南京西路站」3號口（13號線可走 11號口）步行 3 分，總耗時約 15–20 分"],
+          { id: "d4-starbucks", time: "09:15-10:55", route: "咖啡朝聖：星巴克臻選上海烘焙工坊", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
+            transitNote: ["🚇 09:15 步行 3–5 分至「南京東路站」（6號口最近），搭 2 號線（僅 2 站）至「南京西路站」3號口（13號線可走 11號口）步行 3 分，總耗時約 15–20 分"],
             main: ["☕ 09:40–10:55 體驗巴洛克煙燻拿鐵、巨型銅罐烘豆工廠景觀與紀念品（10:55 離開避開中午小籠包排隊尖峰）", "🚽 店內及興業太古匯洗手間"],
             backup: "N/A",
             maps: [{ name: "星巴克臻選工坊", query: "上海 星巴克臻選烘焙工坊 興業太古匯", addr: "上海市靜安區南京西路789號 興業太古匯N110-N201" }]
           },
-          { time: "10:55-12:25", route: "午餐：🏆 萊萊小籠·喬艾 (天津路總店)", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
+          { id: "d4-lunch", time: "10:55-12:25", route: "午餐：🏆 萊萊小籠·喬艾 (天津路總店)", transportText: "🚇 地鐵2號線", transportType: "subway", mustGo: true,
             transitNote: ["🚇 10:55 搭 2 號線由「南京西路站」搭 1 站至「人民廣場站」（19號口或14號口出站），沿九江路／漢口路轉廣西北路步行僅 450 公尺（約 5 分，比從南京東路站少走 200 公尺）"],
             main: ["📌 必點：蟹粉小籠、蟹粉鮮肉小籠、炸豬排、雞鴨血湯（11:15 抵達免排長龍、避開 14:00 午休截單）", "🚽 餐廳或對面商場洗手間"],
-            backup: "【小楊生煎(來福士／宏伊廣場店)】南京東路299號 宏伊國際廣場B1（出餐極快｜大蝦生煎(你) / 鮮肉生煎(馳)、牛肉酸辣粉）<br>【渝信川菜(華盛大廈店)】九江路399號 華盛大廈5樓（天津路步行 4 分｜水煮魚(你) / 乾煸辣子雞(馳)）",
-            maps: [{ name: "萊萊小籠", query: "上海 萊萊小籠 天津路", addr: "上海市黃浦區天津路506號" }, { name: "小楊生煎(宏伊)", query: "上海 小楊生煎 宏伊廣場", addr: "上海市黃浦區南京東路299號 宏伊國際廣場B1樓" }, { name: "渝信川菜", query: "上海 渝信川菜 九江路", addr: "上海市黃浦區九江路399號 華盛大廈5樓" }]
+            backup: "【小楊生煎(宏伊廣場店)】南京東路299號 宏伊國際廣場B1樓B-107A（出餐極快且順路｜大蝦生煎(你) / 鮮肉生煎(馳)、牛肉酸辣粉）<br>【渝信川菜(華盛大廈店)】九江路399號 華盛大廈5樓（天津路步行 4 分｜水煮魚(你) / 乾煸辣子雞(馳)）",
+            maps: [{ name: "萊萊小籠", query: "上海 萊萊小籠 天津路506號", addr: "上海市黃浦區天津路506號" }, { name: "小楊生煎(宏伊)", query: "上海 小楊生煎 宏伊廣場", addr: "上海市黃浦區南京東路299號 宏伊國際廣場B1樓B-107A" }, { name: "渝信川菜", query: "上海 渝信川菜 九江路399號", addr: "上海市黃浦區九江路399號 華盛大廈5樓" }]
           },
-          { time: "12:25-13:15", route: "甜點與伴手禮：滿記甜品 (來福士) ＆ 南京東路", transportText: "🚶 步行4分", transportType: "walk", mustGo: false,
-            transitNote: ["🚶 從萊萊小籠沿廣西北路往南步行僅 4 分即達「人民廣場來福士廣場 B1」；吃完沿南京東路往東散步買伴手禮回飯店"],
-            main: ["🍨 必點：楊枝甘露、芒果班戟、雙皮奶；吃完往東順走南京東路買蝴蝶酥、大白兔奶糖，直線回沙美大樓完全不走回頭路", "🚽 來福士廣場商場洗手間"],
-            backup: "N/A",
-            maps: [{ name: "滿記甜品(來福士)", query: "上海 滿記甜品 來福士廣場", addr: "上海市黃浦區西藏中路268號 上海來福士廣場B1樓B1-10" }, { name: "宏伊國際廣場", query: "上海 宏伊國際廣場", addr: "上海市黃浦區南京東路299號" }]
+          { id: "d4-dessert", time: "12:25-13:15", route: "甜點與伴手禮：方案A 滿記甜品(第一百貨) / 方案B 來福士廣場 ➔ 南京東路", transportText: "🚶 步行5分", transportType: "walk", mustGo: false,
+            transitNote: ["🚶 從萊萊小籠沿廣西北路往南步行約 5 分可到「第一百貨C館」或「來福士廣場」，兩者皆緊鄰南京東路，吃完一路往東買伴手禮直線回飯店"],
+            main: [
+              "🅰️ 方案A｜要吃「滿記甜品」：人民廣場來福士店已歇業，改去步行 5 分即達的【滿記甜品（第一百貨／南東二店）】（南京東路800號 第一百貨商業中心C館4層 B02-F04-306）享用楊枝甘露、芒果班戟、雙皮奶",
+              "🅱️ 方案B｜改逛「來福士廣場」：若不指定滿記，照舊去【來福士廣場（西藏中路268號）】挑其他甜點飲料，再接南京東路步行街（國際飯店蝴蝶酥／第一食品大白兔奶糖／宏伊廣場）直線散步回沙美大樓不走回頭路",
+              "🚽 第一百貨商業中心 / 來福士廣場洗手間"
+            ],
+            backup: "【方案A 滿記甜品營業中門市】第一百貨商業中心C館4層 B02-F04-306（南京東路800號）<br>【方案B 來福士廣場】西藏中路268號（原 B1 滿記已撤櫃，改逛商場其他品牌與買伴手禮）",
+            maps: [
+              { name: "方案A:滿記(第一百貨)", query: "上海 滿記甜品 第一百貨商業中心", addr: "上海市黃浦區南京東路800號 第一百貨商業中心C館4層B02-F04-306" },
+              { name: "方案B:來福士廣場", query: "上海 來福士廣場 西藏中路268號", addr: "上海市黃浦區西藏中路268號 上海來福士廣場" },
+              { name: "宏伊國際廣場", query: "上海 宏伊國際廣場 南京東路299號", addr: "上海市黃浦區南京東路299號" }
+            ]
           },
-          { time: "13:15-13:45", route: "領取行李／退房：Zhotel 沙美大樓", transportText: "🚶 步行8分", transportType: "walk", mustGo: false,
+          { id: "d4-checkout", time: "13:15-13:45", route: "領取行李／退房：Zhotel 沙美大樓", transportText: "🚶 步行8分", transportType: "walk", mustGo: false,
             transitNote: ["🚶 由南京東路步行約 8 分返回飯店"],
             main: ["向一樓禮賓部領取寄放行李（或回房拿行李辦理延遲退房），最後檢查護照、台胞證、行動電源", "🚽 飯店大廳洗手間"],
             backup: "N/A",
             maps: [{ name: "Zhotel 沙美大樓", query: "上海 沙美大樓 Zhotel", addr: "上海市黃浦區北京東路190號" }]
           },
-          { time: "13:45後(依航班)", route: "前往機場：上海浦東國際機場 PVG", transportText: "🚕 滴滴50–70分", transportType: "flight", mustGo: false,
+          { id: "d4-airport", time: "13:45後(依航班)", route: "前往機場：上海浦東國際機場 PVG", transportText: "🚕 滴滴50–70分", transportType: "flight", mustGo: false,
             transitNote: ["🚕 飯店門口搭滴滴專車直達浦東機場（約 50–70 分）"],
             main: ["⚠️ 建議於班機起飛前 3 小時抵達機場（即起飛前 4 小時從飯店搭車出發）", "🚽 機場航廈洗手間"],
             backup: "N/A",
@@ -1097,7 +1569,6 @@
       }
     };
 
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const MAP_PROVIDERS = {
       apple: { label: '🗺️ Apple 地圖', build: q => `https://maps.apple.com/?q=${encodeURIComponent(q)}` },
       amap: {
@@ -1109,7 +1580,7 @@
       google: { label: '🗺️ Google 地圖', build: q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` }
     };
     const MAP_ORDER = ['apple', 'amap', 'google'];
-    let mapProvider = localStorage.getItem('shanghai_map_provider') || (isIOSDevice ? 'apple' : 'google');
+    let mapProvider = storageGet('shanghai_map_provider') || (isIOSDevice ? 'apple' : 'google');
     if (!MAP_PROVIDERS[mapProvider]) mapProvider = 'apple';
 
     function getMapUrl(query) {
@@ -1141,49 +1612,62 @@
     function cycleMapProvider() {
       const idx = MAP_ORDER.indexOf(mapProvider);
       mapProvider = MAP_ORDER[(idx + 1) % MAP_ORDER.length];
-      localStorage.setItem('shanghai_map_provider', mapProvider);
+      storageSet('shanghai_map_provider', mapProvider);
       updateMapProviderUI();
       updateStaticMapLinks();
       renderDayTimeline();
     }
 
-    let currentDay = 1; let onlyMustGo = false; let showBackups = true;
-    function getTransportEmoji(type) { switch (type) { case "walk": return "🚶"; case "bus": return "🚌"; case "taxi": return "🚕"; case "train": return "🚄"; case "subway": return "🚇"; case "flight": return "✈️"; default: return "📍"; } }
+    let currentDay = 1;
+    let onlyMustGo = false;
+    let showBackups = true;
+
+    function persistUIState() {
+      storageSet('shanghai_ui_state', JSON.stringify({ currentDay, onlyMustGo, showBackups }));
+    }
+
+    function applyFilterButtonsUI() {
+      const mustBtn = document.getElementById("btn-filter-must");
+      if (mustBtn) {
+        if (onlyMustGo) {
+          mustBtn.classList.add("!bg-[#fcf7f0]", "!text-[#b39b74]", "!border-[#b39b74]/30");
+          mustBtn.textContent = "⭐ 顯示全部";
+        } else {
+          mustBtn.classList.remove("!bg-[#fcf7f0]", "!text-[#b39b74]", "!border-[#b39b74]/30");
+          mustBtn.textContent = "⭐ 僅看必去";
+        }
+      }
+      const backupText = document.getElementById("backup-btn-text");
+      const backupBtn = document.getElementById("btn-toggle-backup");
+      if (backupText && backupBtn) {
+        if (showBackups) {
+          backupText.textContent = "🛡️ 隱藏備案";
+          backupBtn.classList.remove("!bg-[#fcf5f5]", "!text-[#8b3a3a]", "!border-[#8b3a3a]/30");
+        } else {
+          backupText.textContent = "🛡️ 顯示備案";
+          backupBtn.classList.add("!bg-[#fcf5f5]", "!text-[#8b3a3a]", "!border-[#8b3a3a]/30");
+        }
+      }
+    }
 
     function renderDayTimeline() {
       const dayData = ITINERARY_DATA[currentDay];
       const wrapper = document.getElementById("day-content-wrapper");
-      if (!wrapper) return;
-      wrapper.classList.remove("modal-enter"); void wrapper.offsetWidth; wrapper.classList.add("modal-enter");
+      if (!wrapper || !dayData) return;
+      wrapper.classList.remove("modal-enter");
+      void wrapper.offsetWidth;
+      wrapper.classList.add("modal-enter");
 
-      const cityObj = CITIES_WEATHER[dayData.weatherCityKey];
-      const liveWeatherTag = cityObj && cityObj.liveTemp !== null ? `<span class="pill !bg-[#fcf7f0] !text-[#c5ad85] !border !border-[#c5ad85]/30 ml-2">即時：${cityObj.liveTemp}°C ${cityObj.liveDesc}</span>` : ``;
-      const weatherEmoji = getWeatherEmoji(cityObj && cityObj.liveCode !== null ? cityObj.liveCode : 2);
-      
-      // 保留原始陣列索引 origIdx，防止篩選「僅看必去」時照片錯位
       const mappedItems = dayData.items.map((item, origIdx) => ({ ...item, origIdx }));
       const filteredItems = onlyMustGo ? mappedItems.filter(item => item.mustGo) : mappedItems;
 
       let timelineHTML = `
         <div class="mb-5">
-          <h2 class="text-[22px] font-medium text-[#26343b] mb-1.5 leading-snug">${dayData.title}</h2>
-          <div class="text-[13px] text-[#849098] leading-relaxed">${dayData.subtitle}</div>
+          <h2 class="text-[22px] font-medium text-[#26343b] mb-1.5 leading-snug">${escapeHtml(dayData.title)}</h2>
+          <div class="text-[13px] text-[#849098] leading-relaxed">${escapeHtml(dayData.subtitle)}</div>
         </div>
-        <div class="card mb-6 !p-4 sm:!p-5">
-          <div class="flex items-start sm:items-center gap-3">
-            <div class="text-[32px] leading-none">${weatherEmoji}</div>
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <h4 class="font-medium text-[15px] text-[#26343b]">${dayData.dayWeatherTitle}</h4>${liveWeatherTag}
-              </div>
-              <div class="flex flex-wrap gap-2 mt-1 text-[12px] text-[#849098]">
-                <span>🌡️ ${dayData.dayTempRange}</span><span>·</span><span>${dayData.dayWeatherDesc}</span>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3 pt-3 border-t border-[#e8eae8] text-[12.5px] text-[#526d7c] leading-relaxed">
-            <b class="text-[#26343b]">🧣 穿搭提醒：</b>${dayData.dayClothingTip}
-          </div>
+        <div id="day-weather-card" class="card mb-6 !p-4 sm:!p-5">
+          ${renderDayWeatherCardInnerHTML(dayData)}
         </div>
         <div class="pl-2 sm:pl-4">
       `;
@@ -1191,37 +1675,50 @@
       filteredItems.forEach((item, idx) => {
         const isLast = idx === filteredItems.length - 1;
         const origIdx = item.origIdx;
-        const mainLinesHTML = item.main.map(line => `<div class="mb-1">・${line}</div>`).join("");
-        
-        // 渲染乘車月台與下車站名提示 (transitNote)
-        let transitNoteHTML = item.transitNote && item.transitNote.length > 0 
-          ? `<div class="bg-[#edf1f2]/60 text-[#526d7c] text-[12px] px-3 py-2 rounded-lg mb-2 space-y-0.5">${item.transitNote.map(n => `<div>🚏 ${n}</div>`).join("")}</div>` 
+        const mainLinesHTML = (item.main || []).map(line => `<div class="mb-1">・${escapeHtml(line)}</div>`).join("");
+
+        let transitNoteHTML = item.transitNote && item.transitNote.length > 0
+          ? `<div class="bg-[#edf1f2]/60 text-[#526d7c] text-[12px] px-3 py-2 rounded-lg mb-2 space-y-0.5">${item.transitNote.map(n => `<div>🚏 ${escapeHtml(n)}</div>`).join("")}</div>`
           : "";
 
-        let backupBoxHTML = showBackups && item.backup && item.backup !== "N/A" ? `<div class="text-[12px] text-[#8a837e] border-l-2 border-[#e8eae8] pl-2.5 mb-2 leading-relaxed"><b class="text-[#8b3a3a]">🛡️ 備案：</b>${item.backup}</div>` : "";
+        let backupBoxHTML = showBackups && item.backup && item.backup !== "N/A"
+          ? `<div class="text-[12px] text-[#8a837e] border-l-2 border-[#e8eae8] pl-2.5 mb-2 leading-relaxed"><b class="text-[#8b3a3a]">🛡️ 備案：</b>${String(item.backup).split('<br>').map(line => escapeHtml(line)).join('<br>')}</div>`
+          : "";
         const hasDriverBtn = Boolean(item.driver || (item.maps && item.maps.length > 0));
-        const driverBtnHTML = hasDriverBtn ? `<button onclick="openStopDriverModal(${currentDay}, ${origIdx})" class="map-pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 hover:!bg-[#f5eedf]">🚕 司機卡</button>` : "";
-        let mapsButtonsHTML = (hasDriverBtn || (item.maps && item.maps.length > 0)) ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${(item.maps || []).map(m => { const url = getMapUrl(m.query); return `<a href="${url}"${url.startsWith('iosamap://') ? '' : ' target="_blank" rel="noopener noreferrer"'} class="map-pill">📍 ${m.name}</a>`; }).join("")}${driverBtnHTML}</div>` : "";
-        
-        const photoKey = `${currentDay}-${origIdx}`;
+        const driverBtnHTML = hasDriverBtn
+          ? `<button type="button" data-action="driver-card" data-day="${currentDay}" data-orig-idx="${origIdx}" class="map-pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 hover:!bg-[#f5eedf]">🚕 司機卡</button>`
+          : "";
+        let mapsButtonsHTML = (hasDriverBtn || (item.maps && item.maps.length > 0))
+          ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${(item.maps || []).map(m => {
+              const url = getMapUrl(m.query);
+              return `<a href="${escapeHtml(url)}"${url.startsWith('iosamap://') ? '' : ' target="_blank" rel="noopener noreferrer"'} class="map-pill">📍 ${escapeHtml(m.name)}</a>`;
+            }).join("")}${driverBtnHTML}</div>`
+          : "";
+
+        const photoKey = item.id || `${currentDay}-${origIdx}`;
+        const photoKeyAttr = escapeHtml(photoKey);
         const photos = itineraryPhotos[photoKey] || [];
-        let addPhotoBtn = photos.length < 3 ? `<button onclick="triggerItineraryUpload(${currentDay}, ${origIdx})" class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 mt-2 hover:!bg-[#f5eedf] transition-colors">📸 ＋ 新增參考圖</button>` : "";
-        
+        let addPhotoBtn = photos.length < 3
+          ? `<button type="button" data-action="upload-photo" data-photo-key="${photoKeyAttr}" class="pill !bg-[#fcf7f0] !text-[#b39b74] !border !border-[#b39b74]/30 mt-2 hover:!bg-[#f5eedf] transition-colors">📸 ＋ 新增參考圖</button>`
+          : "";
+
         let photosHTML = "";
         photos.forEach((base64Str, pIdx) => {
-           photosHTML += `<div class="inspiration-item" onclick="openLightbox(this.querySelector('img').src)" title="點擊放大"><div class="inspiration-delete" title="移除圖片" onclick="event.stopPropagation(); removeItineraryPhoto(${currentDay}, ${origIdx}, ${pIdx})">✖</div><img src="${base64Str}" alt="靈感照"></div>`; 
+          const safePhoto = sanitizeImageSource(base64Str, false);
+          if (!safePhoto) return;
+          photosHTML += `<div class="inspiration-item" data-action="open-lightbox" title="點擊放大"><button type="button" aria-label="移除參考圖片" class="inspiration-delete" title="移除圖片" data-action="remove-photo" data-photo-key="${photoKeyAttr}" data-photo-idx="${pIdx}">✖</button><img src="${escapeHtml(safePhoto)}" alt="靈感照"></div>`;
         });
-        const inspirationGalleryHTML = photos.length > 0 ? `<div class="inspiration-grid mt-2">${photosHTML}</div>` : "";
+        const inspirationGalleryHTML = photosHTML ? `<div class="inspiration-grid mt-2">${photosHTML}</div>` : "";
 
         timelineHTML += `
           <div id="stop-${currentDay}-${origIdx}" class="stop relative ${isLast ? '!border-transparent' : ''}">
             <div class="absolute left-[-4.5px] top-[7px] w-2 h-2 rounded-full ${item.mustGo ? 'bg-[#b39b74] shadow-[0_0_0_2px_#fff]' : 'bg-[#e8eae8] border border-[#8a837e]'}"></div>
             <div class="flex flex-wrap items-center gap-2 mb-1">
-              <span class="text-[12.5px] font-bold tracking-wider text-[#8b3a3a]">${item.time}</span>
-              <span class="pill">${item.transportText}</span>
+              <span class="text-[12.5px] font-bold tracking-wider text-[#8b3a3a]">${escapeHtml(item.time)}</span>
+              <span class="pill">${escapeHtml(item.transportText)}</span>
               ${item.mustGo ? `<span class="pill !bg-transparent !text-[#b39b74] !border !border-[#b39b74]/50">⭐ 必去</span>` : ''}
             </div>
-            <h4 class="text-[15.5px] font-medium text-[#2b2523] mb-2 leading-snug">${item.route}</h4>
+            <h4 class="text-[15.5px] font-medium text-[#2b2523] mb-2 leading-snug">${escapeHtml(item.route)}</h4>
             <div class="text-[13px] text-[#2b2523] leading-relaxed mb-2 opacity-90">${mainLinesHTML}</div>
             ${transitNoteHTML}${backupBoxHTML}${mapsButtonsHTML}${addPhotoBtn}${inspirationGalleryHTML}
           </div>
@@ -1232,13 +1729,14 @@
     }
 
     function selectDay(day, shouldScroll = true) {
-      currentDay = day;
+      currentDay = ITINERARY_DATA[day] ? day : 1;
       for (let i = 1; i <= 4; i++) {
         const btn = document.getElementById(`tab-day-${i}`);
         if (btn) {
-          if (i === day) { btn.classList.add("active"); } else { btn.classList.remove("active"); }
+          if (i === currentDay) { btn.classList.add("active"); } else { btn.classList.remove("active"); }
         }
       }
+      persistUIState();
       renderDayTimeline();
       if (shouldScroll) {
         requestAnimationFrame(() => {
@@ -1257,17 +1755,15 @@
 
     function toggleMustGoFilter() {
       onlyMustGo = !onlyMustGo;
-      const btn = document.getElementById("btn-filter-must");
-      if (onlyMustGo) { btn.classList.add("!bg-[#fcf7f0]", "!text-[#b39b74]", "!border-[#b39b74]/30"); btn.innerHTML = "⭐ 顯示全部"; } 
-      else { btn.classList.remove("!bg-[#fcf7f0]", "!text-[#b39b74]", "!border-[#b39b74]/30"); btn.innerHTML = "⭐ 僅看必去"; }
+      applyFilterButtonsUI();
+      persistUIState();
       renderDayTimeline();
     }
 
     function toggleAllBackups() {
       showBackups = !showBackups;
-      const btnText = document.getElementById("backup-btn-text"), btn = document.getElementById("btn-toggle-backup");
-      if (showBackups) { btnText.textContent = "🛡️ 隱藏備案"; btn.classList.remove("!bg-[#fcf5f5]", "!text-[#8b3a3a]", "!border-[#8b3a3a]/30"); } 
-      else { btnText.textContent = "🛡️ 顯示備案"; btn.classList.add("!bg-[#fcf5f5]", "!text-[#8b3a3a]", "!border-[#8b3a3a]/30"); }
+      applyFilterButtonsUI();
+      persistUIState();
       renderDayTimeline();
     }
 
@@ -1282,13 +1778,15 @@
       };
     }
 
+    const SH_TIME_FMT = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Shanghai", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const SH_DATE_FMT = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" });
+
     function updateDualClocks() {
       const now = new Date();
-      const format = (tz, isDate) => new Intl.DateTimeFormat("zh-TW", { timeZone: tz, hour12: false, ...isDate ? {year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"} : {hour:"2-digit", minute:"2-digit", second:"2-digit"} }).format(now);
       const timeEl = document.getElementById("clock-sh-time");
       const dateEl = document.getElementById("clock-sh-date");
-      if (timeEl) timeEl.textContent = format("Asia/Shanghai");
-      if (dateEl) dateEl.textContent = format("Asia/Shanghai", 1);
+      if (timeEl) timeEl.textContent = SH_TIME_FMT.format(now);
+      if (dateEl) dateEl.textContent = SH_DATE_FMT.format(now);
 
       const mainCd = document.getElementById("trip-countdown-main");
       const subCd = document.getElementById("trip-countdown-sub");
@@ -1310,13 +1808,24 @@
       }
     }
 
-    function autoFocusItinerary() {
+    function parseStopTimeWindow(timeStr) {
+      if (typeof timeStr !== 'string') return null;
+      const matches = [...timeStr.matchAll(/(\d{1,2}):(\d{2})/g)];
+      if (matches.length === 0) return null;
+      const startMin = parseInt(matches[0][1], 10) * 60 + parseInt(matches[0][2], 10);
+      let endMin = startMin + 30;
+      if (matches.length >= 2) {
+        endMin = parseInt(matches[1][1], 10) * 60 + parseInt(matches[1][2], 10);
+        if (endMin < startMin) endMin += 24 * 60;
+      }
+      return { startMin, endMin };
+    }
+
+    function autoFocusItinerary(savedDay = 1) {
       const sh = getShanghaiDateParts();
-      
-      let targetDay = 1;
       const isDuringTrip = (sh.year === 2026 && sh.month === 12 && sh.day >= 25 && sh.day <= 28);
-      if (isDuringTrip) targetDay = sh.day - 24;
-      
+      const targetDay = isDuringTrip ? (sh.day - 24) : (ITINERARY_DATA[savedDay] ? savedDay : 1);
+
       selectDay(targetDay, false);
       if (!isDuringTrip) return;
 
@@ -1324,20 +1833,20 @@
       const dayData = ITINERARY_DATA[targetDay];
       const mappedItems = dayData.items.map((item, origIdx) => ({ ...item, origIdx }));
       const filteredItems = onlyMustGo ? mappedItems.filter(item => item.mustGo) : mappedItems;
-      
+
       let targetOrigIdx = -1;
       for (let i = 0; i < filteredItems.length; i++) {
-        const startTime = filteredItems[i].time.split("-")[0].trim();
-        const timeParts = startTime.split(":");
-        if(timeParts.length === 2) {
-          if (parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]) >= currentTimeNum) {
-            targetOrigIdx = filteredItems[i].origIdx; break;
-          }
+        const w = parseStopTimeWindow(filteredItems[i].time);
+        if (w && w.endMin > currentTimeNum) {
+          targetOrigIdx = filteredItems[i].origIdx;
+          break;
         }
       }
-      
-      if (targetOrigIdx === -1 && filteredItems.length > 0) targetOrigIdx = filteredItems[filteredItems.length - 1].origIdx;
-      
+
+      if (targetOrigIdx === -1 && filteredItems.length > 0) {
+        targetOrigIdx = filteredItems[filteredItems.length - 1].origIdx;
+      }
+
       if (targetOrigIdx !== -1) {
         setTimeout(() => {
           const targetEl = document.getElementById(`stop-${targetDay}-${targetOrigIdx}`);
@@ -1345,7 +1854,7 @@
             const headerHeight = document.querySelector("header") ? document.querySelector("header").getBoundingClientRect().height : 60;
             const subNavHeight = document.querySelector(".sticky-sub-nav") ? document.querySelector(".sticky-sub-nav").getBoundingClientRect().height : 50;
             const offset = headerHeight + subNavHeight + 10;
-            
+
             window.scrollTo({ top: targetEl.getBoundingClientRect().top + window.pageYOffset - offset, behavior: "smooth" });
             targetEl.style.backgroundColor = "rgba(197, 173, 133, 0.15)";
             targetEl.style.borderRadius = "8px";
@@ -1357,28 +1866,133 @@
 
     /* ================= 啟動與整合邏輯 ================= */
     window.addEventListener("DOMContentLoaded", async () => {
-      // 載入記憶的匯率設定
-      const savedRate = localStorage.getItem('shanghai_cny_rate');
-      if (savedRate && document.getElementById('tax-rate')) {
+      const savedRate = storageGet('shanghai_cny_rate');
+      const rateNum = savedRate !== null ? parseFloat(savedRate) : NaN;
+      if (Number.isFinite(rateNum) && rateNum > 0 && document.getElementById('tax-rate')) {
         document.getElementById('tax-rate').value = savedRate;
       }
+
+      let savedDay = 1;
+      try {
+        const rawUi = storageGet('shanghai_ui_state');
+        if (rawUi) {
+          const ui = JSON.parse(rawUi);
+          if (ui && typeof ui === 'object') {
+            if (typeof ui.onlyMustGo === 'boolean') onlyMustGo = ui.onlyMustGo;
+            if (typeof ui.showBackups === 'boolean') showBackups = ui.showBackups;
+            if (Number.isInteger(ui.currentDay) && ITINERARY_DATA[ui.currentDay]) savedDay = ui.currentDay;
+          }
+        }
+      } catch (e) {}
+      applyFilterButtonsUI();
+
+      // 事件委派：司機卡多點切換、購物清單互動、行程卡片與照片互動
+      const driverTabs = document.getElementById('driver-stop-tabs');
+      if (driverTabs) {
+        driverTabs.addEventListener('click', e => {
+          const btn = e.target.closest('[data-driver-idx]');
+          if (!btn) return;
+          const idx = parseInt(btn.getAttribute('data-driver-idx'), 10);
+          if (!Number.isNaN(idx)) renderDriverTarget(idx);
+        });
+      }
+
+      const shoppingContainer = document.getElementById('shopping-groups-container');
+      if (shoppingContainer) {
+        shoppingContainer.addEventListener('click', e => {
+          const actionEl = e.target.closest('[data-shop-action]');
+          if (!actionEl) return;
+          const action = actionEl.getAttribute('data-shop-action');
+          const gId = actionEl.getAttribute('data-gid');
+          const iId = actionEl.getAttribute('data-iid');
+          if (action === 'add-group') { addShoppingGroup(); return; }
+          if (action === 'reset-default') { resetDefaultShopping(); return; }
+          if (action === 'toggle-group' && gId) { toggleGroup(gId); return; }
+          if (action === 'rename-group' && gId) { openGroupModal('rename', gId); return; }
+          if (action === 'add-item' && gId) { addItem(gId); return; }
+          if (action === 'remove-group' && gId) { removeGroup(gId); return; }
+          if (action === 'remove-img' && gId && iId) { e.stopPropagation(); removeShoppingImage(gId, iId); return; }
+          if (action === 'lightbox-img') { const src = actionEl.getAttribute('src'); if (src) openLightbox(src); return; }
+          if (action === 'upload-img' && gId && iId) { triggerImageUpload(gId, iId); return; }
+          if (action === 'remove-item' && gId && iId) { removeItem(gId, iId); return; }
+          if (action === 'toggle-bought' && gId && iId) { toggleBought(gId, iId); return; }
+        });
+        shoppingContainer.addEventListener('input', e => {
+          const fieldEl = e.target.closest('[data-shop-field]');
+          if (!fieldEl) return;
+          const field = fieldEl.getAttribute('data-shop-field');
+          const gId = fieldEl.getAttribute('data-gid');
+          const iId = fieldEl.getAttribute('data-iid');
+          if (field && gId && iId) updateItem(gId, iId, field, fieldEl.value);
+        });
+      }
+
+      const dayWrapper = document.getElementById('day-content-wrapper');
+      if (dayWrapper) {
+        dayWrapper.addEventListener('click', e => {
+          const removeBtn = e.target.closest('[data-action="remove-photo"]');
+          if (removeBtn) {
+            e.stopPropagation();
+            const photoKey = removeBtn.getAttribute('data-photo-key');
+            const photoIdx = parseInt(removeBtn.getAttribute('data-photo-idx'), 10);
+            if (photoKey && !Number.isNaN(photoIdx)) removeItineraryPhoto(photoKey, photoIdx);
+            return;
+          }
+          const actionEl = e.target.closest('[data-action]');
+          if (!actionEl) return;
+          const action = actionEl.getAttribute('data-action');
+          if (action === 'driver-card') {
+            const d = parseInt(actionEl.getAttribute('data-day'), 10);
+            const oIdx = parseInt(actionEl.getAttribute('data-orig-idx'), 10);
+            if (!Number.isNaN(d) && !Number.isNaN(oIdx)) openStopDriverModal(d, oIdx);
+          } else if (action === 'upload-photo') {
+            const photoKey = actionEl.getAttribute('data-photo-key');
+            if (photoKey) triggerItineraryUpload(photoKey);
+          } else if (action === 'open-lightbox') {
+            const img = actionEl.querySelector('img');
+            if (img && img.src) openLightbox(img.src);
+          }
+        });
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') flushShoppingSave();
+      });
 
       try {
         await idb.init();
         const savedShopping = await idb.get('shoppingData');
         const savedPhotos = await idb.get('itineraryPhotos');
-        
-        if (!savedPhotos && localStorage.getItem('shanghai_itinerary_photos_v1')) {
-            itineraryPhotos = JSON.parse(localStorage.getItem('shanghai_itinerary_photos_v1')) || {};
-            await idb.set('itineraryPhotos', itineraryPhotos);
-        } else { itineraryPhotos = savedPhotos || {}; }
 
-        if (!savedShopping && localStorage.getItem('shanghai_shopping_v1')) {
-            shoppingData = JSON.parse(localStorage.getItem('shanghai_shopping_v1')) || defaultShopping;
-            await idb.set('shoppingData', shoppingData);
-        } else { shoppingData = savedShopping || defaultShopping; }
+        let rawPhotos = savedPhotos;
+        let photosFromLegacyLs = false;
+        if (!rawPhotos) {
+          const legacyPhotosStr = storageGet('shanghai_itinerary_photos_v1');
+          if (legacyPhotosStr) {
+            try { rawPhotos = JSON.parse(legacyPhotosStr); photosFromLegacyLs = Boolean(rawPhotos); } catch (e) {}
+          }
+        }
+        const photoRes = sanitizePhotosMap(rawPhotos || {});
+        itineraryPhotos = photoRes.map;
+        if (photoRes.migrated || photosFromLegacyLs) {
+          await idb.set('itineraryPhotos', itineraryPhotos);
+        }
+
+        let rawShopping = savedShopping;
+        let shoppingFromLegacyLs = false;
+        if (!rawShopping) {
+          const legacyShopStr = storageGet('shanghai_shopping_v1');
+          if (legacyShopStr) {
+            try { rawShopping = JSON.parse(legacyShopStr); shoppingFromLegacyLs = Array.isArray(rawShopping); } catch (e) {}
+          }
+        }
+        shoppingData = rawShopping ? sanitizeShoppingData(rawShopping) : cloneDefaultShopping();
+        if (shoppingFromLegacyLs) {
+          await idb.set('shoppingData', shoppingData);
+        }
       } catch (e) {
-        shoppingData = defaultShopping; itineraryPhotos = {};
+        shoppingData = cloneDefaultShopping();
+        itineraryPhotos = {};
       }
 
       if (navigator.storage && navigator.storage.persist) {
@@ -1387,15 +2001,15 @@
 
       updateMapProviderUI();
       updateStaticMapLinks();
-      updateDualClocks(); 
+      updateDualClocks();
       setInterval(updateDualClocks, 1000);
       loadCachedWeather();
-      renderFourCitiesWeather(); 
+      renderFourCitiesWeather();
       fetchAllWeather();
-      
+
       renderShopping();
-      switchMainTab('itinerary'); 
-      autoFocusItinerary(); 
+      switchMainTab('itinerary', false);
+      autoFocusItinerary(savedDay);
     });
   </script>
 </body>

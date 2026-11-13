@@ -1,7 +1,10 @@
 {
+  "id": "./index.html",
   "name": "Shanghai Journey | 上海旅誌",
   "short_name": "上海旅誌",
   "start_url": "./index.html",
+  "scope": "./",
+  "lang": "zh-Hant",
   "display": "standalone",
   "background_color": "#f7f7f4",
   "theme_color": "#f7f7f4",
